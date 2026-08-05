@@ -2,15 +2,22 @@ import { serve } from "https://deno.land/std@0.177.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3"
 // Force redeploy to apply --no-verify-jwt flag
 
-const LLAMA_CLOUD_API_KEY = Deno.env.get("LLAMA_CLOUD_API_KEY") || "llx-WrFAtU3il9s9posD2MrphdkQEY9UJMYDkOzfg72KJWaTgFz3"
+// No inline fallback: the previous hardcoded key was committed to git history
+// and must be treated as compromised. Set LLAMA_CLOUD_API_KEY as a secret.
+const LLAMA_CLOUD_API_KEY = Deno.env.get("LLAMA_CLOUD_API_KEY")
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")
 
 serve(async (req) => {
   try {
+    if (!LLAMA_CLOUD_API_KEY) {
+      console.error("LLAMA_CLOUD_API_KEY is not configured")
+      return new Response("LLAMA_CLOUD_API_KEY is not configured", { status: 500 })
+    }
+
     const payload = await req.json()
     console.log("Webhook payload:", payload)
-    
+
     const { record, type } = payload
     
     // Only process inserts
@@ -130,6 +137,19 @@ serve(async (req) => {
     if (updateError) {
       console.error("Error updating cv_metadata:", updateError)
       return new Response("Error updating database", { status: 500 })
+    }
+
+    // Hand the markdown to extraction. Kept as a separate function because this
+    // one has already spent up to 40s polling LlamaParse, and the two together
+    // would risk the edge-function timeout.
+    try {
+      const { error: extractError } = await supabaseAdmin.functions.invoke("extract-cv", {
+        body: { cv_id: cvId },
+      })
+      if (extractError) console.error("extract-cv invocation failed:", extractError)
+    } catch (err) {
+      // Text is saved either way; extraction can be retried against the stored markdown.
+      console.error("Could not trigger extract-cv:", err)
     }
 
     return new Response(JSON.stringify({ success: true, jobId }), {

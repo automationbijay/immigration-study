@@ -188,8 +188,14 @@ export function pointsBreakdown(form) {
   ];
 }
 
-/** Total for the calculator's band-id form state. */
-export function totalPointsFromForm(form) {
+/**
+ * Points a profile carries on its own, before any nomination bonus.
+ *
+ * Nomination is deliberately excluded: subclass 189 grants none, 190 grants 5
+ * and 491 grants 15, so a single blended total cannot describe all three. Visa
+ * matching adds the right bonus per pathway.
+ */
+export function basePointsFromForm(form) {
   let points = 0;
   points += pointsForBandId(AGE_BANDS, form.ageBand);
   points += pointsForBandId(ENGLISH_BANDS, form.englishBand);
@@ -201,8 +207,12 @@ export function totalPointsFromForm(form) {
   if (form.professionalYear) points += 5;
   if (form.ccl) points += 5;
   if (form.regionalStudy) points += 5;
-  if (form.stateNomination) points += STATE_NOMINATION_POINTS;
 
   points += workExperiencePoints(form.overseasExpYears, form.ausExpYears);
   return points;
+}
+
+/** Total for the calculator's band-id form state, including its nomination toggle. */
+export function totalPointsFromForm(form) {
+  return basePointsFromForm(form) + (form.stateNomination ? STATE_NOMINATION_POINTS : 0);
 }

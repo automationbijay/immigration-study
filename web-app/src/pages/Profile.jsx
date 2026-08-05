@@ -27,10 +27,9 @@ function SectionRow({ icon: Icon, label, onClick }) {
   );
 }
 
-function CvViewer({ cvUrl }) {
+function CvViewer({ cvPath, onMissing }) {
   const [cvSignedUrl, setCvSignedUrl] = useState(null);
   const [loadingUrl, setLoadingUrl] = useState(true);
-
   const [errorMessage, setErrorMessage] = useState(null);
 
   useEffect(() => {
@@ -39,26 +38,43 @@ function CvViewer({ cvUrl }) {
       setLoadingUrl(true);
       const { data, error } = await supabase.storage
         .from('cv-uploads')
-        .createSignedUrl(cvUrl, 60 * 60); // 1 hour expiry
+        .createSignedUrl(cvPath, 60 * 60); // 1 hour expiry
 
-      if (active) {
-        if (error) {
-          console.error("Storage Error:", error);
-          setErrorMessage(error.message);
-          setCvSignedUrl(null);
-        }
-        if (data) {
-          setCvSignedUrl(data.signedUrl);
-        }
-        setLoadingUrl(false);
+      if (!active) return;
+
+      if (error) {
+        console.error('Storage error resolving CV:', error);
+        setErrorMessage(error.message);
+        setCvSignedUrl(null);
+      } else {
+        setErrorMessage(null);
+        setCvSignedUrl(data?.signedUrl ?? null);
       }
+      setLoadingUrl(false);
     }
     fetchUrl();
     return () => { active = false; };
-  }, [cvUrl]);
+  }, [cvPath]);
 
   if (loadingUrl) return <p className="text-muted">Loading CV viewer...</p>;
-  if (!cvSignedUrl) return <div className="error-message">Error loading CV: {errorMessage}</div>;
+
+  // A recorded CV whose file is gone is a dead end, so offer the way out
+  // rather than surfacing the raw storage error.
+  if (!cvSignedUrl) {
+    return (
+      <div className="empty-state">
+        <FileText size={48} className="text-muted" aria-hidden="true" />
+        <h3>We couldn&apos;t open your CV</h3>
+        <p className="text-muted">
+          The stored file is no longer available. Uploading it again will fix this.
+        </p>
+        <button type="button" className="btn-primary" onClick={onMissing}>
+          <Upload size={20} aria-hidden="true" /> Upload again
+        </button>
+        {errorMessage && <p className="cv-error-detail">{errorMessage}</p>}
+      </div>
+    );
+  }
 
   return (
     <div className="cv-viewer">
@@ -110,8 +126,10 @@ export default function Profile({ session }) {
     marital_status: 'Single',
     phone_no: '',
     email: '',
-    cv_url: null,
   });
+
+  // Kept out of basicDetails so it is never upserted into profile_basic.
+  const [cvPath, setCvPath] = useState(null);
 
   const [languageProficiency, setLanguageProficiency] = useState([]);
 
@@ -193,11 +211,13 @@ export default function Profile({ session }) {
           setProfile(prev => ({ ...prev, ...data }));
         }
         if (basicData) {
-          setBasicDetails(prev => ({ ...prev, ...basicData }));
+          // profile_basic.cv_url is a legacy column from an earlier storage
+          // bucket. It is dropped here so a stale path can never be shown or
+          // written back — cv_metadata is the source of truth for the CV.
+          const { cv_url: _legacyCvUrl, ...rest } = basicData;
+          setBasicDetails(prev => ({ ...prev, ...rest }));
         }
-        if (cvData && cvData.file_url) {
-          setBasicDetails(prev => ({ ...prev, cv_url: cvData.file_url }));
-        }
+        setCvPath(cvData?.file_url ?? null);
         if (languageData && languageData.length > 0) {
           setLanguageProficiency(languageData);
         } else {
@@ -426,7 +446,7 @@ export default function Profile({ session }) {
       >
             {expandedSection === 'cv' ? (
               <div className="cv-panel">
-                {basicDetails.cv_url ? (
+                {cvPath ? (
                   <>
                     <div className="cv-panel-actions">
                       <button
@@ -438,7 +458,7 @@ export default function Profile({ session }) {
                       </button>
                     </div>
 
-                    <CvViewer cvUrl={basicDetails.cv_url} />
+                    <CvViewer cvPath={cvPath} onMissing={() => setIsCvModalOpen(true)} />
                   </>
                 ) : (
                   <div className="empty-state">
@@ -639,7 +659,7 @@ export default function Profile({ session }) {
         isOpen={isCvModalOpen} 
         onClose={() => setIsCvModalOpen(false)} 
         onUploadComplete={(path) => {
-          setBasicDetails(prev => ({ ...prev, cv_url: path }));
+          setCvPath(path);
         }} 
       />
     </div>
