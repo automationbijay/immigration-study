@@ -1,0 +1,1486 @@
+[
+    {
+        "ANZSCO": "133111",
+        "Name": "Construction Project Manager",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "133211",
+        "Name": "Engineering Manager",
+        "Assessing Authority": "EA/IML",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "134111",
+        "Name": "Child Care Centre Manager",
+        "Assessing Authority": "ACECQA",
+        "Skill Level": "1",
+        "Invitation Tier": "2"
+    },
+    {
+        "ANZSCO": "134212",
+        "Name": "Nursing Clinical Director",
+        "Assessing Authority": "ANMAC",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "134213",
+        "Name": "Primary Health Organisation Manager",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "134214",
+        "Name": "Welfare Centre Manager",
+        "Assessing Authority": "CWA",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "139911",
+        "Name": "Arts Administrator or Manager",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "139912",
+        "Name": "Environmental Manager",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "211112",
+        "Name": "Dancer or Choreographer",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "211212",
+        "Name": "Music Director",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "211213",
+        "Name": "Musician (Instrumental)",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "212111",
+        "Name": "Artistic Director",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "221111",
+        "Name": "Accountant (General)",
+        "Assessing Authority": "CPAA/CAANZ/IPA",
+        "Skill Level": "1",
+        "Invitation Tier": "4"
+    },
+    {
+        "ANZSCO": "221112",
+        "Name": "Management Accountant",
+        "Assessing Authority": "CPAA/CAANZ/IPA",
+        "Skill Level": "1",
+        "Invitation Tier": "4"
+    },
+    {
+        "ANZSCO": "221113",
+        "Name": "Taxation Accountant",
+        "Assessing Authority": "CPAA/CAANZ/IPA",
+        "Skill Level": "1",
+        "Invitation Tier": "4"
+    },
+    {
+        "ANZSCO": "221213",
+        "Name": "External Auditor",
+        "Assessing Authority": "CPAA/CAANZ/IPA",
+        "Skill Level": "1",
+        "Invitation Tier": "4"
+    },
+    {
+        "ANZSCO": "221214",
+        "Name": "Internal Auditor",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1",
+        "Invitation Tier": "4"
+    },
+    {
+        "ANZSCO": "224111",
+        "Name": "Actuary",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "224113",
+        "Name": "Statistician",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "224311",
+        "Name": "Economist",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "224511",
+        "Name": "Land Economist",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "224512",
+        "Name": "Valuer",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "224711",
+        "Name": "Management Consultant",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "232111",
+        "Name": "Architect",
+        "Assessing Authority": "AACA",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "232112",
+        "Name": "Landscape Architect",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "232212",
+        "Name": "Surveyor",
+        "Assessing Authority": "ISNSW",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "232213",
+        "Name": "Cartographer",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "232214",
+        "Name": "Other Spatial Scientist",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "233111",
+        "Name": "Chemical Engineer",
+        "Assessing Authority": "EA",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "233112",
+        "Name": "Materials Engineer",
+        "Assessing Authority": "EA",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "233211",
+        "Name": "Civil Engineer",
+        "Assessing Authority": "EA",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "233212",
+        "Name": "Geotechnical Engineer",
+        "Assessing Authority": "EA",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "233213",
+        "Name": "Quantity Surveyor",
+        "Assessing Authority": "AIQS",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "233214",
+        "Name": "Structural Engineer",
+        "Assessing Authority": "EA",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "233215",
+        "Name": "Transport Engineer",
+        "Assessing Authority": "EA",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "233311",
+        "Name": "Electrical Engineer",
+        "Assessing Authority": "EA",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "233411",
+        "Name": "Electronics Engineer",
+        "Assessing Authority": "EA",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "233511",
+        "Name": "Industrial Engineer",
+        "Assessing Authority": "EA",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "233512",
+        "Name": "Mechanical Engineer",
+        "Assessing Authority": "EA",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "233513",
+        "Name": "Production or Plant Engineer",
+        "Assessing Authority": "EA",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "233611",
+        "Name": "Mining Engineer (excluding Petroleum)",
+        "Assessing Authority": "EA",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "233612",
+        "Name": "Petroleum Engineer",
+        "Assessing Authority": "EA",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "233911",
+        "Name": "Aeronautical Engineer",
+        "Assessing Authority": "EA",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "233912",
+        "Name": "Agricultural Engineer",
+        "Assessing Authority": "EA",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "233913",
+        "Name": "Biomedical Engineer",
+        "Assessing Authority": "EA",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "233914",
+        "Name": "Engineering Technologist",
+        "Assessing Authority": "EA",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "233915",
+        "Name": "Environmental Engineer",
+        "Assessing Authority": "EA",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "233916",
+        "Name": "Naval Architect / Marine Designer",
+        "Assessing Authority": "EA",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "233999",
+        "Name": "Engineering Professionals nec",
+        "Assessing Authority": "EA",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "234111",
+        "Name": "Agricultural Consultant",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "234112",
+        "Name": "Agricultural Scientist",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "234113",
+        "Name": "Forester / Forest Scientist",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "234211",
+        "Name": "Chemist",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "234212",
+        "Name": "Food Technologist",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "234312",
+        "Name": "Environmental Consultant",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "234313",
+        "Name": "Environmental Research Scientist",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "234399",
+        "Name": "Environmental Scientists nec",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "234412",
+        "Name": "Geophysicist",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "234413",
+        "Name": "Hydrogeologist",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "234511",
+        "Name": "Life Scientist (General)",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "234513",
+        "Name": "Biochemist",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "234514",
+        "Name": "Biotechnologist",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "234515",
+        "Name": "Botanist",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "234516",
+        "Name": "Marine Biologist",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "234517",
+        "Name": "Microbiologist",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "234518",
+        "Name": "Zoologist",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "234599",
+        "Name": "Life Scientists nec",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "234611",
+        "Name": "Medical Laboratory Scientist",
+        "Assessing Authority": "AIMS",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "234711",
+        "Name": "Veterinarian",
+        "Assessing Authority": "AVBC",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "234911",
+        "Name": "Conservator",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "234912",
+        "Name": "Metallurgist",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "234913",
+        "Name": "Meteorologist",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "234914",
+        "Name": "Physicist",
+        "Assessing Authority": "VETASSESS/ACPSEM",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "234999",
+        "Name": "Natural and Physical Science Professionals nec",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "241111",
+        "Name": "Early Childhood (Pre-primary School) Teacher",
+        "Assessing Authority": "ACECQA",
+        "Skill Level": "1",
+        "Invitation Tier": "2"
+    },
+    {
+        "ANZSCO": "241411",
+        "Name": "Secondary School Teacher",
+        "Assessing Authority": "AITSL",
+        "Skill Level": "1",
+        "Invitation Tier": "2"
+    },
+    {
+        "ANZSCO": "241511",
+        "Name": "Special Needs Teacher",
+        "Assessing Authority": "AITSL",
+        "Skill Level": "1",
+        "Invitation Tier": "2"
+    },
+    {
+        "ANZSCO": "241512",
+        "Name": "Teacher of the Hearing Impaired",
+        "Assessing Authority": "AITSL",
+        "Skill Level": "1",
+        "Invitation Tier": "2"
+    },
+    {
+        "ANZSCO": "241513",
+        "Name": "Teacher of the Sight Impaired",
+        "Assessing Authority": "AITSL",
+        "Skill Level": "1",
+        "Invitation Tier": "2"
+    },
+    {
+        "ANZSCO": "241599",
+        "Name": "Special Education Teachers nec",
+        "Assessing Authority": "AITSL",
+        "Skill Level": "1",
+        "Invitation Tier": "2"
+    },
+    {
+        "ANZSCO": "242111",
+        "Name": "University Lecturer",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "251211",
+        "Name": "Medical Diagnostic Radiographer",
+        "Assessing Authority": "ASMIRT",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "251212",
+        "Name": "Medical Radiation Therapist",
+        "Assessing Authority": "ASMIRT",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "251213",
+        "Name": "Nuclear Medicine Technologist",
+        "Assessing Authority": "ANZSNM",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "251214",
+        "Name": "Sonographer",
+        "Assessing Authority": "ASMIRT",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "251411",
+        "Name": "Optometrist",
+        "Assessing Authority": "OCANZ",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "251912",
+        "Name": "Orthotist or Prosthetist",
+        "Assessing Authority": "AOPA",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "252111",
+        "Name": "Chiropractor",
+        "Assessing Authority": "CCEA",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "252112",
+        "Name": "Osteopath",
+        "Assessing Authority": "AOAC",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "252411",
+        "Name": "Occupational Therapist",
+        "Assessing Authority": "OTC",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "252511",
+        "Name": "Physiotherapist",
+        "Assessing Authority": "APC",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "252611",
+        "Name": "Podiatrist",
+        "Assessing Authority": "PodBA",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "252711",
+        "Name": "Audiologist",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "252712",
+        "Name": "Speech Pathologist / Speech Language Therapist",
+        "Assessing Authority": "SPA",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "253111",
+        "Name": "General Practitioner",
+        "Assessing Authority": "MedBA",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "253311",
+        "Name": "Specialist Physician (General Medicine)",
+        "Assessing Authority": "MedBA",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "253312",
+        "Name": "Cardiologist",
+        "Assessing Authority": "MedBA",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "253313",
+        "Name": "Clinical Haematologist",
+        "Assessing Authority": "MedBA",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "253314",
+        "Name": "Medical Oncologist",
+        "Assessing Authority": "MedBA",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "253315",
+        "Name": "Endocrinologist",
+        "Assessing Authority": "MedBA",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "253316",
+        "Name": "Gastroenterologist",
+        "Assessing Authority": "MedBA",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "253317",
+        "Name": "Intensive Care Specialist",
+        "Assessing Authority": "MedBA",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "253318",
+        "Name": "Neurologist",
+        "Assessing Authority": "MedBA",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "253321",
+        "Name": "Paediatrician",
+        "Assessing Authority": "MedBA",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "253322",
+        "Name": "Renal Medicine Specialist",
+        "Assessing Authority": "MedBA",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "253323",
+        "Name": "Rheumatologist",
+        "Assessing Authority": "MedBA",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "253324",
+        "Name": "Thoracic Medicine Specialist",
+        "Assessing Authority": "MedBA",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "253399",
+        "Name": "Specialist Physicians nec",
+        "Assessing Authority": "MedBA",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "253411",
+        "Name": "Psychiatrist",
+        "Assessing Authority": "MedBA",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "253511",
+        "Name": "Surgeon (General)",
+        "Assessing Authority": "MedBA",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "253512",
+        "Name": "Cardiothoracic Surgeon",
+        "Assessing Authority": "MedBA",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "253513",
+        "Name": "Neurosurgeon",
+        "Assessing Authority": "MedBA",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "253514",
+        "Name": "Orthopaedic Surgeon",
+        "Assessing Authority": "MedBA",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "253515",
+        "Name": "Otorhinolaryngologist",
+        "Assessing Authority": "MedBA",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "253516",
+        "Name": "Paediatric Surgeon",
+        "Assessing Authority": "MedBA",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "253517",
+        "Name": "Plastic and Reconstructive Surgeon",
+        "Assessing Authority": "MedBA",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "253518",
+        "Name": "Urologist",
+        "Assessing Authority": "MedBA",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "253521",
+        "Name": "Vascular Surgeon",
+        "Assessing Authority": "MedBA",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "253911",
+        "Name": "Dermatologist",
+        "Assessing Authority": "MedBA",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "253912",
+        "Name": "Emergency Medicine Specialist",
+        "Assessing Authority": "MedBA",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "253913",
+        "Name": "Obstetrician and Gynaecologist",
+        "Assessing Authority": "MedBA",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "253914",
+        "Name": "Ophthalmologist",
+        "Assessing Authority": "MedBA",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "253915",
+        "Name": "Pathologist",
+        "Assessing Authority": "MedBA",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "253917",
+        "Name": "Diagnostic and Interventional Radiologist",
+        "Assessing Authority": "MedBA",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "253918",
+        "Name": "Radiation Oncologist",
+        "Assessing Authority": "MedBA",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "253999",
+        "Name": "Medical Practitioners nec",
+        "Assessing Authority": "MedBA",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "254111",
+        "Name": "Midwife",
+        "Assessing Authority": "ANMAC",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "254411",
+        "Name": "Nurse Practitioner",
+        "Assessing Authority": "ANMAC",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "254412",
+        "Name": "Registered Nurse (Aged Care)",
+        "Assessing Authority": "ANMAC",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "254413",
+        "Name": "Registered Nurse (Child and Family Health)",
+        "Assessing Authority": "ANMAC",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "254414",
+        "Name": "Registered Nurse (Community Health)",
+        "Assessing Authority": "ANMAC",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "254415",
+        "Name": "Registered Nurse (Critical Care and Emergency)",
+        "Assessing Authority": "ANMAC",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "254416",
+        "Name": "Registered Nurse (Developmental Disability)",
+        "Assessing Authority": "ANMAC",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "254417",
+        "Name": "Registered Nurse (Disability and Rehabilitation)",
+        "Assessing Authority": "ANMAC",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "254418",
+        "Name": "Registered Nurse (Medical)",
+        "Assessing Authority": "ANMAC",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "254421",
+        "Name": "Registered Nurse (Medical Practice)",
+        "Assessing Authority": "ANMAC",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "254422",
+        "Name": "Registered Nurse (Mental Health)",
+        "Assessing Authority": "ANMAC",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "254423",
+        "Name": "Registered Nurse (Perioperative)",
+        "Assessing Authority": "ANMAC",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "254424",
+        "Name": "Registered Nurse (Surgical)",
+        "Assessing Authority": "ANMAC",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "254425",
+        "Name": "Registered Nurse (Paediatrics)",
+        "Assessing Authority": "ANMAC",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "254499",
+        "Name": "Registered Nurses nec",
+        "Assessing Authority": "ANMAC",
+        "Skill Level": "1",
+        "Invitation Tier": "1"
+    },
+    {
+        "ANZSCO": "261111",
+        "Name": "ICT Business Analyst",
+        "Assessing Authority": "ACS",
+        "Skill Level": "1",
+        "Invitation Tier": "4"
+    },
+    {
+        "ANZSCO": "261112",
+        "Name": "Systems Analyst",
+        "Assessing Authority": "ACS",
+        "Skill Level": "1",
+        "Invitation Tier": "4"
+    },
+    {
+        "ANZSCO": "261211",
+        "Name": "Multimedia Specialist",
+        "Assessing Authority": "ACS",
+        "Skill Level": "1",
+        "Invitation Tier": "4"
+    },
+    {
+        "ANZSCO": "261311",
+        "Name": "Analyst Programmer",
+        "Assessing Authority": "ACS",
+        "Skill Level": "1",
+        "Invitation Tier": "4"
+    },
+    {
+        "ANZSCO": "261312",
+        "Name": "Developer Programmer",
+        "Assessing Authority": "ACS",
+        "Skill Level": "1",
+        "Invitation Tier": "4"
+    },
+    {
+        "ANZSCO": "261313",
+        "Name": "Software Engineer",
+        "Assessing Authority": "ACS",
+        "Skill Level": "1",
+        "Invitation Tier": "4"
+    },
+    {
+        "ANZSCO": "261399",
+        "Name": "Software and Applications Programmers nec",
+        "Assessing Authority": "ACS",
+        "Skill Level": "1",
+        "Invitation Tier": "4"
+    },
+    {
+        "ANZSCO": "262112",
+        "Name": "ICT Security Specialist",
+        "Assessing Authority": "ACS",
+        "Skill Level": "1",
+        "Invitation Tier": "4"
+    },
+    {
+        "ANZSCO": "263111",
+        "Name": "Computer Network and Systems Engineer",
+        "Assessing Authority": "ACS",
+        "Skill Level": "1",
+        "Invitation Tier": "4"
+    },
+    {
+        "ANZSCO": "263311",
+        "Name": "Telecommunications Engineer",
+        "Assessing Authority": "EA",
+        "Skill Level": "1",
+        "Invitation Tier": "4"
+    },
+    {
+        "ANZSCO": "263312",
+        "Name": "Telecommunications Network Engineer",
+        "Assessing Authority": "EA",
+        "Skill Level": "1",
+        "Invitation Tier": "4"
+    },
+    {
+        "ANZSCO": "271111",
+        "Name": "Barrister",
+        "Assessing Authority": "SLAA",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "271311",
+        "Name": "Solicitor",
+        "Assessing Authority": "SLAA",
+        "Skill Level": "1",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "272311",
+        "Name": "Clinical Psychologist",
+        "Assessing Authority": "APS",
+        "Skill Level": "1",
+        "Invitation Tier": "2"
+    },
+    {
+        "ANZSCO": "272312",
+        "Name": "Educational Psychologist",
+        "Assessing Authority": "APS",
+        "Skill Level": "1",
+        "Invitation Tier": "2"
+    },
+    {
+        "ANZSCO": "272313",
+        "Name": "Organisational Psychologist",
+        "Assessing Authority": "APS",
+        "Skill Level": "1",
+        "Invitation Tier": "2"
+    },
+    {
+        "ANZSCO": "272399",
+        "Name": "Psychologists nec",
+        "Assessing Authority": "APS",
+        "Skill Level": "1",
+        "Invitation Tier": "2"
+    },
+    {
+        "ANZSCO": "272511",
+        "Name": "Social Worker",
+        "Assessing Authority": "AASW",
+        "Skill Level": "1",
+        "Invitation Tier": "2"
+    },
+    {
+        "ANZSCO": "312211",
+        "Name": "Civil Engineering Draftsperson",
+        "Assessing Authority": "EA/VETASSESS",
+        "Skill Level": "2",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "312212",
+        "Name": "Civil Engineering Technician",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "2",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "312311",
+        "Name": "Electrical Engineering Draftsperson",
+        "Assessing Authority": "EA",
+        "Skill Level": "2",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "312312",
+        "Name": "Electrical Engineering Technician",
+        "Assessing Authority": "TRA",
+        "Skill Level": "2",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "313211",
+        "Name": "Radiocommunications Technician",
+        "Assessing Authority": "TRA",
+        "Skill Level": "2",
+        "Invitation Tier": "4"
+    },
+    {
+        "ANZSCO": "313212",
+        "Name": "Telecommunications Field Engineer",
+        "Assessing Authority": "EA",
+        "Skill Level": "2",
+        "Invitation Tier": "4"
+    },
+    {
+        "ANZSCO": "313213",
+        "Name": "Telecommunications Network Planner",
+        "Assessing Authority": "EA",
+        "Skill Level": "2",
+        "Invitation Tier": "4"
+    },
+    {
+        "ANZSCO": "313214",
+        "Name": "Telecommunications Technical Officer or Technologist",
+        "Assessing Authority": "EA",
+        "Skill Level": "2",
+        "Invitation Tier": "4"
+    },
+    {
+        "ANZSCO": "321111",
+        "Name": "Automotive Electrician",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "321211",
+        "Name": "Motor Mechanic (General)",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "321212",
+        "Name": "Diesel Motor Mechanic",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "321213",
+        "Name": "Motorcycle Mechanic",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "321214",
+        "Name": "Small Engine Mechanic",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "322211",
+        "Name": "Sheetmetal Worker",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "322311",
+        "Name": "Metal Fabricator",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "322312",
+        "Name": "Pressure Welder",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "322313",
+        "Name": "Welder (First Class) (Aus) / Welder (NZ)",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "323211",
+        "Name": "Fitter (General)",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "323212",
+        "Name": "Fitter and Turner",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "323213",
+        "Name": "Fitter-Welder",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "323214",
+        "Name": "Metal Machinist (First Class)",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "323313",
+        "Name": "Locksmith",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "324111",
+        "Name": "Panelbeater",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "331111",
+        "Name": "Bricklayer",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "331112",
+        "Name": "Stonemason",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "331211",
+        "Name": "Carpenter and Joiner",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "331212",
+        "Name": "Carpenter",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "331213",
+        "Name": "Joiner",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "332211",
+        "Name": "Painter",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "333111",
+        "Name": "Glazier",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "333211",
+        "Name": "Plasterer (Wall and Ceiling)",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "333212",
+        "Name": "Renderer (Solid Plaster)",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "333411",
+        "Name": "Wall and Floor Tiler",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "334111",
+        "Name": "Plumber (General)",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "334112",
+        "Name": "Airconditioning and Mechanical Services Plumber",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "334113",
+        "Name": "Drainer",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "334114",
+        "Name": "Gasfitter",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "334115",
+        "Name": "Roof Plumber",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "341111",
+        "Name": "Electrician (General)",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "341112",
+        "Name": "Electrician (Special Class)",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "341113",
+        "Name": "Lift Mechanic",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "342111",
+        "Name": "Airconditioning and Refrigeration Mechanic",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "342212",
+        "Name": "Technical Cable Jointer",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "342313",
+        "Name": "Electronic Equipment Trades Worker",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "342314",
+        "Name": "Electronic Instrument Trades Worker (General)",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "342315",
+        "Name": "Electronic Instrument Trades Worker (Special Class)",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "351311",
+        "Name": "Chef",
+        "Assessing Authority": "TRA",
+        "Skill Level": "2",
+        "Invitation Tier": "4"
+    },
+    {
+        "ANZSCO": "361112",
+        "Name": "Horse Trainer",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "394111",
+        "Name": "Cabinetmaker",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "399111",
+        "Name": "Boat Builder and Repairer",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "399112",
+        "Name": "Shipwright",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "452316",
+        "Name": "Tennis Coach",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "4",
+        "Invitation Tier": "3"
+    },
+    {
+        "ANZSCO": "452411",
+        "Name": "Footballer",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "3",
+        "Invitation Tier": "3"
+    }
+]
