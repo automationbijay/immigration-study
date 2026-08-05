@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useNavigate, Link } from 'react-router-dom';
-import { LogIn } from 'lucide-react';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -30,19 +29,20 @@ export default function Login() {
 
   return (
     <div className="auth-container">
-      <div className="glass-panel auth-panel">
-        <h2><LogIn className="inline-icon" /> Login</h2>
-        <p>Welcome back to your Migration Assistant</p>
+      <div className="auth-panel">
+        <h2>Migration Assistant</h2>
+        <p className="text-muted">Sign in to your account</p>
         
         {error && <div className="error-message">{error}</div>}
         
         <form onSubmit={handleLogin} className="auth-form">
           <div className="form-group">
-            <label>Email</label>
+            <label>Email Address</label>
             <input 
               type="email" 
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              placeholder="name@example.com"
               required 
             />
           </div>
@@ -52,16 +52,17 @@ export default function Login() {
               type="password" 
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
               required 
             />
           </div>
-          <button type="submit" disabled={loading} className="btn-primary">
-            {loading ? 'Logging in...' : 'Login'}
+          <button type="submit" disabled={loading} className="btn-primary mb-2">
+            {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
         
-        <div className="auth-footer">
-          Don't have an account? <Link to="/signup">Sign up</Link>
+        <div className="text-center text-sm text-muted">
+          Don't have an account? <Link to="/signup" style={{color: 'var(--color-primary)', fontWeight: 600}}>Create one</Link>
         </div>
       </div>
     </div>

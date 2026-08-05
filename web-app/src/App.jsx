@@ -1,12 +1,43 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
 import { supabase } from './lib/supabase';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Profile from './pages/Profile';
 import Calculator from './pages/Calculator';
-import { LogOut, User, Calculator as CalcIcon } from 'lucide-react';
+import { User, Calculator as CalcIcon, LogOut } from 'lucide-react';
 import './index.css';
+
+function BottomNav() {
+  const location = useLocation();
+  const currentPath = location.pathname;
+
+  return (
+    <nav className="bottom-nav">
+      <Link to="/profile" className={`nav-item ${currentPath === '/profile' ? 'active' : ''}`}>
+        <User className="inline-icon"/> 
+        <span>Profile</span>
+      </Link>
+      <Link to="/calculator" className={`nav-item ${currentPath === '/calculator' ? 'active' : ''}`}>
+        <CalcIcon className="inline-icon"/> 
+        <span>Calculator</span>
+      </Link>
+    </nav>
+  );
+}
+
+function TopHeader({ onLogout }) {
+  return (
+    <header className="top-header">
+      <h1>Migration Assistant</h1>
+      {onLogout && (
+        <button onClick={onLogout} style={{ position: 'absolute', right: '1rem', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-secondary)' }}>
+          <LogOut size={20} />
+        </button>
+      )}
+    </header>
+  );
+}
 
 function App() {
   const [session, setSession] = useState(null);
@@ -32,37 +63,13 @@ function App() {
   };
 
   if (loading) {
-    return <div className="loading-screen">Loading...</div>;
+    return <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: 'var(--color-primary)'}}>Loading...</div>;
   }
 
   return (
     <Router>
-      <div className="background-elements">
-          <div className="blob blob-1"></div>
-          <div className="blob blob-2"></div>
-      </div>
-      
       <div className="app-layout">
-        {session && (
-          <nav className="sidebar glass-panel">
-            <div className="brand">
-              <h2>Migrate<br/>Assistant</h2>
-            </div>
-            <ul className="nav-links">
-              <li>
-                <Link to="/profile"><User className="inline-icon"/> Profile</Link>
-              </li>
-              <li>
-                <Link to="/calculator"><CalcIcon className="inline-icon"/> Calculator</Link>
-              </li>
-            </ul>
-            <div className="nav-footer">
-              <button onClick={handleLogout} className="btn-logout">
-                <LogOut className="inline-icon"/> Logout
-              </button>
-            </div>
-          </nav>
-        )}
+        {session && <TopHeader onLogout={handleLogout} />}
 
         <main className="main-content">
           <Routes>
@@ -73,6 +80,8 @@ function App() {
             <Route path="/" element={<Navigate to={session ? "/profile" : "/login"} />} />
           </Routes>
         </main>
+        
+        {session && <BottomNav />}
       </div>
     </Router>
   );

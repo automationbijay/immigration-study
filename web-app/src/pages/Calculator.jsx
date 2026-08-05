@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Calculator as CalcIcon } from 'lucide-react';
-import ScoreDisplay from '../components/ScoreDisplay';
 
 export default function Calculator({ session }) {
   const [loading, setLoading] = useState(true);
@@ -29,14 +28,13 @@ export default function Calculator({ session }) {
     return () => { ignore = true; };
   }, [session]);
 
-  if (loading) return <div className="loading">Loading calculator data...</div>;
+  if (loading) return <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh'}}>Loading calculator...</div>;
 
   if (!profile) {
     return (
-      <div className="calculator-container">
-        <div className="glass-panel">
-          <h2>Please complete your profile first.</h2>
-        </div>
+      <div className="panel text-center">
+        <h3 className="mb-2">Profile Required</h3>
+        <p className="text-muted">Please complete your profile first to calculate your points.</p>
       </div>
     );
   }
@@ -63,33 +61,85 @@ export default function Calculator({ session }) {
   }
   
   totalPoints += workExperience;
+  
+  const isEligible = totalPoints >= 65;
 
   return (
     <div className="calculator-container">
-      <div className="glass-panel calc-panel">
-        <header>
-          <h2><CalcIcon className="inline-icon" /> Visa Points Calculator</h2>
-          <p>Based on your profile data, here are your estimated points for the Skilled Nominated visa (subclass 190).</p>
-        </header>
-
-        <div className="points-breakdown">
-          <ul>
-            <li><strong>Age:</strong> {profile.age || 0} pts</li>
-            <li><strong>English:</strong> {profile.english || 0} pts</li>
-            <li><strong>Education:</strong> {profile.education || 0} pts</li>
-            <li><strong>Work Experience:</strong> {workExperience} pts (Max 20)</li>
-            <li><strong>State Nomination (190):</strong> 5 pts</li>
-            {profile.specialistEdu && <li><strong>Specialist Education:</strong> 10 pts</li>}
-            {profile.ausStudy && <li><strong>Australian Study:</strong> 5 pts</li>}
-            {profile.regionalStudy && <li><strong>Regional Study:</strong> 5 pts</li>}
-            {profile.ccl && <li><strong>CCL:</strong> 5 pts</li>}
-            {profile.professionalYear && <li><strong>Professional Year:</strong> 5 pts</li>}
-            {profile.partnerSkills > 0 && <li><strong>Partner Skills:</strong> {profile.partnerSkills} pts</li>}
-          </ul>
+      
+      <div className="score-display">
+        <div className="score-number">{totalPoints}</div>
+        <div className="text-muted text-sm mt-1">Total Estimated Points</div>
+        <div className={`score-status ${isEligible ? 'success' : ''}`}>
+           {isEligible ? 'Eligible (65+ Points)' : `Need ${65 - totalPoints} more pts`}
         </div>
       </div>
 
-      <ScoreDisplay targetScore={totalPoints} />
+      <div className="panel mt-4">
+        <h3 className="mb-2" style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
+          <CalcIcon className="text-muted" size={20} /> Score Breakdown
+        </h3>
+        
+        <div className="points-breakdown">
+          <div className="breakdown-row">
+            <span className="breakdown-label">Age</span>
+            <span className="breakdown-value">{profile.age || 0}</span>
+          </div>
+          <div className="breakdown-row">
+            <span className="breakdown-label">English</span>
+            <span className="breakdown-value">{profile.english || 0}</span>
+          </div>
+          <div className="breakdown-row">
+            <span className="breakdown-label">Education</span>
+            <span className="breakdown-value">{profile.education || 0}</span>
+          </div>
+          <div className="breakdown-row">
+            <span className="breakdown-label">Work Experience</span>
+            <span className="breakdown-value">{workExperience}</span>
+          </div>
+          <div className="breakdown-row">
+            <span className="breakdown-label">State Nomination (190)</span>
+            <span className="breakdown-value">5</span>
+          </div>
+          
+          {profile.specialistEdu && (
+            <div className="breakdown-row">
+              <span className="breakdown-label">Specialist Education</span>
+              <span className="breakdown-value">10</span>
+            </div>
+          )}
+          {profile.ausStudy && (
+            <div className="breakdown-row">
+              <span className="breakdown-label">Australian Study</span>
+              <span className="breakdown-value">5</span>
+            </div>
+          )}
+          {profile.regionalStudy && (
+            <div className="breakdown-row">
+              <span className="breakdown-label">Regional Study</span>
+              <span className="breakdown-value">5</span>
+            </div>
+          )}
+          {profile.ccl && (
+            <div className="breakdown-row">
+              <span className="breakdown-label">CCL</span>
+              <span className="breakdown-value">5</span>
+            </div>
+          )}
+          {profile.professionalYear && (
+            <div className="breakdown-row">
+              <span className="breakdown-label">Professional Year</span>
+              <span className="breakdown-value">5</span>
+            </div>
+          )}
+          {profile.partnerSkills > 0 && (
+            <div className="breakdown-row">
+              <span className="breakdown-label">Partner Skills</span>
+              <span className="breakdown-value">{profile.partnerSkills}</span>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

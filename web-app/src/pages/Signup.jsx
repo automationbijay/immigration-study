@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useNavigate, Link } from 'react-router-dom';
-import { UserPlus } from 'lucide-react';
 
 export default function Signup() {
   const [email, setEmail] = useState('');
@@ -33,20 +32,21 @@ export default function Signup() {
 
   return (
     <div className="auth-container">
-      <div className="glass-panel auth-panel">
-        <h2><UserPlus className="inline-icon" /> Sign Up</h2>
-        <p>Create your Migration Assistant account</p>
+      <div className="auth-panel">
+        <h2>Create Account</h2>
+        <p className="text-muted">Start tracking your visa eligibility</p>
         
         {error && <div className="error-message">{error}</div>}
         {message && <div className="success-message">{message}</div>}
         
         <form onSubmit={handleSignup} className="auth-form">
           <div className="form-group">
-            <label>Email</label>
+            <label>Email Address</label>
             <input 
               type="email" 
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              placeholder="name@example.com"
               required 
             />
           </div>
@@ -56,16 +56,17 @@ export default function Signup() {
               type="password" 
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
               required 
             />
           </div>
-          <button type="submit" disabled={loading} className="btn-primary">
-            {loading ? 'Signing up...' : 'Sign Up'}
+          <button type="submit" disabled={loading} className="btn-primary mb-2">
+            {loading ? 'Creating account...' : 'Create Account'}
           </button>
         </form>
         
-        <div className="auth-footer">
-          Already have an account? <Link to="/login">Log in</Link>
+        <div className="text-center text-sm text-muted">
+          Already have an account? <Link to="/login" style={{color: 'var(--color-primary)', fontWeight: 600}}>Log in</Link>
         </div>
       </div>
     </div>
