@@ -25,6 +25,7 @@ This repository contains two main components:
 - `/docs/universities.json` - Raw fetched JSON dataset of global universities from Hipolabs.
 - `/script` - Contains the Python automation scripts for scraping and database seeding.
 - `seed_universities.js` - Node.js script that connects directly to PostgreSQL via `pg` to batch-insert global universities.
+- `remove_duplicates.js` - Node.js script that cleans up duplicate language test entries across all test tables.
 - `/supabase/migrations` - Contains SQL schemas and seed data (e.g., `profiles` and `countries` tables).
 
 ---

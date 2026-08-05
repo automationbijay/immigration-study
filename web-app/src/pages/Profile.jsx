@@ -98,10 +98,29 @@ export default function Profile({ session }) {
         .eq('id', user.id)
         .single();
 
-      const { data: languageData } = await supabase
-        .from('language_proficiency')
-        .select('*')
-        .eq('user_id', user.id);
+      const { data: ieltsData } = await supabase.from('test_ielts').select('*').eq('user_id', user.id);
+      const { data: pteData } = await supabase.from('test_pte').select('*').eq('user_id', user.id);
+      const { data: toeflData } = await supabase.from('test_toefl').select('*').eq('user_id', user.id);
+      const { data: cambridgeData } = await supabase.from('test_cambridge').select('*').eq('user_id', user.id);
+      const { data: oetData } = await supabase.from('test_oet').select('*').eq('user_id', user.id);
+
+      const combinedLanguageData = [];
+      if (ieltsData) combinedLanguageData.push(...ieltsData.map(d => ({ ...d, language_test: 'IELTS' })));
+      if (pteData) combinedLanguageData.push(...pteData.map(d => ({ ...d, language_test: 'PTE' })));
+      if (toeflData) combinedLanguageData.push(...toeflData.map(d => ({ ...d, language_test: 'TOEFL' })));
+      if (cambridgeData) combinedLanguageData.push(...cambridgeData.map(d => ({ ...d, language_test: 'Cambridge' })));
+      if (oetData) combinedLanguageData.push(...oetData.map(d => ({ ...d, language_test: 'OET' })));
+
+      const languageData = combinedLanguageData.map(test => ({
+        id: test.id,
+        language_test: test.language_test,
+        test_score_listening: test.listening ?? '',
+        test_score_reading: test.reading ?? '',
+        test_score_writing: test.writing ?? '',
+        test_score_speaking: test.speaking ?? '',
+        test_score_overall: test.overall ?? '',
+        score_published_date: test.test_date ?? ''
+      }));
 
       const { data: countriesData } = await supabase
         .from('countries')
@@ -157,22 +176,45 @@ export default function Profile({ session }) {
       updated_at: new Date(),
     };
 
-    const languageUpdates = languageProficiency.map(lp => ({
-      ...lp,
-      user_id: user.id,
-      score_published_date: lp.score_published_date === '' ? null : lp.score_published_date,
-      updated_at: new Date(),
-    }));
-
     const { error: profileError } = await supabase.from('point_australia').upsert(profileUpdates);
     const { error: basicError } = await supabase.from('profile_basic').upsert(basicUpdates);
     
-    // For language_proficiency, upsert array
+    // For language tests, upsert to respective tables
     let languageError = null;
-    if (languageUpdates.length > 0) {
-      const { error } = await supabase.from('language_proficiency').upsert(languageUpdates);
-      languageError = error;
+    const newLanguageProficiency = [...languageProficiency];
+    for (let i = 0; i < newLanguageProficiency.length; i++) {
+      const lp = newLanguageProficiency[i];
+      let tableName = '';
+      if (lp.language_test === 'IELTS') tableName = 'test_ielts';
+      else if (lp.language_test === 'PTE') tableName = 'test_pte';
+      else if (lp.language_test === 'TOEFL') tableName = 'test_toefl';
+      else if (lp.language_test === 'Cambridge') tableName = 'test_cambridge';
+      else if (lp.language_test === 'OET') tableName = 'test_oet';
+      
+      if (tableName) {
+        const updateData = {
+          user_id: user.id,
+          listening: lp.test_score_listening !== '' ? parseFloat(lp.test_score_listening) : null,
+          reading: lp.test_score_reading !== '' ? parseFloat(lp.test_score_reading) : null,
+          writing: lp.test_score_writing !== '' ? parseFloat(lp.test_score_writing) : null,
+          speaking: lp.test_score_speaking !== '' ? parseFloat(lp.test_score_speaking) : null,
+          overall: lp.test_score_overall !== '' ? parseFloat(lp.test_score_overall) : null,
+          test_date: lp.score_published_date || null,
+          updated_at: new Date(),
+        };
+        if (lp.id) {
+          updateData.id = lp.id;
+        }
+        
+        const { data, error } = await supabase.from(tableName).upsert(updateData).select();
+        if (error) {
+          languageError = error;
+        } else if (data && data.length > 0) {
+          newLanguageProficiency[i] = { ...lp, id: data[0].id };
+        }
+      }
     }
+    setLanguageProficiency(newLanguageProficiency);
 
     if (profileError || basicError || languageError) {
       setMessage('Error updating profile!');
@@ -226,8 +268,16 @@ export default function Profile({ session }) {
   const removeLanguageTest = async (index) => {
     const testToRemove = languageProficiency[index];
     if (testToRemove.id) {
-      // If it exists in DB, delete it
-      await supabase.from('language_proficiency').delete().eq('id', testToRemove.id);
+      let tableName = '';
+      if (testToRemove.language_test === 'IELTS') tableName = 'test_ielts';
+      else if (testToRemove.language_test === 'PTE') tableName = 'test_pte';
+      else if (testToRemove.language_test === 'TOEFL') tableName = 'test_toefl';
+      else if (testToRemove.language_test === 'Cambridge') tableName = 'test_cambridge';
+      else if (testToRemove.language_test === 'OET') tableName = 'test_oet';
+
+      if (tableName) {
+        await supabase.from(tableName).delete().eq('id', testToRemove.id);
+      }
     }
     setLanguageProficiency(prev => prev.filter((_, i) => i !== index));
   };
@@ -446,6 +496,9 @@ export default function Profile({ session }) {
                         <select name="language_test" value={test.language_test || 'IELTS'} onChange={(e) => handleLanguageChange(index, e)}>
                           <option value="IELTS">IELTS</option>
                           <option value="PTE">PTE Academic</option>
+                          <option value="TOEFL">TOEFL</option>
+                          <option value="Cambridge">Cambridge</option>
+                          <option value="OET">OET</option>
                         </select>
                       </div>
                       <div className="form-group">
