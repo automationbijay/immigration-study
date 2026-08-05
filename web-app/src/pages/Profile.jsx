@@ -44,13 +44,13 @@ export default function Profile({ session }) {
       const { user } = session;
 
       const { data, error } = await supabase
-        .from('profiles')
+        .from('point_australia')
         .select('*')
         .eq('id', user.id)
         .single();
         
       const { data: basicData } = await supabase
-        .from('basic_details')
+        .from('profile_basic')
         .select('*')
         .eq('id', user.id)
         .single();
@@ -121,8 +121,8 @@ export default function Profile({ session }) {
       updated_at: new Date(),
     }));
 
-    const { error: profileError } = await supabase.from('profiles').upsert(profileUpdates);
-    const { error: basicError } = await supabase.from('basic_details').upsert(basicUpdates);
+    const { error: profileError } = await supabase.from('point_australia').upsert(profileUpdates);
+    const { error: basicError } = await supabase.from('profile_basic').upsert(basicUpdates);
     
     // For language_proficiency, upsert array
     let languageError = null;

@@ -13,7 +13,7 @@ export default function Home({ session }) {
       const { user } = session;
 
       const { data, error } = await supabase
-        .from('profiles')
+        .from('point_australia')
         .select('*')
         .eq('id', user.id)
         .single();

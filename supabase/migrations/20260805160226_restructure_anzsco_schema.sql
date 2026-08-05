@@ -2,14 +2,14 @@
 DROP TABLE IF EXISTS public.anzsco_occupations;
 
 -- Create parent table
-CREATE TABLE public.anzsco (
+CREATE TABLE IF NOT EXISTS public.anzsco (
     occupation_code VARCHAR(255) PRIMARY KEY,
     description VARCHAR(255) NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
 -- Create child table
-CREATE TABLE public.anzsco_titles (
+CREATE TABLE IF NOT EXISTS public.anzsco_titles (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     occupation_code VARCHAR(255) NOT NULL REFERENCES public.anzsco(occupation_code) ON DELETE CASCADE,
     description VARCHAR(255) NOT NULL,

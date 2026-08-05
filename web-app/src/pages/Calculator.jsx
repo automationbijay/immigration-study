@@ -32,13 +32,13 @@ export default function Calculator({ session }) {
       if (!session?.user?.id) return;
       try {
         const { data: profileData, error } = await supabase
-          .from('profiles')
+          .from('point_australia')
           .select('*')
           .eq('id', session.user.id)
           .single();
 
         const { data: basicData } = await supabase
-          .from('basic_details')
+          .from('profile_basic')
           .select('*')
           .eq('id', session.user.id)
           .single();
@@ -140,7 +140,7 @@ export default function Calculator({ session }) {
     setMessage('');
     try {
       const { error } = await supabase
-        .from('profiles')
+        .from('point_australia')
         .upsert({
           id: session.user.id,
           age: formData.age,
