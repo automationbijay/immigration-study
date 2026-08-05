@@ -18,6 +18,7 @@ export default function Profile({ session }) {
     regionalStudy: false,
     partnerSkills: 0,
   });
+  const [countries, setCountries] = useState([]);
   const [message, setMessage] = useState('');
 
   useEffect(() => {
@@ -32,9 +33,17 @@ export default function Profile({ session }) {
         .eq('id', user.id)
         .single();
 
+      const { data: countriesData } = await supabase
+        .from('countries')
+        .select('name')
+        .order('name');
+
       if (!ignore) {
         if (data) {
           setProfile(prev => ({ ...prev, ...data }));
+        }
+        if (countriesData) {
+          setCountries(countriesData.map(c => c.name));
         }
         setLoading(false);
       }
@@ -86,12 +95,18 @@ export default function Profile({ session }) {
             <Globe className="text-muted" size={20} /> Basic Details
           </h3>
           <div className="form-group">
-            <label>Age</label>
-            <input type="number" name="age" value={profile.age} onChange={handleInputChange} />
+            <label style={{display: 'flex', justifyContent: 'space-between'}}>
+              <span>Age</span>
+              <span style={{color: 'var(--color-accent)', fontWeight: 'bold'}}>{profile.age} years</span>
+            </label>
+            <input type="range" name="age" min="0" max="100" value={profile.age} onChange={handleInputChange} className="range-slider" />
           </div>
           <div className="form-group">
             <label>Current Country</label>
-            <input type="text" name="country" value={profile.country} onChange={handleInputChange} />
+            <select name="country" value={profile.country} onChange={handleInputChange}>
+              <option value="">Select a country</option>
+              {countries.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
           </div>
           <div className="form-group" style={{marginBottom: 0}}>
             <label>English Proficiency</label>

@@ -337,3 +337,30 @@ input[type="checkbox"] {
   width: 20px;
   height: 20px;
 }
+
+/* Range Slider */
+.range-slider {
+  width: 100%;
+  accent-color: var(--color-accent);
+  height: 6px;
+  background: var(--color-border);
+  border-radius: var(--radius-full);
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  margin: var(--spacing-sm) 0;
+  padding: 0 !important;
+  border: none !important;
+}
+
+.range-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  cursor: pointer;
+  border: 2px solid var(--color-surface);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
