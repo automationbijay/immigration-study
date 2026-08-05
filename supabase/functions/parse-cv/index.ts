@@ -8,6 +8,10 @@ const LLAMA_CLOUD_API_KEY = Deno.env.get("LLAMA_CLOUD_API_KEY")
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")
 
+// n8n consumes the parsed text and fills the profile sections.
+const N8N_CV_WEBHOOK_URL = Deno.env.get("N8N_CV_WEBHOOK_URL")
+const N8N_SHARED_SECRET = Deno.env.get("N8N_SHARED_SECRET")
+
 serve(async (req) => {
   try {
     if (!LLAMA_CLOUD_API_KEY) {
@@ -139,17 +143,47 @@ serve(async (req) => {
       return new Response("Error updating database", { status: 500 })
     }
 
-    // Hand the markdown to extraction. Kept as a separate function because this
-    // one has already spent up to 40s polling LlamaParse, and the two together
-    // would risk the edge-function timeout.
-    try {
-      const { error: extractError } = await supabaseAdmin.functions.invoke("extract-cv", {
-        body: { cv_id: cvId },
-      })
-      if (extractError) console.error("extract-cv invocation failed:", extractError)
-    } catch (err) {
-      // Text is saved either way; extraction can be retried against the stored markdown.
-      console.error("Could not trigger extract-cv:", err)
+    // Hand the parsed text to n8n, which does the extraction and fills the
+    // profile sections. The markdown is already saved above, so a failure here
+    // is recoverable — n8n can be re-triggered against the stored text.
+    if (N8N_CV_WEBHOOK_URL) {
+      try {
+        const hookRes = await fetch(N8N_CV_WEBHOOK_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            // Lets n8n reject anything that isn't us.
+            ...(N8N_SHARED_SECRET ? { "X-Webhook-Secret": N8N_SHARED_SECRET } : {}),
+          },
+          body: JSON.stringify({
+            cv_id: cvId,
+            user_id: record.user_id,
+            file_name: record.file_name,
+            markdown,
+          }),
+        })
+
+        await supabaseAdmin
+          .from("cv_metadata")
+          .update(
+            hookRes.ok
+              ? { extraction_status: "processing", extraction_error: null }
+              : { extraction_status: "failed", extraction_error: `n8n returned ${hookRes.status}` },
+          )
+          .eq("id", cvId)
+
+        if (!hookRes.ok) {
+          console.error("n8n webhook rejected the payload:", hookRes.status, await hookRes.text())
+        }
+      } catch (err) {
+        console.error("Could not reach the n8n webhook:", err)
+        await supabaseAdmin
+          .from("cv_metadata")
+          .update({ extraction_status: "failed", extraction_error: String(err?.message ?? err) })
+          .eq("id", cvId)
+      }
+    } else {
+      console.warn("N8N_CV_WEBHOOK_URL is not set; parsed text saved but not dispatched")
     }
 
     return new Response(JSON.stringify({ success: true, jobId }), {
