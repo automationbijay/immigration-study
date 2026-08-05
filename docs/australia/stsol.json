@@ -1,0 +1,1292 @@
+[
+    {
+        "ANZSCO": "121212",
+        "Name": "Flower Grower",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "121215",
+        "Name": "Grape Grower",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "121221",
+        "Name": "Vegetable Grower (Aus) / Market Gardener (NZ)",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "121311",
+        "Name": "Apiarist",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "121321",
+        "Name": "Poultry Farmer",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "131112",
+        "Name": "Sales and Marketing Manager",
+        "Assessing Authority": "IML",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "131113",
+        "Name": "Advertising Manager",
+        "Assessing Authority": "IML",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "132111",
+        "Name": "Corporate Services Manager",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "132211",
+        "Name": "Finance Manager",
+        "Assessing Authority": "CPAA/CAANZ/IPA",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "132311",
+        "Name": "Human Resource Manager",
+        "Assessing Authority": "IML",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "132511",
+        "Name": "Research and Development Manager",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "133411",
+        "Name": "Manufacturer",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "133511",
+        "Name": "Production Manager (Forestry)",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "133512",
+        "Name": "Production Manager (Manufacturing)",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "133513",
+        "Name": "Production Manager (Mining)",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "133611",
+        "Name": "Supply and Distribution Manager",
+        "Assessing Authority": "IML",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "134299",
+        "Name": "Health and Welfare Services Managers nec",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "134311",
+        "Name": "School Principal",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "134499",
+        "Name": "Education Managers nec",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "135112",
+        "Name": "ICT Project Manager",
+        "Assessing Authority": "ACS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "135199",
+        "Name": "ICT Managers nec",
+        "Assessing Authority": "ACS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "139913",
+        "Name": "Laboratory Manager",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "139914",
+        "Name": "Quality Assurance Manager",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "139999",
+        "Name": "Specialist Managers nec",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "141111",
+        "Name": "Cafe or Restaurant Manager",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "2"
+    },
+    {
+        "ANZSCO": "141311",
+        "Name": "Hotel or Motel Manager",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "2"
+    },
+    {
+        "ANZSCO": "141999",
+        "Name": "Accommodation and Hospitality Managers nec",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "2"
+    },
+    {
+        "ANZSCO": "149212",
+        "Name": "Customer Service Manager",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "2"
+    },
+    {
+        "ANZSCO": "149311",
+        "Name": "Conference and Event Organiser",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "2"
+    },
+    {
+        "ANZSCO": "149413",
+        "Name": "Transport Company Manager",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "2"
+    },
+    {
+        "ANZSCO": "149913",
+        "Name": "Facilities Manager",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "2"
+    },
+    {
+        "ANZSCO": "211299",
+        "Name": "Music Professionals nec",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "211311",
+        "Name": "Photographer",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "2"
+    },
+    {
+        "ANZSCO": "212212",
+        "Name": "Book or Script Editor",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "212312",
+        "Name": "Director (Film, Television, Radio or Stage)",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "212314",
+        "Name": "Film and Video Editor",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "212315",
+        "Name": "Program Director (Television or Radio)",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "212316",
+        "Name": "Stage Manager",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "212317",
+        "Name": "Technical Director",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "212318",
+        "Name": "Video Producer",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "212411",
+        "Name": "Copywriter",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "212412",
+        "Name": "Newspaper or Periodical Editor",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "212413",
+        "Name": "Print Journalist",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "212415",
+        "Name": "Technical Writer",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "212416",
+        "Name": "Television Journalist",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "212499",
+        "Name": "Journalists and Other Writers nec",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "221211",
+        "Name": "Company Secretary",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "222111",
+        "Name": "Commodities Trader",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "2"
+    },
+    {
+        "ANZSCO": "222112",
+        "Name": "Finance Broker",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "2"
+    },
+    {
+        "ANZSCO": "222113",
+        "Name": "Insurance Broker",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "2"
+    },
+    {
+        "ANZSCO": "222199",
+        "Name": "Financial Brokers nec",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "2"
+    },
+    {
+        "ANZSCO": "222211",
+        "Name": "Financial Market Dealer",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "222213",
+        "Name": "Stockbroking Dealer",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "222299",
+        "Name": "Financial Dealers nec",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "222311",
+        "Name": "Financial Investment Adviser",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "222312",
+        "Name": "Financial Investment Manager",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "223112",
+        "Name": "Recruitment Consultant",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "223211",
+        "Name": "ICT Trainer",
+        "Assessing Authority": "ACS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "224112",
+        "Name": "Mathematician",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "224212",
+        "Name": "Gallery or Museum Curator",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "224213",
+        "Name": "Health Information Manager",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "224214",
+        "Name": "Records Manager",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "224611",
+        "Name": "Librarian",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "224712",
+        "Name": "Organisation and Methods Analyst",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "224914",
+        "Name": "Patents Examiner",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "224999",
+        "Name": "Information and Organisation Professionals nec",
+        "Assessing Authority": "VETASSESS/ACS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "225111",
+        "Name": "Advertising Specialist",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "225113",
+        "Name": "Marketing Specialist",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "225211",
+        "Name": "ICT Account Manager",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "225212",
+        "Name": "ICT Business Development Manager",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "225213",
+        "Name": "ICT Sales Representative",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "225311",
+        "Name": "Public Relations Professional",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "225499",
+        "Name": "Technical Sales Representatives nec",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "232311",
+        "Name": "Fashion Designer",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "232312",
+        "Name": "Industrial Designer",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "232313",
+        "Name": "Jewellery Designer",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "232411",
+        "Name": "Graphic Designer",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "232412",
+        "Name": "Illustrator",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "232414",
+        "Name": "Web Designer",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "232511",
+        "Name": "Interior Designer",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "2"
+    },
+    {
+        "ANZSCO": "232611",
+        "Name": "Urban and Regional Planner",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "234411",
+        "Name": "Geologist",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "241213",
+        "Name": "Primary School Teacher",
+        "Assessing Authority": "AITSL",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "241311",
+        "Name": "Middle School Teacher / Intermediate School Teacher",
+        "Assessing Authority": "AITSL",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "249111",
+        "Name": "Education Adviser",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "249211",
+        "Name": "Art Teacher (Private Tuition)",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "249212",
+        "Name": "Dance Teacher (Private Tuition)",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "249214",
+        "Name": "Music Teacher (Private Tuition)",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "249299",
+        "Name": "Private Tutors and Teachers nec",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "249311",
+        "Name": "Teacher of English to Speakers of Other Languages",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "251111",
+        "Name": "Dietitian",
+        "Assessing Authority": "DAA",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "251112",
+        "Name": "Nutritionist",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "251312",
+        "Name": "Occupational Health and Safety Adviser",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "251412",
+        "Name": "Orthoptist",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "251511",
+        "Name": "Hospital Pharmacist",
+        "Assessing Authority": "APharmC",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "251512",
+        "Name": "Industrial Pharmacist",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "251513",
+        "Name": "Retail Pharmacist",
+        "Assessing Authority": "APharmC",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "251911",
+        "Name": "Health Promotion Officer",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "251999",
+        "Name": "Health Diagnostic and Promotion Professionals nec",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "252211",
+        "Name": "Acupuncturist",
+        "Assessing Authority": "CMBA",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "252213",
+        "Name": "Naturopath",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "252214",
+        "Name": "Traditional Chinese Medicine Practitioner",
+        "Assessing Authority": "CMBA",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "252299",
+        "Name": "Complementary Health Therapists nec",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "252311",
+        "Name": "Dental Specialist",
+        "Assessing Authority": "ADC",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "253112",
+        "Name": "Resident Medical Officer",
+        "Assessing Authority": "MedBA",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "254211",
+        "Name": "Nurse Educator",
+        "Assessing Authority": "ANMAC",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "254212",
+        "Name": "Nurse Researcher",
+        "Assessing Authority": "ANMAC",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "254311",
+        "Name": "Nurse Manager",
+        "Assessing Authority": "ANMAC",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "261212",
+        "Name": "Web Developer",
+        "Assessing Authority": "ACS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "261314",
+        "Name": "Software Tester",
+        "Assessing Authority": "ACS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "262111",
+        "Name": "Database Administrator",
+        "Assessing Authority": "ACS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "262113",
+        "Name": "Systems Administrator",
+        "Assessing Authority": "ACS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "263112",
+        "Name": "Network Administrator",
+        "Assessing Authority": "ACS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "263113",
+        "Name": "Network Analyst",
+        "Assessing Authority": "ACS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "263211",
+        "Name": "ICT Quality Assurance Engineer",
+        "Assessing Authority": "ACS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "263212",
+        "Name": "ICT Support Engineer",
+        "Assessing Authority": "ACS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "263213",
+        "Name": "ICT Systems Test Engineer",
+        "Assessing Authority": "ACS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "263299",
+        "Name": "ICT Support and Test Engineers nec",
+        "Assessing Authority": "ACS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "271299",
+        "Name": "Judicial and Other Legal Professionals nec",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "272111",
+        "Name": "Careers Counsellor",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "272112",
+        "Name": "Drug and Alcohol Counsellor",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "272113",
+        "Name": "Family and Marriage Counsellor",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "272114",
+        "Name": "Rehabilitation Counsellor",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "272115",
+        "Name": "Student Counsellor",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "272199",
+        "Name": "Counsellors nec",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "272314",
+        "Name": "Psychotherapist",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "272412",
+        "Name": "Interpreter",
+        "Assessing Authority": "NAATI",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "272499",
+        "Name": "Social Professionals nec",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "272612",
+        "Name": "Recreation Officer / Recreation Coordinator",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "272613",
+        "Name": "Welfare Worker",
+        "Assessing Authority": "CWA",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "311211",
+        "Name": "Anaesthetic Technician",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "2"
+    },
+    {
+        "ANZSCO": "311212",
+        "Name": "Cardiac Technician",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "2"
+    },
+    {
+        "ANZSCO": "311213",
+        "Name": "Medical Laboratory Technician",
+        "Assessing Authority": "AIMS",
+        "Skill Level": "2"
+    },
+    {
+        "ANZSCO": "311215",
+        "Name": "Pharmacy Technician",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "2"
+    },
+    {
+        "ANZSCO": "311299",
+        "Name": "Medical Technicians nec",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "2"
+    },
+    {
+        "ANZSCO": "311312",
+        "Name": "Meat Inspector",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "2"
+    },
+    {
+        "ANZSCO": "311399",
+        "Name": "Primary Products Inspectors nec",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "2"
+    },
+    {
+        "ANZSCO": "311411",
+        "Name": "Chemistry Technician",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "2"
+    },
+    {
+        "ANZSCO": "311412",
+        "Name": "Earth Science Technician",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "2"
+    },
+    {
+        "ANZSCO": "311413",
+        "Name": "Life Science Technician",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "2"
+    },
+    {
+        "ANZSCO": "311499",
+        "Name": "Science Technicians nec",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "2"
+    },
+    {
+        "ANZSCO": "312111",
+        "Name": "Architectural Draftsperson",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "2"
+    },
+    {
+        "ANZSCO": "312113",
+        "Name": "Building Inspector",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "2"
+    },
+    {
+        "ANZSCO": "312199",
+        "Name": "Architectural, Building and Surveying Technicians nec",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "2"
+    },
+    {
+        "ANZSCO": "312512",
+        "Name": "Mechanical Engineering Technician",
+        "Assessing Authority": "TRA",
+        "Skill Level": "2"
+    },
+    {
+        "ANZSCO": "312912",
+        "Name": "Metallurgical or Materials Technician",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "2"
+    },
+    {
+        "ANZSCO": "312913",
+        "Name": "Mine Deputy",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "2"
+    },
+    {
+        "ANZSCO": "313111",
+        "Name": "Hardware Technician",
+        "Assessing Authority": "TRA",
+        "Skill Level": "2"
+    },
+    {
+        "ANZSCO": "313112",
+        "Name": "ICT Customer Support Officer",
+        "Assessing Authority": "TRA",
+        "Skill Level": "2"
+    },
+    {
+        "ANZSCO": "313113",
+        "Name": "Web Administrator",
+        "Assessing Authority": "ACS",
+        "Skill Level": "2"
+    },
+    {
+        "ANZSCO": "313199",
+        "Name": "ICT Support Technicians nec",
+        "Assessing Authority": "TRA",
+        "Skill Level": "2"
+    },
+    {
+        "ANZSCO": "322113",
+        "Name": "Farrier",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3"
+    },
+    {
+        "ANZSCO": "323111",
+        "Name": "Aircraft Maintenance Engineer (Avionics)",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3"
+    },
+    {
+        "ANZSCO": "323112",
+        "Name": "Aircraft Maintenance Engineer (Mechanical)",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3"
+    },
+    {
+        "ANZSCO": "323113",
+        "Name": "Aircraft Maintenance Engineer (Structures)",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3"
+    },
+    {
+        "ANZSCO": "323299",
+        "Name": "Metal Fitters and Machinists nec",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3"
+    },
+    {
+        "ANZSCO": "323314",
+        "Name": "Precision Instrument Maker and Repairer",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3"
+    },
+    {
+        "ANZSCO": "323412",
+        "Name": "Toolmaker",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3"
+    },
+    {
+        "ANZSCO": "324211",
+        "Name": "Vehicle Body Builder",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3"
+    },
+    {
+        "ANZSCO": "324212",
+        "Name": "Vehicle Trimmer",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3"
+    },
+    {
+        "ANZSCO": "333311",
+        "Name": "Roof Tiler",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3"
+    },
+    {
+        "ANZSCO": "342311",
+        "Name": "Business Machine Mechanic",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3"
+    },
+    {
+        "ANZSCO": "342411",
+        "Name": "Cabler (Data and Telecommunications)",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3"
+    },
+    {
+        "ANZSCO": "342413",
+        "Name": "Telecommunications Linesworker / Telecommunications Line Mechanic",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3"
+    },
+    {
+        "ANZSCO": "351111",
+        "Name": "Baker",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3"
+    },
+    {
+        "ANZSCO": "351112",
+        "Name": "Pastrycook",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3"
+    },
+    {
+        "ANZSCO": "351211",
+        "Name": "Butcher or Smallgoods Maker",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3"
+    },
+    {
+        "ANZSCO": "351411",
+        "Name": "Cook",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3"
+    },
+    {
+        "ANZSCO": "361111",
+        "Name": "Dog Handler or Trainer",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "3"
+    },
+    {
+        "ANZSCO": "361199",
+        "Name": "Animal Attendants and Trainers nec",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "4"
+    },
+    {
+        "ANZSCO": "361311",
+        "Name": "Veterinary Nurse",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "3"
+    },
+    {
+        "ANZSCO": "362111",
+        "Name": "Florist",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3"
+    },
+    {
+        "ANZSCO": "362211",
+        "Name": "Gardener (General)",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3"
+    },
+    {
+        "ANZSCO": "362212",
+        "Name": "Arborist",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3"
+    },
+    {
+        "ANZSCO": "362213",
+        "Name": "Landscape Gardener",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3"
+    },
+    {
+        "ANZSCO": "362311",
+        "Name": "Greenkeeper",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3"
+    },
+    {
+        "ANZSCO": "391111",
+        "Name": "Hairdresser",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3"
+    },
+    {
+        "ANZSCO": "392111",
+        "Name": "Print Finisher",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3"
+    },
+    {
+        "ANZSCO": "392311",
+        "Name": "Printing Machinist",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3"
+    },
+    {
+        "ANZSCO": "393213",
+        "Name": "Dressmaker or Tailor",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3"
+    },
+    {
+        "ANZSCO": "393311",
+        "Name": "Upholsterer",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3"
+    },
+    {
+        "ANZSCO": "394211",
+        "Name": "Furniture Finisher",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3"
+    },
+    {
+        "ANZSCO": "394213",
+        "Name": "Wood Machinist",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3"
+    },
+    {
+        "ANZSCO": "394299",
+        "Name": "Wood Machinists and Other Wood Trades Workers nec",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3"
+    },
+    {
+        "ANZSCO": "399213",
+        "Name": "Power Generation Plant Operator",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3"
+    },
+    {
+        "ANZSCO": "399411",
+        "Name": "Jeweller",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3"
+    },
+    {
+        "ANZSCO": "399512",
+        "Name": "Camera Operator (Film, Television or Video)",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3"
+    },
+    {
+        "ANZSCO": "399514",
+        "Name": "Make Up Artist",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3"
+    },
+    {
+        "ANZSCO": "399516",
+        "Name": "Sound Technician",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3"
+    },
+    {
+        "ANZSCO": "399599",
+        "Name": "Performing Arts Technicians nec",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "3"
+    },
+    {
+        "ANZSCO": "399611",
+        "Name": "Signwriter",
+        "Assessing Authority": "TRA",
+        "Skill Level": "3"
+    },
+    {
+        "ANZSCO": "411111",
+        "Name": "Ambulance Officer",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "2"
+    },
+    {
+        "ANZSCO": "411112",
+        "Name": "Intensive Care Ambulance Paramedic (Aus) / Ambulance Paramedic (NZ)",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "1"
+    },
+    {
+        "ANZSCO": "411213",
+        "Name": "Dental Technician",
+        "Assessing Authority": "TRA",
+        "Skill Level": "2"
+    },
+    {
+        "ANZSCO": "411311",
+        "Name": "Diversional Therapist",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "3"
+    },
+    {
+        "ANZSCO": "411411",
+        "Name": "Enrolled Nurse",
+        "Assessing Authority": "ANMAC",
+        "Skill Level": "2"
+    },
+    {
+        "ANZSCO": "411611",
+        "Name": "Massage Therapist",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "2"
+    },
+    {
+        "ANZSCO": "411711",
+        "Name": "Community Worker",
+        "Assessing Authority": "CWA",
+        "Skill Level": "2"
+    },
+    {
+        "ANZSCO": "411712",
+        "Name": "Disabilities Services Officer",
+        "Assessing Authority": "CWA",
+        "Skill Level": "2"
+    },
+    {
+        "ANZSCO": "411713",
+        "Name": "Family Support Worker",
+        "Assessing Authority": "CWA",
+        "Skill Level": "2"
+    },
+    {
+        "ANZSCO": "411715",
+        "Name": "Residential Care Officer",
+        "Assessing Authority": "CWA",
+        "Skill Level": "2"
+    },
+    {
+        "ANZSCO": "411716",
+        "Name": "Youth Worker",
+        "Assessing Authority": "CWA",
+        "Skill Level": "2"
+    },
+    {
+        "ANZSCO": "452311",
+        "Name": "Diving Instructor (Open Water)",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "3"
+    },
+    {
+        "ANZSCO": "452312",
+        "Name": "Gymnastics Coach or Instructor",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "4"
+    },
+    {
+        "ANZSCO": "452313",
+        "Name": "Horse Riding Coach or Instructor",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "3"
+    },
+    {
+        "ANZSCO": "452314",
+        "Name": "Snowsport Instructor",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "3"
+    },
+    {
+        "ANZSCO": "452315",
+        "Name": "Swimming Coach or Instructor",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "4"
+    },
+    {
+        "ANZSCO": "452317",
+        "Name": "Other Sports Coach or Instructor",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "4"
+    },
+    {
+        "ANZSCO": "452321",
+        "Name": "Sports Development Officer",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "2"
+    },
+    {
+        "ANZSCO": "452499",
+        "Name": "Sportspersons nec",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "3"
+    },
+    {
+        "ANZSCO": "511111",
+        "Name": "Contract Administrator",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "2"
+    },
+    {
+        "ANZSCO": "511112",
+        "Name": "Program or Project Administrator",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "2"
+    },
+    {
+        "ANZSCO": "599612",
+        "Name": "Insurance Loss Adjuster",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "3"
+    },
+    {
+        "ANZSCO": "611211",
+        "Name": "Insurance Agent",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "3"
+    },
+    {
+        "ANZSCO": "639211",
+        "Name": "Retail Buyer",
+        "Assessing Authority": "VETASSESS",
+        "Skill Level": "3"
+    }
+]
