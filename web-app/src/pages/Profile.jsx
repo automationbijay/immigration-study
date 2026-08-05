@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { User, Globe, GraduationCap, Briefcase, CheckCircle2, ChevronDown, ChevronUp, Users, LogOut, FileText, Upload } from 'lucide-react';
+import { User, Globe, GraduationCap, Briefcase, CheckCircle2, ChevronDown, ChevronUp, Users, LogOut, FileText, Upload, Download, X } from 'lucide-react';
 import OccupationSearch from '../components/OccupationSearch';
 import CvUploadModal from '../components/CvUploadModal';
 
@@ -8,16 +8,25 @@ function CvViewer({ cvUrl }) {
   const [cvSignedUrl, setCvSignedUrl] = useState(null);
   const [loadingUrl, setLoadingUrl] = useState(true);
 
+  const [errorMessage, setErrorMessage] = useState(null);
+
   useEffect(() => {
     let active = true;
     async function fetchUrl() {
       setLoadingUrl(true);
       const { data, error } = await supabase.storage
-        .from('cvs')
-        .createSignedUrl(cvUrl, 60); // 60 seconds expiry
+        .from('cv-uploads')
+        .createSignedUrl(cvUrl, 60 * 60); // 1 hour expiry
 
       if (active) {
-        if (data) setCvSignedUrl(data.signedUrl);
+        if (error) {
+          console.error("Storage Error:", error);
+          setErrorMessage(error.message);
+          setCvSignedUrl(null);
+        }
+        if (data) {
+          setCvSignedUrl(data.signedUrl);
+        }
         setLoadingUrl(false);
       }
     }
@@ -26,14 +35,55 @@ function CvViewer({ cvUrl }) {
   }, [cvUrl]);
 
   if (loadingUrl) return <div>Loading CV viewer...</div>;
-  if (!cvSignedUrl) return <div>Error loading CV.</div>;
+  if (!cvSignedUrl) return <div>Error loading CV: {errorMessage}</div>;
 
   return (
-    <iframe 
-      src={cvSignedUrl} 
-      title="User CV"
-      style={{ width: '100%', height: '600px', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)' }}
-    />
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      flexWrap: 'wrap',
+      gap: '1rem',
+      padding: '1.5rem',
+      backgroundColor: 'var(--color-surface)',
+      border: '1px solid var(--color-border)',
+      borderRadius: 'var(--radius-lg)',
+      transition: 'all 0.2s ease',
+      boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
+    }}
+    onMouseOver={e => e.currentTarget.style.borderColor = 'var(--color-accent)'}
+    onMouseOut={e => e.currentTarget.style.borderColor = 'var(--color-border)'}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <div style={{ 
+          backgroundColor: 'var(--color-background)', 
+          padding: '1rem', 
+          borderRadius: 'var(--radius-md)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: 'var(--color-accent)'
+        }}>
+          <FileText size={32} />
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <span style={{ fontWeight: 600, fontSize: '1.1rem', color: 'var(--color-primary)' }}>Your Resume</span>
+          <span className="text-muted" style={{ fontSize: '0.875rem' }}>Ready to download</span>
+        </div>
+      </div>
+      
+      <a 
+        href={cvSignedUrl} 
+        target="_blank" 
+        rel="noopener noreferrer"
+        className="btn-primary"
+        style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none', padding: '0.75rem 1.5rem', borderRadius: 'var(--radius-full)' }}
+        download
+      >
+        <Download size={18} />
+        Download
+      </a>
+    </div>
   );
 }
 
@@ -98,6 +148,14 @@ export default function Profile({ session }) {
         .eq('id', user.id)
         .single();
 
+      const { data: cvData } = await supabase
+        .from('cv_metadata')
+        .select('file_url')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
       const { data: ieltsData } = await supabase.from('test_ielts').select('*').eq('user_id', user.id);
       const { data: pteData } = await supabase.from('test_pte').select('*').eq('user_id', user.id);
       const { data: toeflData } = await supabase.from('test_toefl').select('*').eq('user_id', user.id);
@@ -133,6 +191,9 @@ export default function Profile({ session }) {
         }
         if (basicData) {
           setBasicDetails(prev => ({ ...prev, ...basicData }));
+        }
+        if (cvData && cvData.file_url) {
+          setBasicDetails(prev => ({ ...prev, cv_url: cvData.file_url }));
         }
         if (languageData && languageData.length > 0) {
           setLanguageProficiency(languageData);
@@ -402,7 +463,7 @@ export default function Profile({ session }) {
       {expandedSection && (
         <div className="modal-overlay" onClick={closeModal}>
           <div className="modal-content" onClick={e => e.stopPropagation()}>
-            <div className="modal-header">
+            <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h2 style={{margin: 0}}>
                 {expandedSection === 'basic' && 'Basic Details'}
                 {expandedSection === 'language' && 'Language Proficiency'}
@@ -411,14 +472,16 @@ export default function Profile({ session }) {
                 {expandedSection === 'experience' && 'Experience & Extras'}
                 {expandedSection === 'cv' && 'My CV'}
               </h2>
+              <button type="button" onClick={closeModal} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-secondary)' }}>
+                <X size={24} />
+              </button>
             </div>
             
             {expandedSection === 'cv' ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 {basicDetails.cv_url ? (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <h3 style={{ margin: 0 }}>Your Resume</h3>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                       <button 
                         type="button" 
                         className="btn-secondary" 
@@ -447,9 +510,6 @@ export default function Profile({ session }) {
                   </div>
                 )}
                 
-                <div className="modal-actions">
-                  <button type="button" className="btn-secondary" onClick={closeModal} style={{flex: 1}}>Close</button>
-                </div>
               </div>
             ) : (
             <form onSubmit={handleModalSave}>

@@ -19,9 +19,27 @@ export default {
 
       const fileExt = file.name.split('.').pop();
       const fileName = `${user.id}/${crypto.randomUUID()}.${fileExt}`;
-      const bucketName = 'cvs';
+      const bucketName = 'cv-uploads';
 
-      // Upload file directly using Supabase Storage client
+      // 1. Fetch and clean up existing CV metadata and files for the user
+      const { data: existingCvs } = await ctx.supabase
+        .from('cv_metadata')
+        .select('file_url')
+        .eq('user_id', user.id);
+
+      if (existingCvs && existingCvs.length > 0) {
+        // Delete old files from storage
+        const filesToDelete = existingCvs.map(cv => cv.file_url);
+        await ctx.supabase.storage.from(bucketName).remove(filesToDelete);
+
+        // Delete old rows from DB
+        await ctx.supabase
+          .from('cv_metadata')
+          .delete()
+          .eq('user_id', user.id);
+      }
+
+      // 2. Upload file directly using Supabase Storage client
       const { error: uploadError } = await ctx.supabase.storage
         .from(bucketName)
         .upload(fileName, file, {
@@ -33,11 +51,14 @@ export default {
         throw uploadError;
       }
 
-      // Update the user's profile with the new CV path
+      // Insert metadata into cv_metadata table
       const { error: dbError } = await ctx.supabase
-        .from('profile_basic')
-        .update({ cv_url: fileName })
-        .eq('id', user.id);
+        .from('cv_metadata')
+        .insert({
+          user_id: user.id,
+          file_url: fileName,
+          file_name: file.name
+        });
 
       if (dbError) {
         throw dbError;
