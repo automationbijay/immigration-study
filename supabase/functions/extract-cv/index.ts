@@ -86,41 +86,14 @@ const CV_DATA_SCHEMA = {
         most_recent_job_title: nullable({ type: "string" }),
       },
     },
-    english_test: {
-      type: "object",
-      description:
-        "Scores from ONE English proficiency test only (IELTS, PTE, TOEFL, Cambridge, or OET), only if printed on the CV. Never compute, average, or estimate a score — report only what is explicitly written.",
-      properties: {
-        test_type: nullable({ type: "string", enum: ["IELTS", "PTE", "TOEFL", "Cambridge", "OET"] }, NOT_STATED),
-        listening: nullable({ type: "number" }, NOT_STATED),
-        reading: nullable({ type: "number" }, NOT_STATED),
-        writing: nullable({ type: "number" }, NOT_STATED),
-        speaking: nullable({ type: "number" }, NOT_STATED),
-        overall: nullable({ type: "number" }, `The overall/composite band score. ${NOT_STATED}`),
-        test_date: nullable({ type: "string" }, "Date the test was taken, as YYYY-MM-DD, or YYYY alone if only the year is shown."),
-      },
-    },
-    australian_factors: {
-      type: "object",
-      description:
-        "Booleans based only on explicit evidence in the CV text. Leave false if not mentioned — absence of a mention is not proof it didn't happen, and this data is only ever used to turn things ON, never off.",
-      properties: {
-        studied_in_australia: { type: "boolean", description: "True only if a listed qualification was completed at an institution physically in Australia." },
-        studied_in_regional_australia: {
-          type: "boolean",
-          description:
-            "True only if that Australian institution's campus is explicitly in a designated regional area (i.e. not one of the major metro areas: Sydney, Melbourne, Brisbane, Perth, Adelaide, Gold Coast).",
-        },
-        completed_professional_year: {
-          type: "boolean",
-          description: "True only if the CV explicitly mentions completing a 12-month Professional Year internship program in Australia after graduating from an Australian institution.",
-        },
-        completed_ccl: {
-          type: "boolean",
-          description: "True only if the CV explicitly mentions passing the official NAATI Credentialled Community Language (CCL) interpreting/translating exam.",
-        },
-      },
-    },
+    // english_test and australian_factors were removed deliberately — they
+    // exist ONLY to feed the Australia points calculation (point_australia's
+    // english/ausStudy/regionalStudy/professionalYear/ccl columns), and that
+    // data is too consequential to let an LLM guess from CV text. Users enter
+    // it manually through the app's own forms instead. overseas_years /
+    // australian_years / highest_qualification.level / occupation stay —
+    // they double as raw record data (education table, job title) even
+    // though some of them also feed points.
     occupation: {
       type: "object",
       properties: {

@@ -235,29 +235,39 @@ serve(async (req) => {
       if (error) console.error("point_australia upsert failed:", error);
     }
 
-    // ---- education (raw qualification detail point_australia.education, a points
-    // integer, can't hold: field of study, institution, country, year) -------
-    const { data: eduRow } = await supabase
+    // ---- education ----------------------------------------------------------
+    // This table now supports multiple rows per user (concurrent schema
+    // change, see 20260806000001_update_education_table.sql — user_id +
+    // generated id, no longer 1:1). CV extraction only inserts when the user
+    // has NO education rows at all; if they've entered even one themselves,
+    // that's their data to manage and this stays out of it entirely — same
+    // "CV is evidence, not authority" rule as everywhere else in this file,
+    // just applied at row-existence granularity instead of per-field.
+    const { data: existingEducation } = await supabase
       .from("education")
-      .select("*")
-      .eq("id", userId)
-      .maybeSingle();
+      .select("id")
+      .eq("user_id", userId)
+      .limit(1);
 
-    const eduUpdates: Record<string, unknown> = { id: userId, updated_at: new Date() };
+    if (!existingEducation || existingEducation.length === 0) {
+      const eduCandidate: Record<string, unknown> = {};
+      if (q.level && q.level in EDUCATION_POINTS) eduCandidate.level = q.level;
+      if (q.field_of_study) eduCandidate.field_of_study = q.field_of_study;
+      if (q.institution) eduCandidate.institution = q.institution;
+      if (q.country) eduCandidate.country = q.country;
+      if (isFiniteNumber(q.completed_year)) eduCandidate.completed_year = q.completed_year;
 
-    if (q.level && q.level in EDUCATION_POINTS) {
-      fillIfEmpty(eduUpdates, eduRow, "level", q.level, filled, skipped);
-    }
-    fillIfEmpty(eduUpdates, eduRow, "field_of_study", q.field_of_study, filled, skipped);
-    fillIfEmpty(eduUpdates, eduRow, "institution", q.institution, filled, skipped);
-    fillIfEmpty(eduUpdates, eduRow, "country", q.country, filled, skipped);
-    if (isFiniteNumber(q.completed_year)) {
-      fillIfEmpty(eduUpdates, eduRow, "completed_year", q.completed_year, filled, skipped);
-    }
-
-    if (Object.keys(eduUpdates).length > 2) {
-      const { error } = await supabase.from("education").upsert(eduUpdates);
-      if (error) console.error("education upsert failed:", error);
+      if (Object.keys(eduCandidate).length > 0) {
+        const { error } = await supabase.from("education").insert({
+          user_id: userId,
+          updated_at: new Date(),
+          ...eduCandidate,
+        });
+        if (error) console.error("education insert failed:", error);
+        else filled.push("education");
+      }
+    } else {
+      skipped.push("education");
     }
 
     // ---- English test scores ----------------------------------------------
@@ -314,11 +324,21 @@ serve(async (req) => {
         point_australia_education: eduPoints,
         point_australia_overseas_exp: isFiniteNumber(x.overseas_years) ? Math.max(0, Math.floor(x.overseas_years)) : null,
         point_australia_aus_exp: isFiniteNumber(x.australian_years) ? Math.max(0, Math.floor(x.australian_years)) : null,
+        // english_test / australian_factors are no longer part of the
+        // extraction schema (too consequential to let an LLM guess) — these
+        // stay null unless some future caller of this endpoint sends them.
         point_australia_english: english,
         point_australia_aus_study: af.studied_in_australia ?? null,
         point_australia_regional_study: af.studied_in_regional_australia ?? null,
         point_australia_professional_year: af.completed_professional_year ?? null,
         point_australia_ccl: af.completed_ccl ?? null,
+        point_australia_age: null,
+        point_australia_specialist_edu: null,
+        point_australia_partner_skills: null,
+        point_australia_education_anzsco: null,
+        point_australia_experience_anzsco: occ?.occupation_code ? occ : null,
+        point_australia_spouse_details: null,
+        point_australia_children_count: null,
 
         education_level: q.level ?? null,
         education_field_of_study: q.field_of_study ?? null,
