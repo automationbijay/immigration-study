@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { User, Globe, GraduationCap, Briefcase, CheckCircle2, ChevronRight, Users, LogOut, FileText, Upload, Download } from 'lucide-react';
+import { User, Globe, GraduationCap, Briefcase, CheckCircle2, ChevronRight, Users, LogOut, FileText, Upload, Download, Trash2 } from 'lucide-react';
 import OccupationSearch from '../components/OccupationSearch';
 import CvUploadModal from '../components/CvUploadModal';
 import Modal from '../components/ui/Modal';
@@ -139,6 +139,35 @@ export default function Profile({ session }) {
   const [message, setMessage] = useState('');
   const [expandedSection, setExpandedSection] = useState(null);
   const [avatarFailed, setAvatarFailed] = useState(false);
+  const [isDeletingData, setIsDeletingData] = useState(false);
+
+  const handleDeleteData = async () => {
+    if (!window.confirm("Are you sure you want to delete all your data? This action cannot be undone.")) return;
+    
+    setIsDeletingData(true);
+    try {
+      const { user } = session;
+      const tables = [
+        'profile_basic', 'point_australia', 'cv_metadata', 'education', 
+        'test_ielts', 'test_pte', 'test_toefl', 'test_cambridge', 'test_oet'
+      ];
+      
+      for (const table of tables) {
+        if (table === 'profile_basic' || table === 'point_australia') {
+          await supabase.from(table).delete().eq('id', user.id);
+        } else {
+          await supabase.from(table).delete().eq('user_id', user.id);
+        }
+      }
+      
+      await supabase.auth.signOut();
+    } catch (err) {
+      console.error(err);
+      alert('Failed to delete data. Please try again.');
+    } finally {
+      setIsDeletingData(false);
+    }
+  };
 
   const toggleSection = (section) => {
     setExpandedSection(prev => prev === section ? null : section);
@@ -522,6 +551,17 @@ export default function Profile({ session }) {
           <SectionRow key={id} icon={icon} label={label} onClick={() => toggleSection(id)} />
         ))}
       </div>
+
+      <button
+        type="button"
+        className="btn-secondary profile-signout"
+        style={{ color: 'var(--danger)', borderColor: 'var(--danger-border, var(--danger))', marginBottom: '12px' }}
+        onClick={handleDeleteData}
+        disabled={isDeletingData}
+      >
+        <Trash2 size={20} aria-hidden="true" />
+        <span>{isDeletingData ? 'Deleting...' : 'Delete All My Data'}</span>
+      </button>
 
       <button
         type="button"
