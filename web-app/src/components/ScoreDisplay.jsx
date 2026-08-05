@@ -6,6 +6,14 @@ const MAX_SCORE = 120; // Cap for the visual ring
 const RADIUS = 60;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
+/**
+ * The count-up is driven by requestAnimationFrame, so CSS cannot switch it
+ * off — the preference has to be read here too.
+ */
+function prefersReducedMotion() {
+  return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+}
+
 const ScoreDisplay = ({ targetScore }) => {
     const [displayScore, setDisplayScore] = useState(0);
     // Holds the rendered value so the animation can read its own starting point
@@ -17,6 +25,12 @@ const ScoreDisplay = ({ targetScore }) => {
         const from = renderedRef.current;
         const delta = targetScore - from;
         if (delta === 0) return;
+
+        if (prefersReducedMotion()) {
+            renderedRef.current = targetScore;
+            setDisplayScore(targetScore);
+            return;
+        }
 
         let frame;
         let startedAt;

@@ -52,26 +52,46 @@ async function run() {
     
     const cvId = insertData.id;
     console.log(`Inserted row with ID: ${cvId}`);
-    console.log("Waiting for webhook and edge function to process (5 seconds)...");
-    
-    await sleep(5000);
-    
-    console.log("4. Fetching the updated row to check parsing status...");
-    const { data: resultData, error: resultError } = await supabase
-      .from('cv_metadata')
-      .select('*')
-      .eq('id', cvId)
-      .single();
-      
-    if (resultError) throw resultError;
-    
-    if (resultData.is_parsed) {
-       console.log("✅ API SUCCESS: CV was parsed successfully!");
-       console.log("Parsed Data:", JSON.stringify(resultData.parsed_data, null, 2));
-    } else {
-       console.log("❌ API FAILURE: CV was not parsed (is_parsed is false).");
-       console.log("Row data:", JSON.stringify(resultData, null, 2));
+
+    console.log("4. Polling extraction_status (up to 2 minutes)...");
+    const deadline = Date.now() + 120000;
+    let row;
+    while (Date.now() < deadline) {
+      const { data, error } = await supabase
+        .from('cv_metadata')
+        .select('*')
+        .eq('id', cvId)
+        .single();
+      if (error) throw error;
+      row = data;
+      console.log(`  [${Math.round((Date.now() - (deadline - 120000)) / 1000)}s] extraction_status=${row.extraction_status} is_parsed=${row.is_parsed}`);
+      if (row.extraction_status === 'applied' || row.extraction_status === 'failed') break;
+      await sleep(3000);
     }
+
+    console.log("\n5. parse-cv result (LlamaParse markdown, untouched by this change):");
+    console.log(`   is_parsed=${row.is_parsed}, markdown chars=${row.parsed_data?.markdown_full?.length ?? 0}`);
+
+    console.log("\n6. extract-cv / apply-cv-profile result:");
+    if (row.extraction_status !== 'applied') {
+      console.log(`❌ extraction_status is '${row.extraction_status}', expected 'applied'.`);
+      console.log("extraction_error:", row.extraction_error);
+      console.log("extracted_profile:", JSON.stringify(row.extracted_profile, null, 2));
+      return;
+    }
+    console.log("✅ extraction_status reached 'applied'");
+
+    const [{ data: basic }, { data: points }, { data: education }, { data: llamaparsed }] = await Promise.all([
+      supabase.from('profile_basic').select('*').eq('id', userId).maybeSingle(),
+      supabase.from('point_australia').select('*').eq('id', userId).maybeSingle(),
+      supabase.from('education').select('*').eq('id', userId).maybeSingle(),
+      supabase.from('cv_llamaparsed').select('*').eq('cv_id', cvId).maybeSingle(),
+    ]);
+
+    console.log("\nprofile_basic:", JSON.stringify(basic, null, 2));
+    console.log("\npoint_australia:", JSON.stringify(points, null, 2));
+    console.log("\neducation:", JSON.stringify(education, null, 2));
+    console.log("\ncv_llamaparsed:", JSON.stringify(llamaparsed, null, 2));
 
   } catch (err) {
     console.error("Test failed:", err);

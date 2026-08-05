@@ -123,6 +123,7 @@ export default function Profile({ session }) {
     dob: '',
     name: '',
     country: '',
+    location: '',
     marital_status: 'Single',
     phone_no: '',
     email: '',
@@ -136,6 +137,7 @@ export default function Profile({ session }) {
   const [countries, setCountries] = useState([]);
   const [message, setMessage] = useState('');
   const [expandedSection, setExpandedSection] = useState(null);
+  const [avatarFailed, setAvatarFailed] = useState(false);
 
   const toggleSection = (section) => {
     setExpandedSection(prev => prev === section ? null : section);
@@ -414,11 +416,16 @@ export default function Profile({ session }) {
       <Toast message={message} />
 
       <div className="profile-identity">
-        {avatarUrl ? (
-          <img 
-            src={avatarUrl} 
-            alt={displayName} 
-            style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} 
+        {avatarUrl && !avatarFailed ? (
+          <img
+            className="profile-avatar-image"
+            src={avatarUrl}
+            alt=""
+            width="64"
+            height="64"
+            // A provider avatar that 404s would otherwise leave a broken-image
+            // glyph where the person's face should be.
+            onError={() => setAvatarFailed(true)}
           />
         ) : (
           <span className="profile-avatar">
@@ -487,26 +494,40 @@ export default function Profile({ session }) {
               {expandedSection === 'basic' && (
                 <>
                   <div className="form-group">
-                    <label>Full Name</label>
-                    <input type="text" name="name" value={basicDetails.name || ''} onChange={handleBasicChange} />
+                    <label htmlFor="profile-name">Full Name</label>
+                    <input id="profile-name" type="text" name="name" value={basicDetails.name || ''} onChange={handleBasicChange} />
                   </div>
                   <div className="form-group">
-                    <label>Date of Birth</label>
-                    <input type="date" name="dob" value={basicDetails.dob || ''} onChange={handleBasicChange} />
+                    <label htmlFor="profile-dob">Date of Birth</label>
+                    <input id="profile-dob" type="date" name="dob" value={basicDetails.dob || ''} onChange={handleBasicChange} />
                   </div>
                   <div className="form-group">
-                    <label>Email</label>
-                    <input type="email" name="email" value={basicDetails.email || ''} onChange={handleBasicChange} />
+                    <label htmlFor="profile-email">Email</label>
+                    <input id="profile-email" type="email" name="email" value={basicDetails.email || ''} onChange={handleBasicChange} />
                   </div>
                   <div className="form-group">
-                    <label>Phone Number</label>
-                    <input type="text" name="phone_no" value={basicDetails.phone_no || ''} onChange={handleBasicChange} />
+                    <label htmlFor="profile-phone">Phone Number</label>
+                    <input id="profile-phone" type="text" name="phone_no" value={basicDetails.phone_no || ''} onChange={handleBasicChange} />
                   </div>
                   <div className="form-group">
-                    <label>Current Country</label>
-                    <select name="country" value={basicDetails.country} onChange={handleBasicChange}>
+                    <label htmlFor="profile-country">Current Country</label>
+                    <select id="profile-country" name="country" value={basicDetails.country} onChange={handleBasicChange}>
                       <option value="">Select a country</option>
                       {countries.map(c => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="profile-location">Location (City/State)</label>
+                    <input id="profile-location" type="text" name="location" value={basicDetails.location || ''} onChange={handleBasicChange} placeholder="E.g., Sydney, NSW" />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="profile-marital-status">Marital Status</label>
+                    <select id="profile-marital-status" name="marital_status" value={basicDetails.marital_status || 'Single'} onChange={handleBasicChange}>
+                      <option value="Single">Single</option>
+                      <option value="Married">Married</option>
+                      <option value="De Facto">De Facto</option>
+                      <option value="Divorced">Divorced / Separated</option>
+                      <option value="Widowed">Widowed</option>
                     </select>
                   </div>
                 </>
@@ -523,8 +544,8 @@ export default function Profile({ session }) {
                         )}
                       </div>
                       <div className="form-group">
-                        <label>Test Type</label>
-                        <select name="language_test" value={test.language_test || 'IELTS'} onChange={(e) => handleLanguageChange(index, e)}>
+                        <label htmlFor={`lang-${index}-type`}>Test Type</label>
+                        <select id={`lang-${index}-type`} name="language_test" value={test.language_test || 'IELTS'} onChange={(e) => handleLanguageChange(index, e)}>
                           <option value="IELTS">IELTS</option>
                           <option value="PTE">PTE Academic</option>
                           <option value="TOEFL">TOEFL</option>
@@ -533,30 +554,30 @@ export default function Profile({ session }) {
                         </select>
                       </div>
                       <div className="form-group">
-                        <label>Overall Score</label>
-                        <input type="number" step="0.5" name="test_score_overall" value={test.test_score_overall || ''} onChange={(e) => handleLanguageChange(index, e)} />
+                        <label htmlFor={`lang-${index}-overall`}>Overall Score</label>
+                        <input id={`lang-${index}-overall`} type="number" step="0.5" name="test_score_overall" value={test.test_score_overall || ''} onChange={(e) => handleLanguageChange(index, e)} />
                       </div>
                       <div className="form-grid-2">
                         <div className="form-group">
-                          <label>Listening</label>
-                          <input type="number" step="0.5" name="test_score_listening" value={test.test_score_listening || ''} onChange={(e) => handleLanguageChange(index, e)} />
+                          <label htmlFor={`lang-${index}-listening`}>Listening</label>
+                          <input id={`lang-${index}-listening`} type="number" step="0.5" name="test_score_listening" value={test.test_score_listening || ''} onChange={(e) => handleLanguageChange(index, e)} />
                         </div>
                         <div className="form-group">
-                          <label>Reading</label>
-                          <input type="number" step="0.5" name="test_score_reading" value={test.test_score_reading || ''} onChange={(e) => handleLanguageChange(index, e)} />
+                          <label htmlFor={`lang-${index}-reading`}>Reading</label>
+                          <input id={`lang-${index}-reading`} type="number" step="0.5" name="test_score_reading" value={test.test_score_reading || ''} onChange={(e) => handleLanguageChange(index, e)} />
                         </div>
                         <div className="form-group">
-                          <label>Writing</label>
-                          <input type="number" step="0.5" name="test_score_writing" value={test.test_score_writing || ''} onChange={(e) => handleLanguageChange(index, e)} />
+                          <label htmlFor={`lang-${index}-writing`}>Writing</label>
+                          <input id={`lang-${index}-writing`} type="number" step="0.5" name="test_score_writing" value={test.test_score_writing || ''} onChange={(e) => handleLanguageChange(index, e)} />
                         </div>
                         <div className="form-group">
-                          <label>Speaking</label>
-                          <input type="number" step="0.5" name="test_score_speaking" value={test.test_score_speaking || ''} onChange={(e) => handleLanguageChange(index, e)} />
+                          <label htmlFor={`lang-${index}-speaking`}>Speaking</label>
+                          <input id={`lang-${index}-speaking`} type="number" step="0.5" name="test_score_speaking" value={test.test_score_speaking || ''} onChange={(e) => handleLanguageChange(index, e)} />
                         </div>
                       </div>
                       <div className="form-group form-group-last">
-                        <label>Score Published Date</label>
-                        <input type="date" name="score_published_date" value={test.score_published_date || ''} onChange={(e) => handleLanguageChange(index, e)} />
+                        <label htmlFor={`lang-${index}-date`}>Score Published Date</label>
+                        <input id={`lang-${index}-date`} type="date" name="score_published_date" value={test.score_published_date || ''} onChange={(e) => handleLanguageChange(index, e)} />
                       </div>
                     </div>
                   ))}
@@ -570,22 +591,12 @@ export default function Profile({ session }) {
               {expandedSection === 'family' && (
                 <>
                   <div className="form-group">
-                    <label>Marital Status</label>
-                    <select name="marital_status" value={basicDetails.marital_status || 'Single'} onChange={handleBasicChange}>
-                      <option value="Single">Single</option>
-                      <option value="Married">Married</option>
-                      <option value="De Facto">De Facto</option>
-                      <option value="Divorced">Divorced / Separated</option>
-                      <option value="Widowed">Widowed</option>
-                    </select>
+                    <label htmlFor="profile-spouse-details">Spouse Details (Skills, English Level, etc.)</label>
+                    <textarea id="profile-spouse-details" name="spouseDetails" value={profile.spouseDetails || ''} onChange={handleInputChange} rows="3" placeholder="E.g., Competent English, Positive Skills Assessment..."></textarea>
                   </div>
                   <div className="form-group">
-                    <label>Spouse Details (Skills, English Level, etc.)</label>
-                    <textarea name="spouseDetails" value={profile.spouseDetails || ''} onChange={handleInputChange} rows="3" placeholder="E.g., Competent English, Positive Skills Assessment..."></textarea>
-                  </div>
-                  <div className="form-group">
-                    <label>Number of Children</label>
-                    <input type="number" name="childrenCount" min="0" value={profile.childrenCount || 0} onChange={handleInputChange} />
+                    <label htmlFor="profile-children">Number of Children</label>
+                    <input id="profile-children" type="number" name="childrenCount" min="0" value={profile.childrenCount || 0} onChange={handleInputChange} />
                   </div>
                 </>
               )}
@@ -593,15 +604,17 @@ export default function Profile({ session }) {
               {expandedSection === 'education' && (
                 <>
                   <div className="form-group">
-                    <label>Education ANZSCO Code</label>
+                    {/* The label lives inside OccupationSearch, on its input —
+                        a second one out here would point at nothing. */}
                     <OccupationSearch
+                      label="Education ANZSCO Code"
                       value={profile.educationAnzsco}
                       onChange={(val) => setProfile(prev => ({ ...prev, educationAnzsco: val }))}
                     />
                   </div>
                   <div className="form-group">
-                    <label>Highest Qualification</label>
-                    <select name="education" value={profile.education} onChange={handleInputChange}>
+                    <label htmlFor="profile-education">Highest Qualification</label>
+                    <select id="profile-education" name="education" value={profile.education} onChange={handleInputChange}>
                       <option value={0}>None / Unrecognized</option>
                       <option value={10}>Trade Qualification / Diploma</option>
                       <option value={15}>Bachelor / Master Degree</option>
@@ -628,19 +641,19 @@ export default function Profile({ session }) {
               {expandedSection === 'experience' && (
                 <>
                   <div className="form-group">
-                    <label>Experience ANZSCO Code</label>
                     <OccupationSearch
+                      label="Experience ANZSCO Code"
                       value={profile.experienceAnzsco}
                       onChange={(val) => setProfile(prev => ({ ...prev, experienceAnzsco: val }))}
                     />
                   </div>
                   <div className="form-group">
-                    <label>Overseas Experience (years)</label>
-                    <input type="number" name="overseasExp" value={profile.overseasExp} onChange={handleInputChange} />
+                    <label htmlFor="profile-overseas-exp">Overseas Experience (years)</label>
+                    <input id="profile-overseas-exp" type="number" min="0" name="overseasExp" value={profile.overseasExp} onChange={handleInputChange} />
                   </div>
                   <div className="form-group">
-                    <label>Australian Experience (years)</label>
-                    <input type="number" name="ausExp" value={profile.ausExp} onChange={handleInputChange} />
+                    <label htmlFor="profile-aus-exp">Australian Experience (years)</label>
+                    <input id="profile-aus-exp" type="number" min="0" name="ausExp" value={profile.ausExp} onChange={handleInputChange} />
                   </div>
                   <div className="checkbox-group">
                     <label className="checkbox-label">

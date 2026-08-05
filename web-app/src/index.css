@@ -95,6 +95,29 @@ h1, h2, h3, h4 {
   color: var(--color-primary);
 }
 
+/* One keyboard focus ring for everything focusable. Buttons, links, cards and
+   nav items previously had none — only form fields did — which left a keyboard
+   user with no idea where they were. */
+:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
+}
+
+/* Form fields keep their own accent ring (see input:focus below); the outline
+   would only double it. */
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: none;
+}
+
+/* The dialog container takes focus on open so its title is announced. That is
+   a programmatic move, not a keyboard landing spot, so it shows no ring. */
+.modal-content:focus,
+.modal-content:focus-visible {
+  outline: none;
+}
+
 /* Mobile-First App Layout */
 .app-layout {
   display: flex;
@@ -106,24 +129,6 @@ h1, h2, h3, h4 {
    their own bottom padding on top of this. */
 .app-layout.has-nav {
   padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom, 0px));
-}
-
-/* Top Header */
-.top-header {
-  position: sticky;
-  top: 0;
-  background: var(--color-surface);
-  border-bottom: 1px solid var(--color-border);
-  padding: var(--spacing-md) var(--spacing-lg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 40;
-}
-
-.top-header h1 {
-  font-size: 1.25rem;
-  margin: 0;
 }
 
 /* Bottom Navigation */
@@ -145,9 +150,13 @@ h1, h2, h3, h4 {
   box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
+/* Stretched to the nav's full height so the ::before indicator can sit exactly
+   on its top edge. */
 .nav-item {
+  position: relative;
   display: flex;
   flex-direction: column;
+  align-self: stretch;
   align-items: center;
   gap: 4px;
   color: var(--color-secondary);
@@ -155,20 +164,40 @@ h1, h2, h3, h4 {
   font-size: 0.75rem;
   font-weight: 500;
   padding: var(--spacing-sm) var(--spacing-md);
-  border-radius: var(--radius-md);
   transition: color 0.2s;
   min-width: 64px;
   min-height: 44px; /* Minimum touch target */
   justify-content: center;
 }
 
-.nav-item.active,
-.nav-item:active {
+/* "This is the current page" and "a finger is on this" are different states.
+   The old rule matched both with one selector, so any tab looked current
+   while it was being pressed. */
+.nav-item.active {
   color: var(--color-accent);
+  font-weight: 700;
+}
+
+/* Colour alone cannot carry the current-tab meaning (WCAG 1.4.1), so the
+   active tab also gets a bar on the nav's top edge and a heavier label. */
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 32px;
+  height: 3px;
+  transform: translateX(-50%);
+  border-radius: 0 0 var(--radius-full) var(--radius-full);
+  background: var(--color-accent);
 }
 
 .nav-item:hover {
   background: var(--color-muted);
+}
+
+.nav-item:active {
+  background: var(--color-border);
 }
 
 /* Main Content Area — the single owner of the reading column's width and
@@ -1594,6 +1623,16 @@ details[open] .accordion-icon {
   box-shadow: var(--shadow-sm);
 }
 
+/* Sized to match .profile-avatar so the fallback swap does not reflow the row. */
+.profile-avatar-image {
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  background-color: var(--color-muted);
+}
+
 .profile-avatar {
   display: inline-flex;
   align-items: center;
@@ -1757,9 +1796,15 @@ details[open] .accordion-icon {
   transition: border-color 0.2s ease;
 }
 
+/* The file input itself is transparent, so its focus ring would be invisible —
+   the dropzone shows the ring on its behalf. */
 .dropzone:hover,
 .dropzone:focus-within {
   border-color: var(--color-accent);
+}
+
+.dropzone:focus-within {
+  box-shadow: 0 0 0 3px var(--color-accent-ring);
 }
 
 .dropzone-input {
@@ -2001,6 +2046,7 @@ details[open] .accordion-icon {
 
 .news-card-image {
   display: block;
+  flex-shrink: 0;
   width: 100%;
   height: 160px;
   object-fit: cover;
@@ -2425,5 +2471,43 @@ input[type="text"].occupation-input:focus {
   .btn-primary-large, .btn-secondary-large {
     width: 100%;
     justify-content: center;
+  }
+}
+
+/* ==========================================================================
+   Reduced motion
+   Last in the file so it overrides everything above it. Motion is removed,
+   not the state changes it conveyed — colours, widths and positions still
+   land, they just arrive instantly.
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* The shimmer is decoration with nothing to land on, so it stops outright
+     rather than freezing mid-sweep. */
+  .skeleton {
+    animation: none !important;
+    background: var(--color-muted);
+  }
+
+  /* Transforms are the motion itself — shortening them still moves things. */
+  .card-interactive:hover,
+  .card-interactive:active,
+  .hover-card:hover,
+  .btn-primary-large:hover,
+  .btn-primary:active:not(:disabled),
+  .btn-secondary:active:not(:disabled) {
+    transform: none;
+  }
+
+  .modal-content {
+    animation: none !important;
   }
 }

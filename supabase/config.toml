@@ -423,3 +423,20 @@ entrypoint = "./functions/upload-cv/index.ts"
 # Specifies static files to be bundled with the function. Supports glob patterns.
 # For example, if you want to serve static HTML pages in your function:
 # static_files = [ "./functions/upload-cv/*.html" ]
+
+# Deployed with --no-verify-jwt in the past; codified here so future
+# `supabase functions deploy` calls reproduce that from source.
+[functions.parse-cv]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/parse-cv/index.ts"
+
+[functions.extract-cv]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/extract-cv/index.ts"
+
+[functions.apply-cv-profile]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/apply-cv-profile/index.ts"

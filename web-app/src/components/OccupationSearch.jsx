@@ -7,7 +7,10 @@ const MIN_CHARS = 2;
 const MATCH_THRESHOLD = 0.3;
 const MATCH_COUNT = 20;
 
-export default function OccupationSearch({ value = null, onChange }) {
+// `label` names the field for the one control this component owns. A caller
+// that rendered its own <label> beside this one would leave that label pointing
+// at nothing, so the wording is passed in instead.
+export default function OccupationSearch({ value = null, onChange, label = 'Select your occupation' }) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
   const [open, setOpen] = useState(false);
@@ -96,9 +99,18 @@ export default function OccupationSearch({ value = null, onChange }) {
     }
   }, [value]);
 
+  const term = query.trim();
+  const showDropdown = open && term.length >= MIN_CHARS;
+  const showEmpty = showDropdown && !loading && !error && results.length === 0;
+
   const handleKeyDown = (event) => {
     if (event.key === 'Escape') {
-      setOpen(false);
+      // Only claim Escape when there is a dropdown to close. Otherwise it must
+      // keep travelling, so Escape still closes the dialog this sits inside.
+      if (showDropdown) {
+        event.stopPropagation();
+        setOpen(false);
+      }
       return;
     }
     if (!open || results.length === 0) return;
@@ -115,14 +127,10 @@ export default function OccupationSearch({ value = null, onChange }) {
     }
   };
 
-  const term = query.trim();
-  const showDropdown = open && term.length >= MIN_CHARS;
-  const showEmpty = showDropdown && !loading && !error && results.length === 0;
-
   return (
     <section className="panel occupation-search" ref={containerRef}>
       <label htmlFor={`${listboxId}-input`} className="occupation-question">
-        Select your occupation
+        {label}
       </label>
       <p className="text-muted text-sm mb-2">
         Start typing your job title or ANZSCO code &mdash; spelling doesn&apos;t have to be exact.

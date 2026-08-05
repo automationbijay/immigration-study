@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, NavLink } from 'react-router-dom';
 import NotFound from './pages/NotFound';
 import { supabase } from './lib/supabase';
 import Login from './pages/Login';
@@ -15,33 +15,27 @@ import { User, Home as HomeIcon, Compass } from 'lucide-react';
 import { SkeletonPage } from './components/ui/Skeleton';
 import './index.css';
 
+const NAV_ITEMS = [
+  { to: '/home', label: 'Home', icon: HomeIcon },
+  { to: '/discover', label: 'Discover', icon: Compass },
+  { to: '/profile', label: 'Profile', icon: User },
+];
+
+/**
+ * NavLink rather than Link: it adds `aria-current="page"` and the `active`
+ * class itself, so "which tab am I on" is exposed to assistive tech instead of
+ * being implied by colour alone.
+ */
 function BottomNav() {
-  const location = useLocation();
-  const currentPath = location.pathname;
-
   return (
-    <nav className="bottom-nav">
-      <Link to="/home" className={`nav-item ${currentPath === '/home' ? 'active' : ''}`}>
-        <HomeIcon className="inline-icon"/> 
-        <span>Home</span>
-      </Link>
-      <Link to="/discover" className={`nav-item ${currentPath === '/discover' ? 'active' : ''}`}>
-        <Compass className="inline-icon"/> 
-        <span>Discover</span>
-      </Link>
-      <Link to="/profile" className={`nav-item ${currentPath === '/profile' ? 'active' : ''}`}>
-        <User className="inline-icon"/> 
-        <span>Profile</span>
-      </Link>
+    <nav className="bottom-nav" aria-label="Primary">
+      {NAV_ITEMS.map(({ to, label, icon: Icon }) => (
+        <NavLink key={to} to={to} className="nav-item">
+          <Icon className="inline-icon" aria-hidden="true" />
+          <span>{label}</span>
+        </NavLink>
+      ))}
     </nav>
-  );
-}
-
-function TopHeader() {
-  return (
-    <header className="top-header">
-      <h1>Migration Assistant</h1>
-    </header>
   );
 }
 
@@ -77,8 +71,6 @@ function App() {
   return (
     <Router>
       <div className={`app-layout ${session ? 'has-nav' : ''}`}>
-        {session && <TopHeader />}
-
         <main className="main-content">
           <Routes>
             <Route path="/login" element={!session ? <Login /> : <Navigate to="/home" />} />

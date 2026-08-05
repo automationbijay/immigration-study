@@ -1,7 +1,15 @@
+import os
 from pathlib import Path
+from dotenv import load_dotenv
 from llama_cloud import LlamaCloud
 
-client = LlamaCloud(api_key="llx-WrFAtU3il9s9posD2MrphdkQEY9UJMYDkOzfg72KJWaTgFz3")
+load_dotenv()
+
+api_key = os.environ.get("LLAMA_CLOUD_API_KEY")
+if not api_key:
+    raise SystemExit("LLAMA_CLOUD_API_KEY environment variable is required.")
+
+client = LlamaCloud(api_key=api_key)
 
 print("Uploading CV to LlamaCloud for parsing...")
 file_obj = client.files.create(file="./two-column-resume-template-blue.pdf", purpose="parse")

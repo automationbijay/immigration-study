@@ -1,9 +1,11 @@
-// Write-back endpoint for the n8n CV workflow.
+// Write-back endpoint for CV extraction. Called directly by extract-cv
+// (LlamaExtract structured extraction — no n8n in the loop) with the same
+// {cv_id, profile} contract an n8n workflow could also use if one existed.
 //
-// Flow: upload-cv -> cv_metadata insert -> parse-cv (LlamaCloud -> markdown)
-//       -> n8n webhook (extraction) -> THIS FUNCTION (mapping + write)
+// Flow: upload-cv -> cv_metadata insert -> extract-cv (LlamaCloud LlamaExtract,
+//       direct from the PDF) -> THIS FUNCTION (mapping + write)
 //
-// Why n8n posts here instead of writing to the tables directly:
+// Why the caller posts here instead of writing to the tables directly:
 //
 //   1. Units. `overseasExp` and `ausExp` store YEARS. Several parts of the app
 //      score them into points, and a workflow that writes points into those
@@ -12,10 +14,15 @@
 //      and the conversion lives in one place.
 //   2. Scoring rules. Education level and English band thresholds map to points
 //      by rules that change with policy. Keeping them here means one edit, not
-//      an n8n node rebuild.
+//      a rebuild in every caller.
 //   3. Safety. A CV is evidence, not authority. This only fills fields the user
 //      has left empty — it never overwrites something they typed, because doing
 //      so would change their points score without them noticing.
+//
+// Writes profile_basic / point_australia / education (empty-fields-only), plus
+// an unconditional cv_llamaparsed audit row recording every candidate value
+// this extraction found — including ones skipped above because the user
+// already had data there.
 
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
@@ -228,6 +235,31 @@ serve(async (req) => {
       if (error) console.error("point_australia upsert failed:", error);
     }
 
+    // ---- education (raw qualification detail point_australia.education, a points
+    // integer, can't hold: field of study, institution, country, year) -------
+    const { data: eduRow } = await supabase
+      .from("education")
+      .select("*")
+      .eq("id", userId)
+      .maybeSingle();
+
+    const eduUpdates: Record<string, unknown> = { id: userId, updated_at: new Date() };
+
+    if (q.level && q.level in EDUCATION_POINTS) {
+      fillIfEmpty(eduUpdates, eduRow, "level", q.level, filled, skipped);
+    }
+    fillIfEmpty(eduUpdates, eduRow, "field_of_study", q.field_of_study, filled, skipped);
+    fillIfEmpty(eduUpdates, eduRow, "institution", q.institution, filled, skipped);
+    fillIfEmpty(eduUpdates, eduRow, "country", q.country, filled, skipped);
+    if (isFiniteNumber(q.completed_year)) {
+      fillIfEmpty(eduUpdates, eduRow, "completed_year", q.completed_year, filled, skipped);
+    }
+
+    if (Object.keys(eduUpdates).length > 2) {
+      const { error } = await supabase.from("education").upsert(eduUpdates);
+      if (error) console.error("education upsert failed:", error);
+    }
+
     // ---- English test scores ----------------------------------------------
     const testTable = typeof test.test_type === "string" ? TEST_TABLES[test.test_type] : null;
     if (testTable && isFiniteNumber(test.overall)) {
@@ -256,6 +288,53 @@ serve(async (req) => {
         skipped.push(`${test.test_type} scores`);
       }
     }
+
+    // ---- cv_llamaparsed (full audit record of everything this extraction found,
+    // regardless of whether fillIfEmpty above actually applied each field —
+    // this is a "what did we find" record, not just "what we applied") ------
+    const eduPoints = q.level && q.level in EDUCATION_POINTS ? EDUCATION_POINTS[q.level] : null;
+    const dobCandidate = typeof p.date_of_birth === "string" && /^\d{4}-\d{2}-\d{2}$/.test(p.date_of_birth)
+      ? p.date_of_birth
+      : null;
+    const maritalCandidate = MARITAL_STATUSES.includes(p.marital_status) ? p.marital_status : null;
+
+    const { error: llamaparsedError } = await supabase.from("cv_llamaparsed").upsert(
+      {
+        cv_id: cvId,
+        user_id: userId,
+        updated_at: new Date(),
+
+        profile_basic_name: p.full_name ?? null,
+        profile_basic_email: p.email ?? null,
+        profile_basic_phone_no: p.phone ?? null,
+        profile_basic_country: p.country_of_residence ?? null,
+        profile_basic_dob: dobCandidate,
+        profile_basic_marital_status: maritalCandidate,
+
+        point_australia_education: eduPoints,
+        point_australia_overseas_exp: isFiniteNumber(x.overseas_years) ? Math.max(0, Math.floor(x.overseas_years)) : null,
+        point_australia_aus_exp: isFiniteNumber(x.australian_years) ? Math.max(0, Math.floor(x.australian_years)) : null,
+        point_australia_english: english,
+        point_australia_aus_study: af.studied_in_australia ?? null,
+        point_australia_regional_study: af.studied_in_regional_australia ?? null,
+        point_australia_professional_year: af.completed_professional_year ?? null,
+        point_australia_ccl: af.completed_ccl ?? null,
+
+        education_level: q.level ?? null,
+        education_field_of_study: q.field_of_study ?? null,
+        education_institution: q.institution ?? null,
+        education_country: q.country ?? null,
+        education_completed_year: isFiniteNumber(q.completed_year) ? q.completed_year : null,
+
+        most_recent_job_title: x.most_recent_job_title ?? null,
+        occupation_code: occ?.occupation_code ?? null,
+        occupation_job_name: occ?.job_name ?? null,
+        occupation_category: occ?.category ?? null,
+        assumptions: profile.assumptions ?? [],
+      },
+      { onConflict: "cv_id" },
+    );
+    if (llamaparsedError) console.error("cv_llamaparsed upsert failed:", llamaparsedError);
 
     await supabase
       .from("cv_metadata")

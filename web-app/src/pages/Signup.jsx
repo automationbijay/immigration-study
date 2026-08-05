@@ -86,23 +86,27 @@ export default function Signup() {
         
         <form onSubmit={handleSignup} className="auth-form">
           <div className="form-group">
-            <label>Email Address</label>
-            <input 
-              type="email" 
+            <label htmlFor="signup-email">Email Address</label>
+            <input
+              id="signup-email"
+              type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="name@example.com"
-              required 
+              autoComplete="email"
+              required
             />
           </div>
           <div className="form-group">
-            <label>Password</label>
-            <input 
-              type="password" 
+            <label htmlFor="signup-password">Password</label>
+            <input
+              id="signup-password"
+              type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              required 
+              autoComplete="new-password"
+              required
             />
           </div>
           <button type="submit" disabled={loading} className="btn-primary mb-2">

@@ -1,14 +1,19 @@
 import os
 import requests
+from dotenv import load_dotenv
 
-API_KEY = "llx-WrFAtU3il9s9posD2MrphdkQEY9UJMYDkOzfg72KJWaTgFz3"
+load_dotenv()
+
+API_KEY = os.environ.get("LLAMA_CLOUD_API_KEY")
+if not API_KEY:
+    raise SystemExit("LLAMA_CLOUD_API_KEY environment variable is required.")
 BASE_URL = "https://api.cloud.llamaindex.ai/api/parsing"
 
 # 1. Upload
 with open("two-column-resume-template-blue.pdf", "rb") as f:
     files = {"file": f}
     headers = {"Authorization": f"Bearer {API_KEY}"}
-    data = {"tier": "fast"}
+    data = {"tier": "fast", "version": "latest"}
     print("Uploading...")
     res = requests.post(f"{BASE_URL}/upload", headers=headers, files=files, data=data)
     print(res.status_code, res.text)

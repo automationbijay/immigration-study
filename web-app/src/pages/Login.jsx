@@ -76,23 +76,27 @@ export default function Login() {
         
         <form onSubmit={handleLogin} className="auth-form">
           <div className="form-group">
-            <label>Email Address</label>
-            <input 
-              type="email" 
+            <label htmlFor="login-email">Email Address</label>
+            <input
+              id="login-email"
+              type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="name@example.com"
-              required 
+              autoComplete="email"
+              required
             />
           </div>
           <div className="form-group">
-            <label>Password</label>
-            <input 
-              type="password" 
+            <label htmlFor="login-password">Password</label>
+            <input
+              id="login-password"
+              type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              required 
+              autoComplete="current-password"
+              required
             />
           </div>
           <button type="submit" disabled={loading} className="btn-primary mb-2">
