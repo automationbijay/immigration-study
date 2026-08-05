@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 
 export default function Signup() {
   const [email, setEmail] = useState('');
@@ -9,6 +9,11 @@ export default function Signup() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  // Carried from Landing's "Upload CV" CTA; Profile opens the upload modal.
+  const wantsCvUpload = searchParams.get('intent') === 'upload_cv';
+  const loginPath = wantsCvUpload ? '/login?intent=upload_cv' : '/login';
 
   const handleSignup = async (e) => {
     e.preventDefault();
@@ -25,7 +30,7 @@ export default function Signup() {
       setError(error.message);
     } else {
       setMessage('Signup successful! You can now log in.');
-      setTimeout(() => navigate('/login'), 2000);
+      setTimeout(() => navigate(loginPath), 2000);
     }
     setLoading(false);
   };
@@ -34,7 +39,11 @@ export default function Signup() {
     <div className="auth-container">
       <div className="auth-panel">
         <h2>Create Account</h2>
-        <p className="text-muted">Start tracking your visa eligibility</p>
+        <p className="text-muted">
+          {wantsCvUpload
+            ? 'Create an account to upload your CV'
+            : 'Start tracking your visa eligibility'}
+        </p>
         
         {error && <div className="error-message">{error}</div>}
         {message && <div className="success-message">{message}</div>}
@@ -66,7 +75,7 @@ export default function Signup() {
         </form>
         
         <div className="text-center text-sm text-muted">
-          Already have an account? <Link to="/login" style={{color: 'var(--color-primary)', fontWeight: 600}}>Log in</Link>
+          Already have an account? <Link to={loginPath} style={{color: 'var(--color-primary)', fontWeight: 600}}>Log in</Link>
         </div>
       </div>
     </div>

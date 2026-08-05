@@ -59,7 +59,7 @@ export default function NewsHub() {
               style={{ width: '100%', height: '160px', objectFit: 'cover' }} 
             />
             <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', flex: 1 }}>
-              <span style={{ fontSize: '0.75rem', color: 'var(--color-muted)', display: 'block', marginBottom: '0.5rem', fontWeight: '600', textTransform: 'uppercase' }}>
+              <span style={{ fontSize: '0.75rem', color: 'var(--color-secondary)', display: 'block', marginBottom: '0.5rem', fontWeight: '600', textTransform: 'uppercase' }}>
                 {news.date}
               </span>
               <h3 style={{ fontSize: '1.25rem', marginBottom: '0.75rem', color: 'var(--color-primary)', lineHeight: '1.3' }}>

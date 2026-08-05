@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
+import NotFound from './pages/NotFound';
 import { supabase } from './lib/supabase';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
@@ -86,6 +87,7 @@ function App() {
             <Route path="/news" element={session ? <NewsHub session={session} /> : <Navigate to="/login" />} />
             <Route path="/home" element={session ? <Home session={session} /> : <Navigate to="/login" />} />
             <Route path="/" element={<Landing session={session} />} />
+            <Route path="*" element={<NotFound session={session} />} />
           </Routes>
         </main>
         

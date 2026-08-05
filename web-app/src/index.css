@@ -188,6 +188,76 @@ input[type="checkbox"] {
   cursor: pointer;
 }
 
+/* Toggle Switch */
+.switch-group {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-md);
+  min-height: 44px;
+}
+
+.switch-group > label:first-child {
+  margin: 0;
+  font-weight: 500;
+  flex: 1;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+  width: 48px;
+  height: 28px;
+  margin: 0;
+}
+
+/* Overrides the global 20x20 checkbox sizing so the input covers the track. */
+.switch input[type="checkbox"] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.switch .slider {
+  position: absolute;
+  inset: 0;
+  background-color: var(--color-border);
+  border-radius: var(--radius-full);
+  transition: background-color 0.2s ease;
+  pointer-events: none;
+}
+
+.switch .slider::before {
+  content: '';
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  top: 3px;
+  left: 3px;
+  background-color: var(--color-surface);
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  transition: transform 0.2s ease;
+}
+
+.switch input[type="checkbox"]:checked + .slider {
+  background-color: var(--color-accent);
+}
+
+.switch input[type="checkbox"]:checked + .slider::before {
+  transform: translateX(20px);
+}
+
+.switch input[type="checkbox"]:focus-visible + .slider {
+  box-shadow: 0 0 0 3px rgba(161, 98, 7, 0.35);
+}
+
 /* Buttons */
 .btn-primary {
   width: 100%;
@@ -368,6 +438,21 @@ input[type="checkbox"] {
   margin-bottom: var(--spacing-md);
   font-size: 0.875rem;
   border: 1px solid #BBF7D0;
+}
+
+/* Floats above the modal overlay (z-index 100) so a save result is never
+   hidden behind the dialog that triggered it. */
+.toast {
+  position: fixed;
+  top: calc(env(safe-area-inset-top, 0px) + var(--spacing-md));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 200;
+  width: calc(100% - 2 * var(--spacing-md));
+  max-width: 420px;
+  margin-bottom: 0;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.15);
+  animation: fadeIn 0.2s ease-out;
 }
 
 .inline-icon {
@@ -728,11 +813,19 @@ input[type="text"].occupation-input:focus {
   color: var(--color-primary);
 }
 
+/* Solid colour first: without background-clip support, transparent fill would
+   render the headline invisible. */
 .text-gradient {
-  background: linear-gradient(135deg, var(--color-accent) 0%, #d97706 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--color-accent);
+}
+
+@supports ((background-clip: text) or (-webkit-background-clip: text)) {
+  .text-gradient {
+    background: linear-gradient(135deg, var(--color-accent) 0%, #d97706 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
 }
 
 .landing-tagline {

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { User, Globe, GraduationCap, Briefcase, CheckCircle2, ChevronDown, ChevronUp, Users, LogOut, FileText, Upload, Download, X } from 'lucide-react';
 import OccupationSearch from '../components/OccupationSearch';
@@ -88,6 +89,7 @@ function CvViewer({ cvUrl }) {
 }
 
 export default function Profile({ session }) {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [isCvModalOpen, setIsCvModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState({
@@ -129,6 +131,16 @@ export default function Profile({ session }) {
   const toggleSection = (section) => {
     setExpandedSection(prev => prev === section ? null : section);
   };
+
+  // Landing's "Upload CV" CTA carries ?intent=upload_cv through signup and
+  // login; honour it here, then drop the param so a refresh does not reopen it.
+  useEffect(() => {
+    if (searchParams.get('intent') !== 'upload_cv') return;
+    setIsCvModalOpen(true);
+    const next = new URLSearchParams(searchParams);
+    next.delete('intent');
+    setSearchParams(next, { replace: true });
+  }, [searchParams, setSearchParams]);
 
   useEffect(() => {
     let ignore = false;
@@ -277,13 +289,11 @@ export default function Profile({ session }) {
     }
     setLanguageProficiency(newLanguageProficiency);
 
-    if (profileError || basicError || languageError) {
-      setMessage('Error updating profile!');
-    } else {
-      setMessage('Profile saved successfully!');
-    }
+    const succeeded = !profileError && !basicError && !languageError;
+    setMessage(succeeded ? 'Profile saved successfully!' : 'Error updating profile!');
     setLoading(false);
     setTimeout(() => setMessage(''), 3000);
+    return succeeded;
   };
 
   const handleInputChange = (e) => {
@@ -349,8 +359,10 @@ export default function Profile({ session }) {
 
   const handleModalSave = async (e) => {
     e.preventDefault();
-    await updateProfile(e);
-    if (!message.includes('Error')) {
+    // Branch on the returned result: `message` still holds its pre-save value
+    // at this point, so reading it here would always look like a success.
+    const succeeded = await updateProfile(e);
+    if (succeeded) {
       closeModal();
     }
   };
@@ -376,7 +388,15 @@ export default function Profile({ session }) {
 
   return (
     <div className="profile-container">
-      {message && <div className={message.includes('Error') ? 'error-message' : 'success-message'}>{message}</div>}
+      {message && (
+        <div
+          className={`toast ${message.includes('Error') ? 'error-message' : 'success-message'}`}
+          role="status"
+          aria-live="polite"
+        >
+          {message}
+        </div>
+      )}
 
       <div className="panel" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1.5rem', marginBottom: '2rem' }}>
         <div style={{ width: '64px', height: '64px', borderRadius: '50%', backgroundColor: 'var(--color-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

@@ -99,7 +99,7 @@ export default function FormsHub({ session }) {
       </h2>
       
       {loading ? (
-        <div style={{ color: 'var(--color-muted)' }}>Loading forms...</div>
+        <div style={{ color: 'var(--color-secondary)' }}>Loading forms...</div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
           {/* Form Card */}

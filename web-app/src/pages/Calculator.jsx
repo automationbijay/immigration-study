@@ -4,25 +4,38 @@ import ScoreDisplay from '../components/ScoreDisplay';
 import { supabase } from '../lib/supabase';
 import { ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import {
+  AGE_BANDS,
+  ENGLISH_BANDS,
+  EDUCATION_BANDS,
+  PARTNER_SKILLS_BANDS,
+  STATE_NOMINATION_POINTS,
+  ageBandIdFromProfile,
+  bandIdForPoints,
+  pointsForBandId,
+  totalPointsFromForm,
+} from '../lib/points';
 
 export default function Calculator({ session }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
-  
+
+  // Band ids for everything scored from a fixed table; raw years for the two
+  // experience fields, because that is the unit `point_australia` stores.
   const [formData, setFormData] = useState({
-    age: 0,
-    english: 0,
-    overseasExp: 0,
-    ausExp: 0,
-    education: 0,
+    ageBand: 'unset',
+    englishBand: 'competent',
+    overseasExpYears: 0,
+    ausExpYears: 0,
+    educationBand: 'none',
     specialistEdu: false,
     ausStudy: false,
     professionalYear: false,
     ccl: false,
     regionalStudy: false,
-    partnerSkills: 0,
-    stateNomination: true
+    partnerSkillsBand: 'none',
+    stateNomination: true,
   });
 
   const [totalPoints, setTotalPoints] = useState(0);
@@ -43,56 +56,24 @@ export default function Calculator({ session }) {
           .eq('id', session.user.id)
           .single();
 
-        // Calculate age points based on DOB
-        let agePoints = 0;
-        if (basicData?.dob) {
-            const birthDate = new Date(basicData.dob);
-            const today = new Date();
-            let age = today.getFullYear() - birthDate.getFullYear();
-            const m = today.getMonth() - birthDate.getMonth();
-            if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-              age--;
-            }
-            if (age >= 18 && age <= 24) agePoints = 25;
-            else if (age >= 25 && age <= 32) agePoints = 30;
-            else if (age >= 33 && age <= 39) agePoints = 25;
-            else if (age >= 40 && age <= 44) agePoints = 15;
-            else agePoints = 0;
-        } else if (profileData?.age) {
-            // fallback if age was manually saved as points
-            agePoints = profileData.age;
+        if (error && error.code !== 'PGRST116') {
+          console.error('Error fetching profile:', error);
         }
-
-        // Map overseasExp years to points if it looks like years (< 30) and not points (0, 5, 10, 15)
-        // Actually Profile saves literal years. Let's map it.
-        let osExp = profileData?.overseasExp || 0;
-        let osExpPoints = 0;
-        if (osExp >= 8) osExpPoints = 15;
-        else if (osExp >= 5) osExpPoints = 10;
-        else if (osExp >= 3) osExpPoints = 5;
-
-        // Map ausExp years to points
-        let auExp = profileData?.ausExp || 0;
-        let auExpPoints = 0;
-        if (auExp >= 8) auExpPoints = 20;
-        else if (auExp >= 5) auExpPoints = 15;
-        else if (auExp >= 3) auExpPoints = 10;
-        else if (auExp >= 1) auExpPoints = 5;
 
         if (profileData) {
           setFormData(prev => ({
             ...prev,
-            age: agePoints,
-            english: profileData.english || 0,
-            overseasExp: osExpPoints,
-            ausExp: auExpPoints,
-            education: profileData.education || 0,
+            ageBand: ageBandIdFromProfile(basicData?.dob, profileData.age),
+            englishBand: bandIdForPoints(ENGLISH_BANDS, profileData.english),
+            overseasExpYears: Number(profileData.overseasExp) || 0,
+            ausExpYears: Number(profileData.ausExp) || 0,
+            educationBand: bandIdForPoints(EDUCATION_BANDS, profileData.education),
             specialistEdu: profileData.specialistEdu || false,
             ausStudy: profileData.ausStudy || false,
             professionalYear: profileData.professionalYear || false,
             ccl: profileData.ccl || false,
             regionalStudy: profileData.regionalStudy || false,
-            partnerSkills: profileData.partnerSkills || 0,
+            partnerSkillsBand: bandIdForPoints(PARTNER_SKILLS_BANDS, profileData.partnerSkills),
           }));
         }
       } catch (error) {
@@ -106,32 +87,11 @@ export default function Calculator({ session }) {
   }, [session]);
 
   useEffect(() => {
-    let points = 0;
-    points += Number(formData.age);
-    points += Number(formData.english);
-    points += Number(formData.education);
-    points += Number(formData.partnerSkills);
-
-    if (formData.specialistEdu) points += 10;
-    if (formData.ausStudy) points += 5;
-    if (formData.professionalYear) points += 5;
-    if (formData.ccl) points += 5;
-    if (formData.regionalStudy) points += 5;
-    if (formData.stateNomination) points += 5;
-
-    let workExperience = Number(formData.overseasExp) + Number(formData.ausExp);
-    if (workExperience > 20) workExperience = 20;
-    points += workExperience;
-
-    setTotalPoints(points);
+    setTotalPoints(totalPointsFromForm(formData));
   }, [formData]);
 
-  const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
+  const handleChange = (name, value) => {
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSave = async () => {
@@ -143,17 +103,18 @@ export default function Calculator({ session }) {
         .from('point_australia')
         .upsert({
           id: session.user.id,
-          age: formData.age,
-          english: formData.english,
-          overseasExp: formData.overseasExp,
-          ausExp: formData.ausExp,
-          education: formData.education,
+          age: pointsForBandId(AGE_BANDS, formData.ageBand),
+          english: pointsForBandId(ENGLISH_BANDS, formData.englishBand),
+          // Years, not points — Profile and Discover both read these as years.
+          overseasExp: formData.overseasExpYears,
+          ausExp: formData.ausExpYears,
+          education: pointsForBandId(EDUCATION_BANDS, formData.educationBand),
           specialistEdu: formData.specialistEdu,
           ausStudy: formData.ausStudy,
           professionalYear: formData.professionalYear,
           ccl: formData.ccl,
           regionalStudy: formData.regionalStudy,
-          partnerSkills: formData.partnerSkills,
+          partnerSkills: pointsForBandId(PARTNER_SKILLS_BANDS, formData.partnerSkillsBand),
         });
 
       if (error) throw error;
@@ -176,14 +137,14 @@ export default function Calculator({ session }) {
       <Link to="/discover" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-primary)', textDecoration: 'none', marginBottom: '1.5rem' }}>
         <ArrowLeft size={20} /> Back to Discover
       </Link>
-      
+
       <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1.5rem', color: 'var(--color-text)' }}>Eligibility Calculator</h2>
       <p style={{ color: 'var(--color-secondary)', marginBottom: '2rem' }}>
         This form is pre-populated with data from your profile. You can tweak the values here to see how it affects your total points.
       </p>
-      
+
       <ScoreDisplay targetScore={totalPoints} />
-      
+
       <div style={{
         marginTop: '1.5rem',
         padding: '1rem 1.5rem',
@@ -197,7 +158,7 @@ export default function Calculator({ session }) {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <div style={{ background: 'rgba(34, 197, 94, 0.2)', padding: '0.5rem', borderRadius: '50%' }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-green-600"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
           </div>
           <div>
             <h4 style={{ margin: 0, fontWeight: 'bold', fontSize: '1rem' }}>State Nomination (190)</h4>
@@ -205,12 +166,12 @@ export default function Calculator({ session }) {
           </div>
         </div>
         <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: 'var(--color-primary)' }}>
-          +5 Points
+          +{STATE_NOMINATION_POINTS} Points
         </div>
       </div>
-      
+
       <div style={{ marginTop: '2rem' }}>
-        <PointsForm formData={formData} handleInputChange={handleInputChange} />
+        <PointsForm formData={formData} onChange={handleChange} />
       </div>
 
       <div style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'center' }}>
@@ -219,9 +180,9 @@ export default function Calculator({ session }) {
             {message}
           </div>
         )}
-        <button 
-          onClick={handleSave} 
-          className="btn-primary" 
+        <button
+          onClick={handleSave}
+          className="btn-primary"
           disabled={saving}
           style={{ width: '100%', maxWidth: '300px' }}
         >

@@ -254,7 +254,7 @@ export default function Discover({ session }) {
                 style={{ width: '100%', height: '140px', objectFit: 'cover', borderRadius: '8px' }} 
               />
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-                <span style={{ fontSize: '0.75rem', color: 'var(--color-muted)', display: 'block', marginBottom: '0.25rem' }}>{news.date}</span>
+                <span style={{ fontSize: '0.75rem', color: 'var(--color-secondary)', display: 'block', marginBottom: '0.25rem' }}>{news.date}</span>
                 <h3 style={{ fontSize: '1.125rem', marginBottom: '0.5rem', color: 'var(--color-primary)', lineHeight: '1.3', flex: 1 }}>{news.title}</h3>
               </div>
             </div>

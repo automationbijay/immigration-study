@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -8,6 +8,10 @@ export default function Login() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  // Carried from Landing's "Upload CV" CTA; Profile opens the upload modal.
+  const wantsCvUpload = searchParams.get('intent') === 'upload_cv';
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -22,7 +26,7 @@ export default function Login() {
     if (error) {
       setError(error.message);
     } else {
-      navigate('/profile');
+      navigate(wantsCvUpload ? '/profile?intent=upload_cv' : '/profile');
     }
     setLoading(false);
   };
@@ -62,7 +66,7 @@ export default function Login() {
         </form>
         
         <div className="text-center text-sm text-muted">
-          Don't have an account? <Link to="/signup" style={{color: 'var(--color-primary)', fontWeight: 600}}>Create one</Link>
+          Don't have an account? <Link to={wantsCvUpload ? '/signup?intent=upload_cv' : '/signup'} style={{color: 'var(--color-primary)', fontWeight: 600}}>Create one</Link>
         </div>
       </div>
     </div>

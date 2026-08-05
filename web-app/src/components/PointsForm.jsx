@@ -1,149 +1,146 @@
 import React from 'react';
 import { User, Briefcase, GraduationCap, Award } from 'lucide-react';
+import {
+    AGE_BANDS,
+    ENGLISH_BANDS,
+    OVERSEAS_EXP_BANDS,
+    AUS_EXP_BANDS,
+    EDUCATION_BANDS,
+    PARTNER_SKILLS_BANDS,
+    MAX_WORK_EXPERIENCE_POINTS,
+    bandIdForYears,
+    yearsForBandId,
+    optionLabel,
+} from '../lib/points';
 
-const PointsForm = ({ formData, handleInputChange }) => {
-    
-    const SectionHeader = ({ icon: Icon, title }) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem', paddingBottom: '0.5rem', borderBottom: '1px solid var(--color-border)' }}>
-            <div style={{ background: 'rgba(161, 98, 7, 0.1)', padding: '0.5rem', borderRadius: '0.5rem', color: 'var(--color-accent)' }}>
-                <Icon size={20} />
-            </div>
-            <h3 style={{ fontSize: '1.125rem', color: 'var(--color-primary)', fontWeight: 'bold', margin: 0 }}>{title}</h3>
+const SectionHeader = ({ icon: Icon, title }) => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem', paddingBottom: '0.5rem', borderBottom: '1px solid var(--color-border)' }}>
+        <div style={{ background: 'rgba(161, 98, 7, 0.1)', padding: '0.5rem', borderRadius: '0.5rem', color: 'var(--color-accent)' }}>
+            <Icon size={20} />
         </div>
-    );
+        <h3 style={{ fontSize: '1.125rem', color: 'var(--color-primary)', fontWeight: 'bold', margin: 0 }}>{title}</h3>
+    </div>
+);
 
-    return (
-        <form id="points-form">
-            
-            {/* Personal Details */}
-            <div className="glass-panel" style={{ padding: '1.5rem', marginBottom: '1.5rem', borderRadius: '1rem' }}>
-                <SectionHeader icon={User} title="Personal Details" />
-                
-                <div className="form-group">
-                    <label htmlFor="age">Age</label>
-                    <select id="age" name="age" value={formData.age} onChange={handleInputChange}>
-                        <option value="0">Select your age group</option>
-                        <option value="25">18 - 24 years (25 pts)</option>
-                        <option value="30">25 - 32 years (30 pts)</option>
-                        <option value="25">33 - 39 years (25 pts)</option>
-                        <option value="15">40 - 44 years (15 pts)</option>
-                        <option value="0">45 years and over (0 pts)</option>
-                    </select>
-                </div>
+const BandSelect = ({ id, name, label, bands, value, onChange }) => (
+    <div className="form-group">
+        <label htmlFor={id}>{label}</label>
+        <select id={id} value={value} onChange={(e) => onChange(name, e.target.value)}>
+            {bands.map((band) => (
+                <option key={band.id} value={band.id}>{optionLabel(band)}</option>
+            ))}
+        </select>
+    </div>
+);
 
-                <div className="form-group">
-                    <label htmlFor="english">English Language Skills</label>
-                    <select id="english" name="english" value={formData.english} onChange={handleInputChange}>
-                        <option value="0">Competent (0 pts)</option>
-                        <option value="10">Proficient (10 pts)</option>
-                        <option value="20">Superior (20 pts)</option>
-                    </select>
-                </div>
+const SwitchRow = ({ id, name, label, checked, onChange }) => (
+    <div className="form-group switch-group">
+        <label htmlFor={id}>{label}</label>
+        <label className="switch">
+            <input
+                type="checkbox"
+                id={id}
+                checked={checked}
+                onChange={(e) => onChange(name, e.target.checked)}
+            />
+            <span className="slider"></span>
+        </label>
+    </div>
+);
+
+const PointsForm = ({ formData, onChange }) => (
+    <form id="points-form">
+
+        {/* Personal Details */}
+        <div className="glass-panel" style={{ padding: '1.5rem', marginBottom: '1.5rem', borderRadius: '1rem' }}>
+            <SectionHeader icon={User} title="Personal Details" />
+
+            <BandSelect
+                id="age" name="ageBand" label="Age"
+                bands={AGE_BANDS} value={formData.ageBand} onChange={onChange}
+            />
+            <BandSelect
+                id="english" name="englishBand" label="English Language Skills"
+                bands={ENGLISH_BANDS} value={formData.englishBand} onChange={onChange}
+            />
+        </div>
+
+        {/* Employment — stored as years, scored as points */}
+        <div className="glass-panel" style={{ padding: '1.5rem', marginBottom: '1.5rem', borderRadius: '1rem' }}>
+            <SectionHeader icon={Briefcase} title="Skilled Employment (Past 10 Years)" />
+
+            <BandSelect
+                id="overseas-exp" name="overseasExpYears" label="Overseas Employment"
+                bands={OVERSEAS_EXP_BANDS}
+                value={bandIdForYears(OVERSEAS_EXP_BANDS, formData.overseasExpYears)}
+                onChange={(name, bandId) => onChange(name, yearsForBandId(OVERSEAS_EXP_BANDS, bandId))}
+            />
+
+            <div className="form-group">
+                <label htmlFor="aus-exp">Australian Employment</label>
+                <select
+                    id="aus-exp"
+                    value={bandIdForYears(AUS_EXP_BANDS, formData.ausExpYears)}
+                    onChange={(e) => onChange('ausExpYears', yearsForBandId(AUS_EXP_BANDS, e.target.value))}
+                >
+                    {AUS_EXP_BANDS.map((band) => (
+                        <option key={band.id} value={band.id}>{optionLabel(band)}</option>
+                    ))}
+                </select>
+                <small style={{ color: 'var(--color-secondary)', fontSize: '0.75rem', marginTop: '0.5rem', display: 'block' }}>
+                    * Maximum combined work experience points is {MAX_WORK_EXPERIENCE_POINTS}.
+                </small>
             </div>
+        </div>
 
-            {/* Employment */}
-            <div className="glass-panel" style={{ padding: '1.5rem', marginBottom: '1.5rem', borderRadius: '1rem' }}>
-                <SectionHeader icon={Briefcase} title="Skilled Employment (Past 10 Years)" />
-                
-                <div className="form-group">
-                    <label htmlFor="overseas-exp">Overseas Employment</label>
-                    <select id="overseas-exp" name="overseasExp" value={formData.overseasExp} onChange={handleInputChange}>
-                        <option value="0">Less than 3 years (0 pts)</option>
-                        <option value="5">3 - 4 years (5 pts)</option>
-                        <option value="10">5 - 7 years (10 pts)</option>
-                        <option value="15">8 years or more (15 pts)</option>
-                    </select>
-                </div>
+        {/* Education */}
+        <div className="glass-panel" style={{ padding: '1.5rem', marginBottom: '1.5rem', borderRadius: '1rem' }}>
+            <SectionHeader icon={GraduationCap} title="Education & Study" />
 
-                <div className="form-group">
-                    <label htmlFor="aus-exp">Australian Employment</label>
-                    <select id="aus-exp" name="ausExp" value={formData.ausExp} onChange={handleInputChange}>
-                        <option value="0">Less than 1 year (0 pts)</option>
-                        <option value="5">1 - 2 years (5 pts)</option>
-                        <option value="10">3 - 4 years (10 pts)</option>
-                        <option value="15">5 - 7 years (15 pts)</option>
-                        <option value="20">8 years or more (20 pts)</option>
-                    </select>
-                    <small style={{ color: 'var(--color-secondary)', fontSize: '0.75rem', marginTop: '0.5rem', display: 'block' }}>* Maximum combined work experience points is 20.</small>
-                </div>
-            </div>
+            <BandSelect
+                id="education" name="educationBand" label="Educational Qualifications"
+                bands={EDUCATION_BANDS} value={formData.educationBand} onChange={onChange}
+            />
 
-            {/* Education */}
-            <div className="glass-panel" style={{ padding: '1.5rem', marginBottom: '1.5rem', borderRadius: '1rem' }}>
-                <SectionHeader icon={GraduationCap} title="Education & Study" />
-                
-                <div className="form-group">
-                    <label htmlFor="education">Educational Qualifications</label>
-                    <select id="education" name="education" value={formData.education} onChange={handleInputChange}>
-                        <option value="0">None</option>
-                        <option value="20">Doctorate from AU or recognised standard (20 pts)</option>
-                        <option value="15">Bachelor/Masters from AU or recognised (15 pts)</option>
-                        <option value="10">Diploma/Trade qualification in AU (10 pts)</option>
-                        <option value="10">Attained recognised award/qualification (10 pts)</option>
-                        <option value="5">Any lesser qualification recognised by assessment (5 pts)</option>
-                    </select>
-                </div>
+            <SwitchRow
+                id="specialist-edu" name="specialistEdu"
+                label="Specialist Educational Qualification (STEM Masters by Research/PhD in AU)"
+                checked={formData.specialistEdu} onChange={onChange}
+            />
+            <SwitchRow
+                id="aus-study" name="ausStudy"
+                label="Australian Study Requirement (at least 2 academic years)"
+                checked={formData.ausStudy} onChange={onChange}
+            />
+            <SwitchRow
+                id="professional-year" name="professionalYear"
+                label="Professional Year in Australia"
+                checked={formData.professionalYear} onChange={onChange}
+            />
+            <SwitchRow
+                id="regional-study" name="regionalStudy"
+                label="Study in Regional Australia"
+                checked={formData.regionalStudy} onChange={onChange}
+            />
+        </div>
 
-                <div className="form-group switch-group" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <label htmlFor="specialist-edu" style={{ margin: 0, maxWidth: '80%' }}>Specialist Educational Qualification (STEM Masters by Research/PhD in AU)</label>
-                    <label className="switch">
-                        <input type="checkbox" id="specialist-edu" name="specialistEdu" checked={formData.specialistEdu} onChange={handleInputChange} />
-                        <span className="slider round"></span>
-                    </label>
-                </div>
+        {/* Additional Criteria */}
+        <div className="glass-panel" style={{ padding: '1.5rem', marginBottom: '1.5rem', borderRadius: '1rem' }}>
+            <SectionHeader icon={Award} title="Additional Criteria" />
 
-                <div className="form-group switch-group" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem' }}>
-                    <label htmlFor="aus-study" style={{ margin: 0, maxWidth: '80%' }}>Australian Study Requirement (at least 2 academic years)</label>
-                    <label className="switch">
-                        <input type="checkbox" id="aus-study" name="ausStudy" checked={formData.ausStudy} onChange={handleInputChange} />
-                        <span className="slider round"></span>
-                    </label>
-                </div>
+            <BandSelect
+                id="partner-skills" name="partnerSkillsBand" label="Partner Skills"
+                bands={PARTNER_SKILLS_BANDS} value={formData.partnerSkillsBand} onChange={onChange}
+            />
 
-                <div className="form-group switch-group" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem' }}>
-                    <label htmlFor="professional-year" style={{ margin: 0, maxWidth: '80%' }}>Professional Year in Australia</label>
-                    <label className="switch">
-                        <input type="checkbox" id="professional-year" name="professionalYear" checked={formData.professionalYear} onChange={handleInputChange} />
-                        <span className="slider round"></span>
-                    </label>
-                </div>
+            <SwitchRow
+                id="ccl" name="ccl"
+                label="Credentialled Community Language (CCL)"
+                checked={formData.ccl} onChange={onChange}
+            />
+        </div>
 
-                <div className="form-group switch-group" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem' }}>
-                    <label htmlFor="regional-study" style={{ margin: 0, maxWidth: '80%' }}>Study in Regional Australia</label>
-                    <label className="switch">
-                        <input type="checkbox" id="regional-study" name="regionalStudy" checked={formData.regionalStudy} onChange={handleInputChange} />
-                        <span className="slider round"></span>
-                    </label>
-                </div>
-            </div>
-
-            {/* Additional Criteria */}
-            <div className="glass-panel" style={{ padding: '1.5rem', marginBottom: '1.5rem', borderRadius: '1rem' }}>
-                <SectionHeader icon={Award} title="Additional Criteria" />
-                
-                <div className="form-group">
-                    <label htmlFor="partner-skills">Partner Skills</label>
-                    <select id="partner-skills" name="partnerSkills" value={formData.partnerSkills} onChange={handleInputChange}>
-                        <option value="0">Not applicable (0 pts)</option>
-                        <option value="10">Single / Partner is Australian citizen/PR (10 pts)</option>
-                        <option value="10">Partner has competent English and skills assessment (10 pts)</option>
-                        <option value="5">Partner has competent English (no skills assessment) (5 pts)</option>
-                    </select>
-                </div>
-
-                <div className="form-group switch-group" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem' }}>
-                    <label htmlFor="ccl" style={{ margin: 0, maxWidth: '80%' }}>Credentialled Community Language (CCL)</label>
-                    <label className="switch">
-                        <input type="checkbox" id="ccl" name="ccl" checked={formData.ccl} onChange={handleInputChange} />
-                        <span className="slider round"></span>
-                    </label>
-                </div>
-
-
-            </div>
-            
-        </form>
-    );
-};
+    </form>
+);
 
 export default PointsForm;
