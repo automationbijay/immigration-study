@@ -133,6 +133,7 @@ export default function Profile({ session }) {
   const [cvPath, setCvPath] = useState(null);
 
   const [languageProficiency, setLanguageProficiency] = useState([]);
+  const [educationHistory, setEducationHistory] = useState([]);
 
   const [countries, setCountries] = useState([]);
   const [message, setMessage] = useState('');
@@ -189,6 +190,12 @@ export default function Profile({ session }) {
         .order('created_at', { ascending: false })
         .limit(1)
         .maybeSingle();
+        
+      const { data: educationData } = await supabase
+        .from('education')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: true });
 
       const { data: ieltsData } = await supabase.from('test_ielts').select('*').eq('user_id', user.id);
       const { data: pteData } = await supabase.from('test_pte').select('*').eq('user_id', user.id);
@@ -242,6 +249,20 @@ export default function Profile({ session }) {
             test_score_speaking: '',
             test_score_overall: '',
             score_published_date: ''
+          }]);
+        }
+        if (educationData && educationData.length > 0) {
+          setEducationHistory(educationData);
+        } else {
+          setEducationHistory([{
+            level: '',
+            university_name: '',
+            field_of_study: '',
+            country: '',
+            started_year: '',
+            completed_year: '',
+            start_date: '',
+            end_date: ''
           }]);
         }
         if (countriesData) {
@@ -313,7 +334,36 @@ export default function Profile({ session }) {
     }
     setLanguageProficiency(newLanguageProficiency);
 
-    const succeeded = !profileError && !basicError && !languageError;
+    let educationError = null;
+    const newEducationHistory = [...educationHistory];
+    for (let i = 0; i < newEducationHistory.length; i++) {
+      const ed = newEducationHistory[i];
+      const updateData = {
+        user_id: user.id,
+        level: ed.level || null,
+        university_name: ed.university_name || null,
+        field_of_study: ed.field_of_study || null,
+        country: ed.country || null,
+        started_year: ed.started_year ? parseInt(ed.started_year) : null,
+        completed_year: ed.completed_year ? parseInt(ed.completed_year) : null,
+        start_date: ed.start_date || null,
+        end_date: ed.end_date || null,
+        updated_at: new Date(),
+      };
+      if (ed.id) {
+        updateData.id = ed.id;
+      }
+      
+      const { data, error } = await supabase.from('education').upsert(updateData).select();
+      if (error) {
+        educationError = error;
+      } else if (data && data.length > 0) {
+        newEducationHistory[i] = { ...ed, id: data[0].id };
+      }
+    }
+    setEducationHistory(newEducationHistory);
+
+    const succeeded = !profileError && !basicError && !languageError && !educationError;
     setMessage(succeeded ? 'Profile saved successfully!' : 'Error updating profile!');
     setLoading(false);
     setTimeout(() => setMessage(''), 3000);
@@ -377,6 +427,33 @@ export default function Profile({ session }) {
     setLanguageProficiency(prev => prev.filter((_, i) => i !== index));
   };
 
+  const handleEducationChange = (index, e) => {
+    const { name, value } = e.target;
+    setEducationHistory(prev => {
+      const newArray = [...prev];
+      newArray[index] = { ...newArray[index], [name]: value };
+      return newArray;
+    });
+  };
+
+  const addEducation = () => {
+    setEducationHistory(prev => [
+      ...prev, 
+      { 
+        level: '', university_name: '', field_of_study: '', country: '',
+        started_year: '', completed_year: '', start_date: '', end_date: '' 
+      }
+    ]);
+  };
+
+  const removeEducation = async (index) => {
+    const edToRemove = educationHistory[index];
+    if (edToRemove.id) {
+      await supabase.from('education').delete().eq('id', edToRemove.id);
+    }
+    setEducationHistory(prev => prev.filter((_, i) => i !== index));
+  };
+
   const closeModal = () => {
     setExpandedSection(null);
   };
@@ -435,7 +512,7 @@ export default function Profile({ session }) {
         <div>
           <h2 className="profile-name">{displayName}</h2>
           <p className="profile-meta">
-            {calculatedAge !== 'N/A' ? `${calculatedAge} years old` : 'Age N/A'} &bull; {basicDetails.country || 'No Country Selected'}
+            {calculatedAge !== 'N/A' ? `${calculatedAge} years old` : 'Age N/A'} &bull; {basicDetails.location ? `${basicDetails.location}, ${basicDetails.country}` : (basicDetails.country || 'No Country Selected')}
           </p>
         </div>
       </div>
@@ -612,28 +689,69 @@ export default function Profile({ session }) {
                       onChange={(val) => setProfile(prev => ({ ...prev, educationAnzsco: val }))}
                     />
                   </div>
-                  <div className="form-group">
-                    <label htmlFor="profile-education">Highest Qualification</label>
-                    <select id="profile-education" name="education" value={profile.education} onChange={handleInputChange}>
-                      <option value={0}>None / Unrecognized</option>
-                      <option value={10}>Trade Qualification / Diploma</option>
-                      <option value={15}>Bachelor / Master Degree</option>
-                      <option value={20}>Doctorate (PhD)</option>
-                    </select>
-                  </div>
-                  <div className="checkbox-group">
-                    <label className="checkbox-label">
-                      <input type="checkbox" name="specialistEdu" checked={profile.specialistEdu} onChange={handleInputChange} />
-                      Specialist Education
-                    </label>
-                    <label className="checkbox-label">
-                      <input type="checkbox" name="ausStudy" checked={profile.ausStudy} onChange={handleInputChange} />
-                      Australian Study Requirement
-                    </label>
-                    <label className="checkbox-label">
-                      <input type="checkbox" name="regionalStudy" checked={profile.regionalStudy} onChange={handleInputChange} />
-                      Regional Australia Study
-                    </label>
+                  
+                  <div className="education-history">
+                    <h3 style={{ marginTop: '2rem', marginBottom: '1rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.5rem' }}>Detailed Education History</h3>
+                    {educationHistory.map((ed, index) => (
+                      <div key={index} className="language-test-card" style={{ marginTop: '1rem' }}>
+                        <div className="language-test-head">
+                          <h4>Qualification {index + 1}</h4>
+                          {educationHistory.length > 1 && (
+                            <button type="button" onClick={() => removeEducation(index)} className="link-danger">Remove</button>
+                          )}
+                        </div>
+                        <div className="form-group">
+                          <label htmlFor={`edu-${index}-level`}>Level</label>
+                          <select id={`edu-${index}-level`} name="level" value={ed.level || ''} onChange={(e) => handleEducationChange(index, e)}>
+                            <option value="">Select Level</option>
+                            <option value="High School">High School</option>
+                            <option value="Diploma">Diploma / Trade Qualification</option>
+                            <option value="Bachelor">Bachelor Degree</option>
+                            <option value="Masters">Master's Degree</option>
+                            <option value="Doctorate">Doctorate (PhD)</option>
+                            <option value="Unrecognized">Unrecognized</option>
+                          </select>
+                        </div>
+                        <div className="form-group">
+                          <label htmlFor={`edu-${index}-uni`}>University / Institution</label>
+                          <input id={`edu-${index}-uni`} type="text" name="university_name" value={ed.university_name || ''} onChange={(e) => handleEducationChange(index, e)} />
+                        </div>
+                        <div className="form-group">
+                          <label htmlFor={`edu-${index}-field`}>Field of Study</label>
+                          <input id={`edu-${index}-field`} type="text" name="field_of_study" value={ed.field_of_study || ''} onChange={(e) => handleEducationChange(index, e)} />
+                        </div>
+                        <div className="form-group">
+                          <label htmlFor={`edu-${index}-country`}>Country</label>
+                          <select id={`edu-${index}-country`} name="country" value={ed.country || ''} onChange={(e) => handleEducationChange(index, e)}>
+                            <option value="">Select a country</option>
+                            {countries.map(c => <option key={c} value={c}>{c}</option>)}
+                          </select>
+                        </div>
+                        <div className="form-grid-2">
+                          <div className="form-group">
+                            <label htmlFor={`edu-${index}-start-date`}>Start Date</label>
+                            <input id={`edu-${index}-start-date`} type="date" name="start_date" value={ed.start_date || ''} onChange={(e) => handleEducationChange(index, e)} />
+                          </div>
+                          <div className="form-group">
+                            <label htmlFor={`edu-${index}-end-date`}>End Date</label>
+                            <input id={`edu-${index}-end-date`} type="date" name="end_date" value={ed.end_date || ''} onChange={(e) => handleEducationChange(index, e)} />
+                          </div>
+                        </div>
+                        <div className="form-grid-2">
+                          <div className="form-group">
+                            <label htmlFor={`edu-${index}-started-year`}>Started Year</label>
+                            <input id={`edu-${index}-started-year`} type="number" name="started_year" value={ed.started_year || ''} onChange={(e) => handleEducationChange(index, e)} />
+                          </div>
+                          <div className="form-group form-group-last">
+                            <label htmlFor={`edu-${index}-completed-year`}>Completed Year</label>
+                            <input id={`edu-${index}-completed-year`} type="number" name="completed_year" value={ed.completed_year || ''} onChange={(e) => handleEducationChange(index, e)} />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    <button type="button" onClick={addEducation} className="btn-dashed" style={{ marginTop: '1rem' }}>
+                      + Add Another Qualification
+                    </button>
                   </div>
                 </>
               )}
