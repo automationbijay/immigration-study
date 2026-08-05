@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { User, Globe, GraduationCap, Briefcase, CheckCircle2, ChevronDown, ChevronUp, Users } from 'lucide-react';
+import { User, Globe, GraduationCap, Briefcase, CheckCircle2, ChevronDown, ChevronUp, Users, LogOut } from 'lucide-react';
 
 export default function Profile({ session }) {
   const [loading, setLoading] = useState(true);
@@ -290,7 +290,10 @@ export default function Profile({ session }) {
             await supabase.auth.signOut();
           }}
         >
-          Sign Out
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+            <LogOut size={20} />
+            <span>Sign Out</span>
+          </div>
         </button>
       </div>
 

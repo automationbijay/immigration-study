@@ -5,7 +5,11 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Profile from './pages/Profile';
 import Home from './pages/Home';
-import { User, Home as HomeIcon, LogOut } from 'lucide-react';
+import Discover from './pages/Discover';
+import Calculator from './pages/Calculator';
+import FormsHub from './pages/FormsHub';
+import NewsHub from './pages/NewsHub';
+import { User, Home as HomeIcon, Compass, LogOut } from 'lucide-react';
 import './index.css';
 
 function BottomNav() {
@@ -18,6 +22,10 @@ function BottomNav() {
         <HomeIcon className="inline-icon"/> 
         <span>Home</span>
       </Link>
+      <Link to="/discover" className={`nav-item ${currentPath === '/discover' ? 'active' : ''}`}>
+        <Compass className="inline-icon"/> 
+        <span>Discover</span>
+      </Link>
       <Link to="/profile" className={`nav-item ${currentPath === '/profile' ? 'active' : ''}`}>
         <User className="inline-icon"/> 
         <span>Profile</span>
@@ -26,15 +34,10 @@ function BottomNav() {
   );
 }
 
-function TopHeader({ onLogout }) {
+function TopHeader() {
   return (
     <header className="top-header">
       <h1>Migration Assistant</h1>
-      {onLogout && (
-        <button onClick={onLogout} style={{ position: 'absolute', right: '1rem', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-secondary)' }}>
-          <LogOut size={20} />
-        </button>
-      )}
     </header>
   );
 }
@@ -69,13 +72,17 @@ function App() {
   return (
     <Router>
       <div className="app-layout">
-        {session && <TopHeader onLogout={handleLogout} />}
+        {session && <TopHeader />}
 
         <main className="main-content">
           <Routes>
             <Route path="/login" element={!session ? <Login /> : <Navigate to="/home" />} />
             <Route path="/signup" element={!session ? <Signup /> : <Navigate to="/home" />} />
             <Route path="/profile" element={session ? <Profile session={session} /> : <Navigate to="/login" />} />
+            <Route path="/discover" element={session ? <Discover session={session} /> : <Navigate to="/login" />} />
+            <Route path="/calculator" element={session ? <Calculator session={session} /> : <Navigate to="/login" />} />
+            <Route path="/forms" element={session ? <FormsHub session={session} /> : <Navigate to="/login" />} />
+            <Route path="/news" element={session ? <NewsHub session={session} /> : <Navigate to="/login" />} />
             <Route path="/home" element={session ? <Home session={session} /> : <Navigate to="/login" />} />
             <Route path="/" element={<Navigate to={session ? "/home" : "/login"} />} />
           </Routes>
