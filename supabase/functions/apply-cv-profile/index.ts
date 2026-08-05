@@ -244,7 +244,7 @@ serve(async (req) => {
     // "CV is evidence, not authority" rule as everywhere else in this file,
     // just applied at row-existence granularity instead of per-field.
     const { data: existingEducation } = await supabase
-      .from("education")
+      .from("profile_education")
       .select("id")
       .eq("user_id", userId)
       .limit(1);
@@ -258,7 +258,7 @@ serve(async (req) => {
       if (isFiniteNumber(q.completed_year)) eduCandidate.completed_year = q.completed_year;
 
       if (Object.keys(eduCandidate).length > 0) {
-        const { error } = await supabase.from("education").insert({
+        const { error } = await supabase.from("profile_education").insert({
           user_id: userId,
           updated_at: new Date(),
           ...eduCandidate,

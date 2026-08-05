@@ -1,11 +1,15 @@
 // test_direct_api.js
 const fs = require('fs');
 const path = require('path');
+require('../web-app/node_modules/dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
-const CV_PARSER_API_KEY = "cvp_live_FFagItmCN3DjuNLpB5bq0dpcdOrwYrao6Kq4PNPtYo";
+const CV_PARSER_API_KEY = process.env.CV_PARSER_API_KEY;
+if (!CV_PARSER_API_KEY) {
+  throw new Error('CV_PARSER_API_KEY environment variable is required.');
+}
 
 async function run() {
-  const filePath = path.join(__dirname, 'two-column-resume-template-blue.pdf');
+  const filePath = path.join(__dirname, 'fixtures', 'two-column-resume-template-blue.pdf');
   const fileContent = fs.readFileSync(filePath);
 
 // Static URL from catbox

@@ -16,7 +16,7 @@ async function sleep(ms) {
 
 async function run() {
   try {
-    const filePath = path.join(__dirname, '..', 'two-column-resume-template-blue.pdf');
+    const filePath = path.join(__dirname, 'fixtures', 'two-column-resume-template-blue.pdf');
     const fileContent = fs.readFileSync(filePath);
     
     console.log("1. Fetching a test user...");
@@ -84,7 +84,7 @@ async function run() {
     const [{ data: basic }, { data: points }, { data: education }, { data: llamaparsed }] = await Promise.all([
       supabase.from('profile_basic').select('*').eq('id', userId).maybeSingle(),
       supabase.from('point_australia').select('*').eq('id', userId).maybeSingle(),
-      supabase.from('education').select('*').eq('id', userId).maybeSingle(),
+      supabase.from('profile_education').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
       supabase.from('cv_llamaparsed').select('*').eq('cv_id', cvId).maybeSingle(),
     ]);
 

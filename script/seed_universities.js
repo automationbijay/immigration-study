@@ -1,10 +1,10 @@
 const fs = require('fs');
 const path = require('path');
-const { createClient } = require('./web-app/node_modules/@supabase/supabase-js');
-require('./web-app/node_modules/dotenv').config({ path: path.join(__dirname, 'web-app', '.env.local') });
+const { createClient } = require('../web-app/node_modules/@supabase/supabase-js');
+require('../web-app/node_modules/dotenv').config({ path: path.join(__dirname, '..', 'web-app', '.env.local') });
 
 async function main() {
-    const docsDir = path.join(__dirname, 'docs');
+    const docsDir = path.join(__dirname, '..', 'docs');
     if (!fs.existsSync(docsDir)) {
         fs.mkdirSync(docsDir);
     }

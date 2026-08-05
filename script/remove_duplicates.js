@@ -1,6 +1,11 @@
+const path = require('path');
 const { Client } = require('pg');
+require('../web-app/node_modules/dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
-const connectionString = 'postgresql://postgres.mvycqvmojoqtfyvjsigv:2OZOM2Q5tm1XpUfj@aws-0-ap-south-1.pooler.supabase.com:6543/postgres';
+const connectionString = process.env.DATABASE_URL;
+if (!connectionString) {
+  throw new Error('DATABASE_URL environment variable is required.');
+}
 
 async function removeDuplicates() {
   const client = new Client({

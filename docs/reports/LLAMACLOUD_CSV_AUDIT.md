@@ -82,7 +82,7 @@ pulling text/tables out of PDFs/DOCX/images on-disk. It's useful, but it's a dif
   `docs/cv-pipeline-n8n.md`.
 
 If you want schema-driven extraction (a fixed JSON schema matching the `apply-cv-profile` payload shape
-in [docs/cv-pipeline-n8n.md](docs/cv-pipeline-n8n.md)) instead of markdown + n8n guesswork, that's a
+in [docs/cv-pipeline-n8n.md](../cv-pipeline-n8n.md)) instead of markdown + n8n guesswork, that's a
 LlamaExtract integration, not something any installed skill currently covers. Worth a separate
 conversation if you want to explore replacing the n8n extraction step with it — no code changes made
 here.
@@ -116,7 +116,7 @@ bytes to LlamaParse as if it were a PDF. That's the wrong tool for text that's a
 LlamaParse's own docs treat CSV as an edge case at best.
 
 The target schema is well-defined, though — `apply-cv-profile/index.ts` and
-[docs/cv-pipeline-n8n.md](docs/cv-pipeline-n8n.md) fully specify it: `profile_basic` (name, email, phone,
+[docs/cv-pipeline-n8n.md](../cv-pipeline-n8n.md) fully specify it: `profile_basic` (name, email, phone,
 dob, country, marital_status) and `point_australia` (education, overseasExp/ausExp **in years, not
 points**, english score, boolean factors), fill-empty-only, never overwrite. So "parse CSV directly to
 our required table format" is answerable, it just isn't built:
@@ -134,9 +134,9 @@ file types.
 
 ## 5. Summary of changes made this session
 
-- [`.env`](/.env), [`supabase/.env`](supabase/.env): `LLAMA_CLOUD_API_KEY` → new key
+- [`.env`](/.env), [`supabase/.env`](../../supabase/.env): `LLAMA_CLOUD_API_KEY` → new key
 - Supabase secret `LLAMA_CLOUD_API_KEY` (project `mvycqvmojoqtfyvjsigv`): rotated
-- [`test_llama.py`](test_llama.py), [`test_llamaparse_rest.py`](test_llamaparse_rest.py): stopped
+- [`test_llama.py`](../../script/test_llama.py), [`test_llamaparse_rest.py`](../../script/test_llamaparse_rest.py): stopped
   hardcoding the key; now load `LLAMA_CLOUD_API_KEY` from env; also fixed the missing `version` field
   bug in the latter
 - No table/schema/pipeline code changed — §4b is a proposal, not an implementation

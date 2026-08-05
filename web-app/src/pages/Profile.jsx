@@ -134,6 +134,7 @@ export default function Profile({ session }) {
 
   const [languageProficiency, setLanguageProficiency] = useState([]);
   const [educationHistory, setEducationHistory] = useState([]);
+  const [familyMembers, setFamilyMembers] = useState([]);
 
   const [countries, setCountries] = useState([]);
   const [message, setMessage] = useState('');
@@ -148,7 +149,7 @@ export default function Profile({ session }) {
     try {
       const { user } = session;
       const tables = [
-        'profile_basic', 'point_australia', 'cv_metadata', 'education', 
+        'profile_basic', 'point_australia', 'cv_metadata', 'profile_education', 
         'test_ielts', 'test_pte', 'test_toefl', 'test_cambridge', 'test_oet'
       ];
       
@@ -221,9 +222,15 @@ export default function Profile({ session }) {
         .maybeSingle();
         
       const { data: educationData } = await supabase
-        .from('education')
+        .from('profile_education')
         .select('*')
         .eq('user_id', user.id)
+        .order('created_at', { ascending: true });
+
+      const { data: familyData } = await supabase
+        .from('profile_family')
+        .select('*')
+        .eq('profile_id', user.id)
         .order('created_at', { ascending: true });
 
       const { data: ieltsData } = await supabase.from('test_ielts').select('*').eq('user_id', user.id);
@@ -292,6 +299,19 @@ export default function Profile({ session }) {
             completed_year: '',
             start_date: '',
             end_date: ''
+          }]);
+        }
+        if (familyData && familyData.length > 0) {
+          setFamilyMembers(familyData);
+        } else {
+          setFamilyMembers([{
+            relation: '',
+            age: '',
+            highest_education: '',
+            language_test_type: '',
+            language_overall_score: '',
+            gender: '',
+            citizenship_or_pr: ''
           }]);
         }
         if (countriesData) {
@@ -383,7 +403,7 @@ export default function Profile({ session }) {
         updateData.id = ed.id;
       }
       
-      const { data, error } = await supabase.from('education').upsert(updateData).select();
+      const { data, error } = await supabase.from('profile_education').upsert(updateData).select();
       if (error) {
         educationError = error;
       } else if (data && data.length > 0) {
@@ -392,7 +412,30 @@ export default function Profile({ session }) {
     }
     setEducationHistory(newEducationHistory);
 
-    const succeeded = !profileError && !basicError && !languageError && !educationError;
+    let familyError = null;
+    const newFamilyMembers = [...familyMembers];
+    for (let i = 0; i < newFamilyMembers.length; i++) {
+      const fm = newFamilyMembers[i];
+      const updateData = {
+        profile_id: user.id,
+        relation: fm.relation || null,
+        age: fm.age ? parseInt(fm.age) : null,
+        highest_education: fm.highest_education || null,
+        language_test_type: fm.language_test_type || null,
+        language_overall_score: fm.language_overall_score ? parseFloat(fm.language_overall_score) : null,
+        gender: fm.gender || null,
+        citizenship_or_pr: fm.citizenship_or_pr || null,
+        updated_at: new Date(),
+      };
+      if (fm.id) updateData.id = fm.id;
+
+      const { data, error } = await supabase.from('profile_family').upsert(updateData).select();
+      if (error) familyError = error;
+      else if (data && data.length > 0) newFamilyMembers[i] = { ...fm, id: data[0].id };
+    }
+    setFamilyMembers(newFamilyMembers);
+
+    const succeeded = !profileError && !basicError && !languageError && !educationError && !familyError;
     setMessage(succeeded ? 'Profile saved successfully!' : 'Error updating profile!');
     setLoading(false);
     setTimeout(() => setMessage(''), 3000);
@@ -478,9 +521,33 @@ export default function Profile({ session }) {
   const removeEducation = async (index) => {
     const edToRemove = educationHistory[index];
     if (edToRemove.id) {
-      await supabase.from('education').delete().eq('id', edToRemove.id);
+      await supabase.from('profile_education').delete().eq('id', edToRemove.id);
     }
     setEducationHistory(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleFamilyChange = (index, e) => {
+    const { name, value } = e.target;
+    setFamilyMembers(prev => {
+      const newArray = [...prev];
+      newArray[index] = { ...newArray[index], [name]: value };
+      return newArray;
+    });
+  };
+
+  const addFamilyMember = () => {
+    setFamilyMembers(prev => [
+      ...prev, 
+      { relation: '', age: '', highest_education: '', language_test_type: '', language_overall_score: '', gender: '', citizenship_or_pr: '' }
+    ]);
+  };
+
+  const removeFamilyMember = async (index) => {
+    const fmToRemove = familyMembers[index];
+    if (fmToRemove.id) {
+      await supabase.from('profile_family').delete().eq('id', fmToRemove.id);
+    }
+    setFamilyMembers(prev => prev.filter((_, i) => i !== index));
   };
 
   const closeModal = () => {
@@ -706,16 +773,85 @@ export default function Profile({ session }) {
               )}
 
               {expandedSection === 'family' && (
-                <>
-                  <div className="form-group">
-                    <label htmlFor="profile-spouse-details">Spouse Details (Skills, English Level, etc.)</label>
-                    <textarea id="profile-spouse-details" name="spouseDetails" value={profile.spouseDetails || ''} onChange={handleInputChange} rows="3" placeholder="E.g., Competent English, Positive Skills Assessment..."></textarea>
-                  </div>
-                  <div className="form-group">
-                    <label htmlFor="profile-children">Number of Children</label>
-                    <input id="profile-children" type="number" name="childrenCount" min="0" value={profile.childrenCount || 0} onChange={handleInputChange} />
-                  </div>
-                </>
+                <div className="family-history">
+                  {familyMembers.map((member, index) => (
+                    <div key={index} className="language-test-card" style={{ marginTop: '1rem' }}>
+                      <div className="language-test-head">
+                        <h4>Family Member {index + 1}</h4>
+                        {familyMembers.length > 1 && (
+                          <button type="button" onClick={() => removeFamilyMember(index)} className="link-danger">Remove</button>
+                        )}
+                      </div>
+                      <div className="form-group">
+                        <label htmlFor={`fam-${index}-relation`}>Relation</label>
+                        <select id={`fam-${index}-relation`} name="relation" value={member.relation || ''} onChange={(e) => handleFamilyChange(index, e)}>
+                          <option value="">Select Relation</option>
+                          <option value="Wife">Wife</option>
+                          <option value="Husband">Husband</option>
+                          <option value="Partner">Partner</option>
+                          <option value="Son">Son</option>
+                          <option value="Daughter">Daughter</option>
+                          <option value="Other">Other</option>
+                        </select>
+                      </div>
+                      <div className="form-group-row">
+                        <div className="form-group">
+                          <label htmlFor={`fam-${index}-age`}>Age</label>
+                          <input id={`fam-${index}-age`} type="number" name="age" min="0" value={member.age || ''} onChange={(e) => handleFamilyChange(index, e)} />
+                        </div>
+                        <div className="form-group">
+                          <label htmlFor={`fam-${index}-gender`}>Gender</label>
+                          <select id={`fam-${index}-gender`} name="gender" value={member.gender || ''} onChange={(e) => handleFamilyChange(index, e)}>
+                            <option value="">Select</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div className="form-group">
+                        <label htmlFor={`fam-${index}-highest_education`}>Highest Education</label>
+                        <select id={`fam-${index}-highest_education`} name="highest_education" value={member.highest_education || ''} onChange={(e) => handleFamilyChange(index, e)}>
+                          <option value="">Select Level</option>
+                          <option value="High School">High School</option>
+                          <option value="Diploma">Diploma / Trade Qualification</option>
+                          <option value="Bachelor">Bachelor Degree</option>
+                          <option value="Masters">Master's Degree</option>
+                          <option value="PhD">Doctorate (PhD)</option>
+                        </select>
+                      </div>
+                      <div className="form-group">
+                        <label htmlFor={`fam-${index}-citizenship_or_pr`}>Country of Citizenship / PR</label>
+                        <select id={`fam-${index}-citizenship_or_pr`} name="citizenship_or_pr" value={member.citizenship_or_pr || ''} onChange={(e) => handleFamilyChange(index, e)}>
+                          <option value="">Select Country</option>
+                          {countries.map(c => (
+                            <option key={c} value={c}>{c}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="form-group-row">
+                        <div className="form-group">
+                          <label htmlFor={`fam-${index}-language_test_type`}>Language Test Type</label>
+                          <select id={`fam-${index}-language_test_type`} name="language_test_type" value={member.language_test_type || ''} onChange={(e) => handleFamilyChange(index, e)}>
+                            <option value="">None</option>
+                            <option value="IELTS">IELTS</option>
+                            <option value="PTE">PTE</option>
+                            <option value="TOEFL">TOEFL</option>
+                            <option value="Cambridge">Cambridge</option>
+                            <option value="OET">OET</option>
+                          </select>
+                        </div>
+                        <div className="form-group form-group-last">
+                          <label htmlFor={`fam-${index}-language_overall_score`}>Overall Score</label>
+                          <input id={`fam-${index}-language_overall_score`} type="number" step="0.5" name="language_overall_score" value={member.language_overall_score || ''} onChange={(e) => handleFamilyChange(index, e)} />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  <button type="button" onClick={addFamilyMember} className="btn-dashed">
+                    + Add Another Family Member
+                  </button>
+                </div>
               )}
 
               {expandedSection === 'education' && (

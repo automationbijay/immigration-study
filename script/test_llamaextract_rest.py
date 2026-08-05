@@ -1,10 +1,13 @@
 import os
 import time
 import json
+from pathlib import Path
 import requests
 from dotenv import load_dotenv
 
 load_dotenv()
+
+FIXTURE_PDF = Path(__file__).parent / "fixtures" / "two-column-resume-template-blue.pdf"
 
 API_KEY = os.environ.get("LLAMA_CLOUD_API_KEY")
 if not API_KEY:
@@ -98,7 +101,7 @@ CV_DATA_SCHEMA = {
 
 def main():
     print("1. Uploading file...")
-    with open("two-column-resume-template-blue.pdf", "rb") as f:
+    with open(FIXTURE_PDF, "rb") as f:
         upload_res = requests.post(
             f"{BASE_URL}/api/v1/beta/files",
             headers=HEADERS,
