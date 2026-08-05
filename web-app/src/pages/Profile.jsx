@@ -5,12 +5,6 @@ import { User, Globe, GraduationCap, Briefcase, CheckCircle2, ChevronDown, Chevr
 export default function Profile({ session }) {
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState({
-    languageTest: 'IELTS',
-    testScoreListening: '',
-    testScoreReading: '',
-    testScoreWriting: '',
-    testScoreSpeaking: '',
-    testScoreOverall: '',
     spouseDetails: '',
     childrenCount: 0,
     overseasExp: 0,
@@ -32,6 +26,8 @@ export default function Profile({ session }) {
     phone_no: '',
     email: '',
   });
+
+  const [languageProficiency, setLanguageProficiency] = useState([]);
 
   const [countries, setCountries] = useState([]);
   const [message, setMessage] = useState('');
@@ -59,6 +55,11 @@ export default function Profile({ session }) {
         .eq('id', user.id)
         .single();
 
+      const { data: languageData } = await supabase
+        .from('language_proficiency')
+        .select('*')
+        .eq('user_id', user.id);
+
       const { data: countriesData } = await supabase
         .from('countries')
         .select('name')
@@ -70,6 +71,19 @@ export default function Profile({ session }) {
         }
         if (basicData) {
           setBasicDetails(prev => ({ ...prev, ...basicData }));
+        }
+        if (languageData && languageData.length > 0) {
+          setLanguageProficiency(languageData);
+        } else {
+          setLanguageProficiency([{
+            language_test: 'IELTS',
+            test_score_listening: '',
+            test_score_reading: '',
+            test_score_writing: '',
+            test_score_speaking: '',
+            test_score_overall: '',
+            score_published_date: ''
+          }]);
         }
         if (countriesData) {
           setCountries(countriesData.map(c => c.name));
@@ -96,13 +110,28 @@ export default function Profile({ session }) {
     const basicUpdates = {
       id: user.id,
       ...basicDetails,
+      dob: basicDetails.dob === '' ? null : basicDetails.dob,
       updated_at: new Date(),
     };
 
+    const languageUpdates = languageProficiency.map(lp => ({
+      ...lp,
+      user_id: user.id,
+      score_published_date: lp.score_published_date === '' ? null : lp.score_published_date,
+      updated_at: new Date(),
+    }));
+
     const { error: profileError } = await supabase.from('profiles').upsert(profileUpdates);
     const { error: basicError } = await supabase.from('basic_details').upsert(basicUpdates);
+    
+    // For language_proficiency, upsert array
+    let languageError = null;
+    if (languageUpdates.length > 0) {
+      const { error } = await supabase.from('language_proficiency').upsert(languageUpdates);
+      languageError = error;
+    }
 
-    if (profileError || basicError) {
+    if (profileError || basicError || languageError) {
       setMessage('Error updating profile!');
     } else {
       setMessage('Profile saved successfully!');
@@ -125,6 +154,39 @@ export default function Profile({ session }) {
       ...prev,
       [name]: value
     }));
+  };
+
+  const handleLanguageChange = (index, e) => {
+    const { name, value } = e.target;
+    setLanguageProficiency(prev => {
+      const newArray = [...prev];
+      newArray[index] = { ...newArray[index], [name]: value };
+      return newArray;
+    });
+  };
+
+  const addLanguageTest = () => {
+    setLanguageProficiency(prev => [
+      ...prev, 
+      { 
+        language_test: 'IELTS', 
+        test_score_listening: '', 
+        test_score_reading: '', 
+        test_score_writing: '', 
+        test_score_speaking: '', 
+        test_score_overall: '', 
+        score_published_date: '' 
+      }
+    ]);
+  };
+
+  const removeLanguageTest = async (index) => {
+    const testToRemove = languageProficiency[index];
+    if (testToRemove.id) {
+      // If it exists in DB, delete it
+      await supabase.from('language_proficiency').delete().eq('id', testToRemove.id);
+    }
+    setLanguageProficiency(prev => prev.filter((_, i) => i !== index));
   };
 
   const closeModal = () => {
@@ -275,37 +337,55 @@ export default function Profile({ session }) {
               )}
 
               {expandedSection === 'language' && (
-                <>
-                  <div className="form-group">
-                    <label>Test Type</label>
-                    <select name="languageTest" value={profile.languageTest || 'IELTS'} onChange={handleInputChange}>
-                      <option value="IELTS">IELTS</option>
-                      <option value="PTE">PTE Academic</option>
-                    </select>
-                  </div>
-                  <div className="form-group">
-                    <label>Overall Score</label>
-                    <input type="number" step="0.5" name="testScoreOverall" value={profile.testScoreOverall || ''} onChange={handleInputChange} />
-                  </div>
-                  <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem'}}>
-                    <div className="form-group">
-                      <label>Listening</label>
-                      <input type="number" step="0.5" name="testScoreListening" value={profile.testScoreListening || ''} onChange={handleInputChange} />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                  {languageProficiency.map((test, index) => (
+                    <div key={index} style={{ border: '1px solid var(--color-border)', padding: '1rem', borderRadius: 'var(--radius-md)' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                        <h4 style={{ margin: 0 }}>Test {index + 1}</h4>
+                        {languageProficiency.length > 1 && (
+                          <button type="button" onClick={() => removeLanguageTest(index)} style={{ background: 'none', border: 'none', color: 'var(--color-destructive)', cursor: 'pointer', fontSize: '0.875rem' }}>Remove</button>
+                        )}
+                      </div>
+                      <div className="form-group">
+                        <label>Test Type</label>
+                        <select name="language_test" value={test.language_test || 'IELTS'} onChange={(e) => handleLanguageChange(index, e)}>
+                          <option value="IELTS">IELTS</option>
+                          <option value="PTE">PTE Academic</option>
+                        </select>
+                      </div>
+                      <div className="form-group">
+                        <label>Overall Score</label>
+                        <input type="number" step="0.5" name="test_score_overall" value={test.test_score_overall || ''} onChange={(e) => handleLanguageChange(index, e)} />
+                      </div>
+                      <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem'}}>
+                        <div className="form-group">
+                          <label>Listening</label>
+                          <input type="number" step="0.5" name="test_score_listening" value={test.test_score_listening || ''} onChange={(e) => handleLanguageChange(index, e)} />
+                        </div>
+                        <div className="form-group">
+                          <label>Reading</label>
+                          <input type="number" step="0.5" name="test_score_reading" value={test.test_score_reading || ''} onChange={(e) => handleLanguageChange(index, e)} />
+                        </div>
+                        <div className="form-group">
+                          <label>Writing</label>
+                          <input type="number" step="0.5" name="test_score_writing" value={test.test_score_writing || ''} onChange={(e) => handleLanguageChange(index, e)} />
+                        </div>
+                        <div className="form-group">
+                          <label>Speaking</label>
+                          <input type="number" step="0.5" name="test_score_speaking" value={test.test_score_speaking || ''} onChange={(e) => handleLanguageChange(index, e)} />
+                        </div>
+                      </div>
+                      <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label>Score Published Date</label>
+                        <input type="date" name="score_published_date" value={test.score_published_date || ''} onChange={(e) => handleLanguageChange(index, e)} style={{width: '100%', padding: '0.875rem 1rem', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', background: 'var(--color-surface)', fontFamily: 'inherit', fontSize: '1rem'}} />
+                      </div>
                     </div>
-                    <div className="form-group">
-                      <label>Reading</label>
-                      <input type="number" step="0.5" name="testScoreReading" value={profile.testScoreReading || ''} onChange={handleInputChange} />
-                    </div>
-                    <div className="form-group">
-                      <label>Writing</label>
-                      <input type="number" step="0.5" name="testScoreWriting" value={profile.testScoreWriting || ''} onChange={handleInputChange} />
-                    </div>
-                    <div className="form-group">
-                      <label>Speaking</label>
-                      <input type="number" step="0.5" name="testScoreSpeaking" value={profile.testScoreSpeaking || ''} onChange={handleInputChange} />
-                    </div>
-                  </div>
-                </>
+                  ))}
+                  
+                  <button type="button" onClick={addLanguageTest} style={{ background: 'var(--color-surface)', border: '1px dashed var(--color-border)', color: 'var(--color-accent)', padding: '1rem', borderRadius: 'var(--radius-md)', cursor: 'pointer', fontWeight: 'bold' }}>
+                    + Add Another Test
+                  </button>
+                </div>
               )}
 
               {expandedSection === 'family' && (
