@@ -293,10 +293,47 @@ input[type="checkbox"] {
   padding: var(--spacing-xl) 0;
 }
 
-.score-number {
-  font-size: 5rem;
-  font-weight: 700;
-  color: var(--color-accent);
+.score-ring-container {
+  position: relative;
+  width: 160px;
+  height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.score-ring {
+  transform: rotate(-90deg);
+}
+
+.score-ring-bg {
+  fill: transparent;
+  stroke: var(--color-muted);
+}
+
+.score-ring-progress {
+  fill: transparent;
+  stroke: var(--color-destructive);
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.5s ease-out, stroke 0.3s ease;
+}
+
+.score-ring-progress.eligible {
+  stroke: #16a34a;
+}
+
+.score-value-wrapper {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.score-value {
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--color-primary);
   line-height: 1;
 }
 

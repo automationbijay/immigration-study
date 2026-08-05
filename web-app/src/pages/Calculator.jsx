@@ -7,6 +7,8 @@ import { Link } from 'react-router-dom';
 
 export default function Calculator({ session }) {
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState('');
   
   const [formData, setFormData] = useState({
     age: 0,
@@ -29,30 +31,68 @@ export default function Calculator({ session }) {
     async function getProfile() {
       if (!session?.user?.id) return;
       try {
-        const { data, error } = await supabase
+        const { data: profileData, error } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', session.user.id)
           .single();
 
-        if (error && error.code !== 'PGRST116') {
-          console.error('Error fetching profile:', error);
+        const { data: basicData } = await supabase
+          .from('basic_details')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+
+        // Calculate age points based on DOB
+        let agePoints = 0;
+        if (basicData?.dob) {
+            const birthDate = new Date(basicData.dob);
+            const today = new Date();
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const m = today.getMonth() - birthDate.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+              age--;
+            }
+            if (age >= 18 && age <= 24) agePoints = 25;
+            else if (age >= 25 && age <= 32) agePoints = 30;
+            else if (age >= 33 && age <= 39) agePoints = 25;
+            else if (age >= 40 && age <= 44) agePoints = 15;
+            else agePoints = 0;
+        } else if (profileData?.age) {
+            // fallback if age was manually saved as points
+            agePoints = profileData.age;
         }
 
-        if (data) {
+        // Map overseasExp years to points if it looks like years (< 30) and not points (0, 5, 10, 15)
+        // Actually Profile saves literal years. Let's map it.
+        let osExp = profileData?.overseasExp || 0;
+        let osExpPoints = 0;
+        if (osExp >= 8) osExpPoints = 15;
+        else if (osExp >= 5) osExpPoints = 10;
+        else if (osExp >= 3) osExpPoints = 5;
+
+        // Map ausExp years to points
+        let auExp = profileData?.ausExp || 0;
+        let auExpPoints = 0;
+        if (auExp >= 8) auExpPoints = 20;
+        else if (auExp >= 5) auExpPoints = 15;
+        else if (auExp >= 3) auExpPoints = 10;
+        else if (auExp >= 1) auExpPoints = 5;
+
+        if (profileData) {
           setFormData(prev => ({
             ...prev,
-            age: data.age || 0,
-            english: data.english || 0,
-            overseasExp: data.overseasExp || 0,
-            ausExp: data.ausExp || 0,
-            education: data.education || 0,
-            specialistEdu: data.specialistEdu || false,
-            ausStudy: data.ausStudy || false,
-            professionalYear: data.professionalYear || false,
-            ccl: data.ccl || false,
-            regionalStudy: data.regionalStudy || false,
-            partnerSkills: data.partnerSkills || 0,
+            age: agePoints,
+            english: profileData.english || 0,
+            overseasExp: osExpPoints,
+            ausExp: auExpPoints,
+            education: profileData.education || 0,
+            specialistEdu: profileData.specialistEdu || false,
+            ausStudy: profileData.ausStudy || false,
+            professionalYear: profileData.professionalYear || false,
+            ccl: profileData.ccl || false,
+            regionalStudy: profileData.regionalStudy || false,
+            partnerSkills: profileData.partnerSkills || 0,
           }));
         }
       } catch (error) {
@@ -94,6 +134,39 @@ export default function Calculator({ session }) {
     }));
   };
 
+  const handleSave = async () => {
+    if (!session?.user?.id) return;
+    setSaving(true);
+    setMessage('');
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .upsert({
+          id: session.user.id,
+          age: formData.age,
+          english: formData.english,
+          overseasExp: formData.overseasExp,
+          ausExp: formData.ausExp,
+          education: formData.education,
+          specialistEdu: formData.specialistEdu,
+          ausStudy: formData.ausStudy,
+          professionalYear: formData.professionalYear,
+          ccl: formData.ccl,
+          regionalStudy: formData.regionalStudy,
+          partnerSkills: formData.partnerSkills,
+        });
+
+      if (error) throw error;
+      setMessage('Profile updated successfully!');
+      setTimeout(() => setMessage(''), 3000);
+    } catch (error) {
+      console.error('Error saving profile:', error);
+      setMessage('Failed to update profile.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   if (loading) {
     return <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh', color: 'var(--color-primary)'}}>Loading...</div>;
   }
@@ -105,7 +178,7 @@ export default function Calculator({ session }) {
       </Link>
       
       <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1.5rem', color: 'var(--color-text)' }}>Eligibility Calculator</h2>
-      <p style={{ color: 'var(--color-muted)', marginBottom: '2rem' }}>
+      <p style={{ color: 'var(--color-secondary)', marginBottom: '2rem' }}>
         This form is pre-populated with data from your profile. You can tweak the values here to see how it affects your total points.
       </p>
       
@@ -113,6 +186,22 @@ export default function Calculator({ session }) {
       
       <div style={{ marginTop: '2rem' }}>
         <PointsForm formData={formData} handleInputChange={handleInputChange} />
+      </div>
+
+      <div style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'center' }}>
+        {message && (
+          <div className={message.includes('success') ? 'success-message' : 'error-message'} style={{ width: '100%' }}>
+            {message}
+          </div>
+        )}
+        <button 
+          onClick={handleSave} 
+          className="btn-primary" 
+          disabled={saving}
+          style={{ width: '100%', maxWidth: '300px' }}
+        >
+          {saving ? 'Saving...' : 'Save to Profile'}
+        </button>
       </div>
     </div>
   );

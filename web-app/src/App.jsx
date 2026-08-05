@@ -80,7 +80,7 @@ function App() {
             <Route path="/signup" element={!session ? <Signup /> : <Navigate to="/home" />} />
             <Route path="/profile" element={session ? <Profile session={session} /> : <Navigate to="/login" />} />
             <Route path="/discover" element={session ? <Discover session={session} /> : <Navigate to="/login" />} />
-            <Route path="/calculator" element={session ? <Calculator session={session} /> : <Navigate to="/login" />} />
+            <Route path="/australia-point-calculator" element={session ? <Calculator session={session} /> : <Navigate to="/login" />} />
             <Route path="/forms" element={session ? <FormsHub session={session} /> : <Navigate to="/login" />} />
             <Route path="/news" element={session ? <NewsHub session={session} /> : <Navigate to="/login" />} />
             <Route path="/home" element={session ? <Home session={session} /> : <Navigate to="/login" />} />

@@ -12,8 +12,14 @@ export default function FormsHub({ session }) {
     async function getProfile() {
       if (!session?.user?.id) return;
       try {
-        const { data, error } = await supabase
+        const { data: profileData, error } = await supabase
           .from('profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+
+        const { data: basicData } = await supabase
+          .from('basic_details')
           .select('*')
           .eq('id', session.user.id)
           .single();
@@ -22,21 +28,51 @@ export default function FormsHub({ session }) {
           console.error('Error fetching profile:', error);
         }
 
-        if (data) {
-          let points = 0;
-          points += Number(data.age || 0);
-          points += Number(data.english || 0);
-          points += Number(data.education || 0);
-          points += Number(data.partnerSkills || 0);
+        if (profileData) {
+          let agePoints = 0;
+          if (basicData?.dob) {
+              const birthDate = new Date(basicData.dob);
+              const today = new Date();
+              let age = today.getFullYear() - birthDate.getFullYear();
+              const m = today.getMonth() - birthDate.getMonth();
+              if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;
+              if (age >= 18 && age <= 24) agePoints = 25;
+              else if (age >= 25 && age <= 32) agePoints = 30;
+              else if (age >= 33 && age <= 39) agePoints = 25;
+              else if (age >= 40 && age <= 44) agePoints = 15;
+          } else if (profileData?.age) {
+              agePoints = Number(profileData.age);
+          }
 
-          if (data.specialistEdu) points += 10;
-          if (data.ausStudy) points += 5;
-          if (data.professionalYear) points += 5;
-          if (data.ccl) points += 5;
-          if (data.regionalStudy) points += 5;
+          let osExp = Number(profileData?.overseasExp || 0);
+          let osExpPoints = 0;
+          if (osExp >= 8) osExpPoints = 15;
+          else if (osExp >= 5) osExpPoints = 10;
+          else if (osExp >= 3) osExpPoints = 5;
+          else if (osExp > 15) osExpPoints = osExp; // If they already saved points
+
+          let auExp = Number(profileData?.ausExp || 0);
+          let auExpPoints = 0;
+          if (auExp >= 8) auExpPoints = 20;
+          else if (auExp >= 5) auExpPoints = 15;
+          else if (auExp >= 3) auExpPoints = 10;
+          else if (auExp >= 1) auExpPoints = 5;
+          else if (auExp > 20) auExpPoints = auExp; // If they already saved points
+
+          let points = 0;
+          points += agePoints;
+          points += Number(profileData.english || 0);
+          points += Number(profileData.education || 0);
+          points += Number(profileData.partnerSkills || 0);
+
+          if (profileData.specialistEdu) points += 10;
+          if (profileData.ausStudy) points += 5;
+          if (profileData.professionalYear) points += 5;
+          if (profileData.ccl) points += 5;
+          if (profileData.regionalStudy) points += 5;
           points += 5; // state nomination
 
-          let workExperience = Number(data.overseasExp || 0) + Number(data.ausExp || 0);
+          let workExperience = osExpPoints + auExpPoints;
           if (workExperience > 20) workExperience = 20;
           points += workExperience;
 
@@ -69,7 +105,7 @@ export default function FormsHub({ session }) {
           {/* Form Card */}
           <div 
             className="glass-panel hover-card" 
-            onClick={() => navigate('/calculator')}
+            onClick={() => navigate('/australia-point-calculator')}
             style={{ 
               padding: '1.5rem', 
               cursor: 'pointer', 
