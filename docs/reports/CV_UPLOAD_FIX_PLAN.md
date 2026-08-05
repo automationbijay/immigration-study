@@ -10,12 +10,12 @@
 
 **Code changes (lint clean, `vite build` passes):**
 
-- ✅ Phase 0.1 — [CvUploadModal.jsx](web-app/src/components/CvUploadModal.jsx) reads the real error
+- ✅ Phase 0.1 — [CvUploadModal.jsx](../../web-app/src/components/CvUploadModal.jsx) reads the real error
   off `error.context` and shows it
-- ✅ Phase 1A — [20260805234500_make_cv_webhook_nonfatal.sql](supabase/migrations/20260805234500_make_cv_webhook_nonfatal.sql)
+- ✅ Phase 1A — [20260805234500_make_cv_webhook_nonfatal.sql](../../supabase/migrations/20260805234500_make_cv_webhook_nonfatal.sql)
   wraps the `net.http_post` dispatch in an exception handler
 - ✅ Phase 1B — 401 renders as "your session has expired", not "please try again"
-- ✅ Phase 3.1 / 3.2 / 3.3 — [upload-cv](supabase/functions/upload-cv/index.ts) reordered so the old
+- ✅ Phase 3.1 / 3.2 / 3.3 — [upload-cv](../../supabase/functions/upload-cv/index.ts) reordered so the old
   CV is deleted only after the new one is stored *and* recorded; orphaned file cleaned up on insert
   failure; error `code` returned alongside the message
 
@@ -49,7 +49,7 @@ remaining cause names itself in the UI on the next failed attempt.
 `FunctionsHttpError` is not the bug — it is the *absence* of the bug report. It is what
 `supabase-js` throws for **any** non-2xx response from an Edge Function. The `upload-cv` function
 already returns a useful body (`{"error": "<real message>"}`), but
-[CvUploadModal.jsx:32](web-app/src/components/CvUploadModal.jsx#L32) throws the error object away
+[CvUploadModal.jsx:32](../../web-app/src/components/CvUploadModal.jsx#L32) throws the error object away
 without reading it, so both the toast and the console show a generic string.
 
 **So the first fix is to make the error visible.** Everything else in this plan is either (a) a
@@ -128,8 +128,8 @@ Step 0 of the plan pins this down in under a minute. Ranked by likelihood:
 
 ### H1 — The `AFTER INSERT` trigger aborts the insert (→ HTTP 500)
 
-`trigger_parse_cv_webhook()` ([20260805212500](supabase/migrations/20260805212500_add_parse_cv_webhook.sql),
-URL patched by [20260805214800](supabase/migrations/20260805214800_fix_webhook_url.sql)) calls
+`trigger_parse_cv_webhook()` ([20260805212500](../../supabase/migrations/20260805212500_add_parse_cv_webhook.sql),
+URL patched by [20260805214800](../../supabase/migrations/20260805214800_fix_webhook_url.sql)) calls
 `net.http_post` **synchronously inside the INSERT transaction**. If `pg_net` raises for any reason,
 the `INSERT` rolls back → `dbError` → `throw` → the catch block returns 500.
 
@@ -154,7 +154,7 @@ sends a bad JWT and gets this same 401. Cheap to rule out: sign out, sign in, re
 **0.1 — Read the error body in the client.** `FunctionsHttpError` carries the raw `Response` on
 `error.context`; that is where `{"error": "..."}` lives.
 
-In [CvUploadModal.jsx](web-app/src/components/CvUploadModal.jsx#L28-L42), replace `if (error) throw error;`:
+In [CvUploadModal.jsx](../../web-app/src/components/CvUploadModal.jsx#L28-L42), replace `if (error) throw error;`:
 
 ```js
 if (error) {
@@ -178,7 +178,7 @@ and surface it: `setMessage(\`Error uploading CV — ${err.message}\`)`.
 
 **0.2 — Read the server-side logs.** Reproduce the upload, then open
 Dashboard → Edge Functions → `upload-cv` → Logs. The `console.error("Upload error details:", …)`
-line at [upload-cv/index.ts:80](supabase/functions/upload-cv/index.ts#L80) prints the real cause.
+line at [upload-cv/index.ts:80](../../supabase/functions/upload-cv/index.ts#L80) prints the real cause.
 
 **0.3 — Decide:**
 - Status **500**, message mentions `net`/`http_post`/trigger → **H1** → do Phase 1A.
@@ -283,7 +283,7 @@ how `parse-cv` drifted two versions behind in the first place.
 ### Phase 3 — Hardening (prevents the next silent failure)
 
 **3.1 — Stop destroying the old CV before the new one is safe.**
-[upload-cv/index.ts:24-40](supabase/functions/upload-cv/index.ts#L24-L40) deletes the existing row and
+[upload-cv/index.ts:24-40](../../supabase/functions/upload-cv/index.ts#L24-L40) deletes the existing row and
 file *first*. Any later failure leaves the user with no CV at all. Reorder to: upload new → insert new
 → *then* delete old.
 
@@ -304,7 +304,7 @@ PDF/DOC/DOCX client-side and set `allowed_mime_types` on the `cv-uploads` bucket
 
 **3.5 — Drop the dead `cvs` bucket** (7 stale objects incl. a `test-upload/` folder) and the leftover
 `"Users can read their own CV"` policy from
-[20260805122634](supabase/migrations/20260805122634_add_cv_storage.sql), which still points at `cvs`.
+[20260805122634](../../supabase/migrations/20260805122634_add_cv_storage.sql), which still points at `cvs`.
 Take a backup of anything still referenced before deleting.
 
 ---

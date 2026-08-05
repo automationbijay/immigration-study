@@ -23,9 +23,10 @@ This repository contains two main components:
 - `/web-app` - Contains the React Vite application (Home dashboard, Auth flow, Profile builder).
 - `/docs/australia` - Contains the raw scraped JSON datasets for the MLTSSL, ROL, and STSOL occupation lists.
 - `/docs/universities.json` - Raw fetched JSON dataset of global universities from Hipolabs.
-- `/script` - Contains the Python automation scripts for scraping and database seeding.
-- `seed_universities.js` - Node.js script that connects directly to PostgreSQL via `pg` to batch-insert global universities.
-- `remove_duplicates.js` - Node.js script that cleans up duplicate language test entries across all test tables.
+- `/script` - Contains the Python/Node automation, seeding, and test scripts, plus `/script/fixtures` (sample files used by the test scripts, e.g. a sample CV).
+  - `seed_universities.js` - Connects directly to PostgreSQL via `pg` to batch-insert global universities.
+  - `remove_duplicates.js` - Cleans up duplicate language test entries across all test tables.
+- `/docs/reports` - Point-in-time audit and fix-plan documents (not living documentation).
 - `/supabase/migrations` - Contains SQL schemas and seed data (e.g., `profiles` and `countries` tables).
 
 ---
@@ -77,6 +78,6 @@ python script/seed_stsol.py
 ### 6. Seeding Universities Data
 To fetch the latest global universities data from the Hipolabs API, save the JSON locally in `docs/universities.json`, and bulk insert it into the `universities` table, run:
 ```bash
-node seed_universities.js
+node script/seed_universities.js
 ```
 *Make sure you have run `npm install pg` in the root folder, and your `.env.local` contains the remote database credentials or connection string if connecting to a hosted database.*
