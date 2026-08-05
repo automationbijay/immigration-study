@@ -151,6 +151,17 @@ export default function Profile({ session }) {
     setSearchParams(next, { replace: true });
   }, [searchParams, setSearchParams]);
 
+  // The home checklist links straight into a section via ?section=; open it
+  // here, then drop the param so a refresh does not reopen it.
+  useEffect(() => {
+    const section = searchParams.get('section');
+    if (!section || !SECTIONS.some((s) => s.id === section)) return;
+    setExpandedSection(section);
+    const next = new URLSearchParams(searchParams);
+    next.delete('section');
+    setSearchParams(next, { replace: true });
+  }, [searchParams, setSearchParams]);
+
   useEffect(() => {
     let ignore = false;
     async function getProfile() {

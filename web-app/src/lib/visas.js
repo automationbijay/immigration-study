@@ -333,15 +333,15 @@ export function unlockOptions(form, gap, limit = 3) {
  */
 export function profileGaps(form, ctx) {
   return [
-    { id: 'dob', label: 'Add your date of birth', done: ctx.hasAge, to: '/profile' },
-    { id: 'occupation', label: 'Select your occupation', done: ctx.hasOccupation, to: '/profile' },
-    { id: 'english', label: 'Add your English test scores', done: form.englishBand !== 'competent', to: '/profile' },
-    { id: 'education', label: 'Add your highest qualification', done: form.educationBand !== 'none', to: '/profile' },
+    { id: 'dob', label: 'Add your date of birth', done: ctx.hasAge, to: '/profile?section=basic' },
+    { id: 'occupation', label: 'Select your occupation', done: ctx.hasOccupation, to: '/profile?section=experience' },
+    { id: 'english', label: 'Add your English test scores', done: form.englishBand !== 'competent', to: '/profile?section=language' },
+    { id: 'education', label: 'Add your highest qualification', done: form.educationBand !== 'none', to: '/profile?section=education' },
     {
       id: 'experience',
       label: 'Add your work experience',
       done: (Number(form.overseasExpYears) || 0) > 0 || (Number(form.ausExpYears) || 0) > 0,
-      to: '/profile',
+      to: '/profile?section=experience',
     },
   ];
 }
