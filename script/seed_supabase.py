@@ -4,7 +4,6 @@ import psycopg2
 from psycopg2.extras import execute_values
 
 def get_db_url():
-    # Simple parse of .env
     with open('.env', 'r') as f:
         for line in f:
             if line.startswith('DATABASE_URL='):
@@ -22,30 +21,14 @@ def main():
     conn = psycopg2.connect(db_url)
     cur = conn.cursor()
     
-    print("Creating anzsco_occupations table...")
-    cur.execute('''
-        CREATE TABLE IF NOT EXISTS anzsco_occupations (
-            id bigint generated always as identity primary key,
-            anzsco_code text not null,
-            name text not null,
-            assessing_authority text,
-            skill_level text,
-            invitation_tier text,
-            list_type text not null,
-            created_at timestamptz default now()
-        );
-        
-        -- Create an index on anzsco_code for fast lookups
-        CREATE INDEX IF NOT EXISTS idx_anzsco_code ON anzsco_occupations(anzsco_code);
-    ''')
-    
-    # We will truncate the table to avoid duplicates on re-runs
-    cur.execute('TRUNCATE TABLE anzsco_occupations RESTART IDENTITY;')
+    # Drop the old single table if it exists to keep DB clean
+    print("Cleaning up old single table...")
+    cur.execute('DROP TABLE IF EXISTS anzsco_occupations CASCADE;')
     
     lists = [
-        ('docs/australia/mltssl.json', 'MLTSSL'),
-        ('docs/australia/rol.json', 'ROL'),
-        ('docs/australia/stsol.json', 'STSOL')
+        ('docs/australia/mltssl.json', 'mltssl'),
+        ('docs/australia/rol.json', 'rol'),
+        ('docs/australia/stsol.json', 'stsol')
     ]
     
     total_inserted = 0
@@ -54,6 +37,27 @@ def main():
         if not os.path.exists(filepath):
             print(f"File not found: {filepath}")
             continue
+            
+        table_name = f"anzsco_{list_type}"
+        
+        print(f"Creating table {table_name}...")
+        cur.execute(f'''
+            CREATE TABLE IF NOT EXISTS {table_name} (
+                id bigint generated always as identity primary key,
+                anzsco_code text not null,
+                name text not null,
+                assessing_authority text,
+                skill_level text,
+                invitation_tier text,
+                created_at timestamptz default now()
+            );
+            
+            -- Create an index on anzsco_code for fast lookups
+            CREATE INDEX IF NOT EXISTS idx_{table_name}_anzsco_code ON {table_name}(anzsco_code);
+            
+            -- Truncate to avoid duplicates on re-runs
+            TRUNCATE TABLE {table_name} RESTART IDENTITY;
+        ''')
             
         with open(filepath, 'r', encoding='utf-8') as f:
             data = json.load(f)
@@ -65,27 +69,26 @@ def main():
                 item.get('Name'),
                 item.get('Assessing Authority'),
                 item.get('Skill Level'),
-                item.get('Invitation Tier'),
-                list_type
+                item.get('Invitation Tier')
             ))
             
         if records:
             execute_values(
                 cur,
-                '''
-                INSERT INTO anzsco_occupations 
-                (anzsco_code, name, assessing_authority, skill_level, invitation_tier, list_type)
+                f'''
+                INSERT INTO {table_name} 
+                (anzsco_code, name, assessing_authority, skill_level, invitation_tier)
                 VALUES %s
                 ''',
                 records
             )
             total_inserted += len(records)
-            print(f"Inserted {len(records)} records from {list_type}")
+            print(f"Inserted {len(records)} records into {table_name}")
             
     conn.commit()
     cur.close()
     conn.close()
-    print(f"Successfully seeded {total_inserted} occupations into Supabase!")
+    print(f"Successfully created 3 separate tables and seeded {total_inserted} total occupations into Supabase!")
 
 if __name__ == '__main__':
     main()
