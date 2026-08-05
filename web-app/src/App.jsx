@@ -4,8 +4,8 @@ import { supabase } from './lib/supabase';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Profile from './pages/Profile';
-import Calculator from './pages/Calculator';
-import { User, Calculator as CalcIcon, LogOut } from 'lucide-react';
+import Home from './pages/Home';
+import { User, Home as HomeIcon, LogOut } from 'lucide-react';
 import './index.css';
 
 function BottomNav() {
@@ -18,9 +18,9 @@ function BottomNav() {
         <User className="inline-icon"/> 
         <span>Profile</span>
       </Link>
-      <Link to="/calculator" className={`nav-item ${currentPath === '/calculator' ? 'active' : ''}`}>
-        <CalcIcon className="inline-icon"/> 
-        <span>Calculator</span>
+      <Link to="/home" className={`nav-item ${currentPath === '/home' ? 'active' : ''}`}>
+        <HomeIcon className="inline-icon"/> 
+        <span>Home</span>
       </Link>
     </nav>
   );
@@ -76,8 +76,8 @@ function App() {
             <Route path="/login" element={!session ? <Login /> : <Navigate to="/profile" />} />
             <Route path="/signup" element={!session ? <Signup /> : <Navigate to="/profile" />} />
             <Route path="/profile" element={session ? <Profile session={session} /> : <Navigate to="/login" />} />
-            <Route path="/calculator" element={session ? <Calculator session={session} /> : <Navigate to="/login" />} />
-            <Route path="/" element={<Navigate to={session ? "/profile" : "/login"} />} />
+            <Route path="/home" element={session ? <Home session={session} /> : <Navigate to="/login" />} />
+            <Route path="/" element={<Navigate to={session ? "/home" : "/login"} />} />
           </Routes>
         </main>
         

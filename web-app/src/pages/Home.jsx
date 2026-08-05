@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Calculator as CalcIcon } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 
-export default function Calculator({ session }) {
+export default function Home({ session }) {
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState(null);
 
@@ -75,12 +75,15 @@ export default function Calculator({ session }) {
         </div>
       </div>
 
-      <div className="panel mt-4">
-        <h3 className="mb-2" style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
-          <CalcIcon className="text-muted" size={20} /> Score Breakdown
-        </h3>
+      <details className="panel mt-4 scorecard-accordion">
+        <summary className="scorecard-summary">
+          <span style={{display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: '700', fontSize: '1.1rem'}}>
+            View Score Breakdown
+          </span>
+          <ChevronDown className="accordion-icon text-muted" size={20} />
+        </summary>
         
-        <div className="points-breakdown">
+        <div className="points-breakdown mt-4">
           <div className="breakdown-row">
             <span className="breakdown-label">Age</span>
             <span className="breakdown-value">{profile.age || 0}</span>
@@ -139,7 +142,7 @@ export default function Calculator({ session }) {
             </div>
           )}
         </div>
-      </div>
+      </details>
     </div>
   );
 }

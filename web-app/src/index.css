@@ -364,3 +364,30 @@ input[type="checkbox"] {
   border: 2px solid var(--color-surface);
   box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
+
+/* Accordion */
+.scorecard-accordion {
+  transition: all 0.3s ease;
+}
+
+.scorecard-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.scorecard-summary::-webkit-details-marker {
+  display: none;
+}
+
+details[open] .accordion-icon {
+  transform: rotate(180deg);
+}
+
+.accordion-icon {
+  transition: transform 0.3s ease;
+}
