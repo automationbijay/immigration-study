@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FileUp, Search, Globe, ArrowRight } from 'lucide-react';
+import { FileUp, Search, Globe, ArrowRight, Upload } from 'lucide-react';
 
 export default function Landing({ session }) {
   const navigate = useNavigate();
@@ -26,8 +26,8 @@ export default function Landing({ session }) {
           <div className="landing-actions">
             {!session ? (
               <>
-                <button className="btn-primary-large" onClick={() => navigate('/signup')}>
-                  Get Started <ArrowRight className="inline-icon" />
+                <button className="btn-primary-large" onClick={() => navigate('/signup?intent=upload_cv')}>
+                  <Upload className="inline-icon" /> Upload CV
                 </button>
                 <button className="btn-secondary-large" onClick={() => navigate('/login')}>
                   Log In

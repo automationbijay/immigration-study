@@ -1,9 +1,44 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { User, Globe, GraduationCap, Briefcase, CheckCircle2, ChevronDown, ChevronUp, Users, LogOut } from 'lucide-react';
+import { User, Globe, GraduationCap, Briefcase, CheckCircle2, ChevronDown, ChevronUp, Users, LogOut, FileText, Upload } from 'lucide-react';
 import OccupationSearch from '../components/OccupationSearch';
+import CvUploadModal from '../components/CvUploadModal';
+
+function CvViewer({ cvUrl }) {
+  const [cvSignedUrl, setCvSignedUrl] = useState(null);
+  const [loadingUrl, setLoadingUrl] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    async function fetchUrl() {
+      setLoadingUrl(true);
+      const { data, error } = await supabase.storage
+        .from('cvs')
+        .createSignedUrl(cvUrl, 60); // 60 seconds expiry
+
+      if (active) {
+        if (data) setCvSignedUrl(data.signedUrl);
+        setLoadingUrl(false);
+      }
+    }
+    fetchUrl();
+    return () => { active = false; };
+  }, [cvUrl]);
+
+  if (loadingUrl) return <div>Loading CV viewer...</div>;
+  if (!cvSignedUrl) return <div>Error loading CV.</div>;
+
+  return (
+    <iframe 
+      src={cvSignedUrl} 
+      title="User CV"
+      style={{ width: '100%', height: '600px', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)' }}
+    />
+  );
+}
 
 export default function Profile({ session }) {
+  const [isCvModalOpen, setIsCvModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState({
     spouseDetails: '',
@@ -27,8 +62,13 @@ export default function Profile({ session }) {
     country: '',
     marital_status: 'Single',
     phone_no: '',
+    marital_status: 'Single',
+    phone_no: '',
     email: '',
+    cv_url: null,
   });
+
+  const [uploadingCv, setUploadingCv] = useState(false);
 
   const [languageProficiency, setLanguageProficiency] = useState([]);
 
@@ -284,6 +324,15 @@ export default function Profile({ session }) {
         </div>
       </div>
 
+      <div className="panel" style={{cursor: 'pointer'}} onClick={() => toggleSection('cv')}>
+        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+          <h3 className="mb-0" style={{display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0}}>
+            <FileText className="text-muted" size={20} /> My CV
+          </h3>
+          <span className="text-muted"><ChevronDown size={20} style={{transform: 'rotate(-90deg)'}}/></span>
+        </div>
+      </div>
+
       <div style={{ marginTop: '2rem', paddingBottom: '2rem' }}>
         <button 
           type="button" 
@@ -310,9 +359,49 @@ export default function Profile({ session }) {
                 {expandedSection === 'family' && 'Family and Spouse'}
                 {expandedSection === 'education' && 'Education'}
                 {expandedSection === 'experience' && 'Experience & Extras'}
+                {expandedSection === 'cv' && 'My CV'}
               </h2>
             </div>
             
+            {expandedSection === 'cv' ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {basicDetails.cv_url ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <h3 style={{ margin: 0 }}>Your Resume</h3>
+                      <button 
+                        type="button" 
+                        className="btn-secondary" 
+                        style={{ padding: '0.5rem 1rem' }} 
+                        onClick={() => setIsCvModalOpen(true)}
+                      >
+                        <Upload size={16} className="inline-icon" /> Replace CV
+                      </button>
+                    </div>
+                    
+                    <CvViewer cvUrl={basicDetails.cv_url} />
+                  </div>
+                ) : (
+                  <div style={{ textAlign: 'center', padding: '3rem 1rem' }}>
+                    <FileText size={48} className="text-muted" style={{ marginBottom: '1rem' }} />
+                    <h3 style={{ marginBottom: '0.5rem' }}>No CV Uploaded</h3>
+                    <p className="text-muted" style={{ marginBottom: '1.5rem' }}>Upload your resume to get personalized migration insights.</p>
+                    <button 
+                      type="button" 
+                      className="btn-primary" 
+                      onClick={() => setIsCvModalOpen(true)}
+                      style={{ margin: '0 auto' }}
+                    >
+                      <Upload size={20} className="inline-icon" /> Upload CV
+                    </button>
+                  </div>
+                )}
+                
+                <div className="modal-actions">
+                  <button type="button" className="btn-secondary" onClick={closeModal} style={{flex: 1}}>Close</button>
+                </div>
+              </div>
+            ) : (
             <form onSubmit={handleModalSave}>
               {expandedSection === 'basic' && (
                 <>
@@ -490,9 +579,18 @@ export default function Profile({ session }) {
                 </button>
               </div>
             </form>
+            )}
           </div>
         </div>
       )}
+
+      <CvUploadModal 
+        isOpen={isCvModalOpen} 
+        onClose={() => setIsCvModalOpen(false)} 
+        onUploadComplete={(path) => {
+          setBasicDetails(prev => ({ ...prev, cv_url: path }));
+        }} 
+      />
     </div>
   );
 }

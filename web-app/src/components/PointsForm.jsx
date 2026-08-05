@@ -139,16 +139,7 @@ const PointsForm = ({ formData, handleInputChange }) => {
                     </label>
                 </div>
 
-                <div className="form-group switch-group" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1.5rem' }}>
-                    <div>
-                        <label htmlFor="state-nomination" style={{ margin: 0 }}>State/Territory Nomination (Subclass 190)</label>
-                        <small style={{ color: 'var(--color-secondary)', fontSize: '0.75rem', display: 'block', marginTop: '0.25rem' }}>Automatically gives 5 points for subclass 190.</small>
-                    </div>
-                    <label className="switch">
-                        <input type="checkbox" id="state-nomination" name="stateNomination" checked={true} disabled />
-                        <span className="slider round"></span>
-                    </label>
-                </div>
+
             </div>
             
         </form>

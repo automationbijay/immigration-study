@@ -184,6 +184,31 @@ export default function Calculator({ session }) {
       
       <ScoreDisplay targetScore={totalPoints} />
       
+      <div style={{
+        marginTop: '1.5rem',
+        padding: '1rem 1.5rem',
+        background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(16, 185, 129, 0.1))',
+        border: '1px solid rgba(34, 197, 94, 0.2)',
+        borderRadius: '1rem',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        color: 'var(--color-primary)'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <div style={{ background: 'rgba(34, 197, 94, 0.2)', padding: '0.5rem', borderRadius: '50%' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-green-600"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+          </div>
+          <div>
+            <h4 style={{ margin: 0, fontWeight: 'bold', fontSize: '1rem' }}>State Nomination (190)</h4>
+            <p style={{ margin: 0, fontSize: '0.875rem', opacity: 0.8 }}>Automatically included in your total score</p>
+          </div>
+        </div>
+        <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: 'var(--color-primary)' }}>
+          +5 Points
+        </div>
+      </div>
+      
       <div style={{ marginTop: '2rem' }}>
         <PointsForm formData={formData} handleInputChange={handleInputChange} />
       </div>
