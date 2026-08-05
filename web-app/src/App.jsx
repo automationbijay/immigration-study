@@ -19,8 +19,6 @@ function App() {
     stateNomination: true, // Always true for 190
   });
 
-  const [totalPoints, setTotalPoints] = useState(5); // Default state nomination 5 pts
-
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({
@@ -29,33 +27,30 @@ function App() {
     }));
   };
 
-  useEffect(() => {
-    let total = 0;
-    
-    // Add non-work experience select values
-    total += formData.age;
-    total += formData.english;
-    total += formData.education;
-    total += formData.partnerSkills;
+  // Derive total points directly during render (React Best Practice)
+  let totalPoints = 0;
+  
+  // Add non-work experience select values
+  totalPoints += formData.age;
+  totalPoints += formData.english;
+  totalPoints += formData.education;
+  totalPoints += formData.partnerSkills;
 
-    // Add checkbox values
-    if (formData.specialistEdu) total += 10;
-    if (formData.ausStudy) total += 5;
-    if (formData.professionalYear) total += 5;
-    if (formData.ccl) total += 5;
-    if (formData.regionalStudy) total += 5;
-    if (formData.stateNomination) total += 5;
+  // Add checkbox values
+  if (formData.specialistEdu) totalPoints += 10;
+  if (formData.ausStudy) totalPoints += 5;
+  if (formData.professionalYear) totalPoints += 5;
+  if (formData.ccl) totalPoints += 5;
+  if (formData.regionalStudy) totalPoints += 5;
+  if (formData.stateNomination) totalPoints += 5;
 
-    // Calculate work experience cap
-    let workExperience = formData.overseasExp + formData.ausExp;
-    if (workExperience > 20) {
-      workExperience = 20;
-    }
-    
-    total += workExperience;
-
-    setTotalPoints(total);
-  }, [formData]);
+  // Calculate work experience cap (Max 20 points)
+  let workExperience = formData.overseasExp + formData.ausExp;
+  if (workExperience > 20) {
+    workExperience = 20;
+  }
+  
+  totalPoints += workExperience;
 
   return (
     <>

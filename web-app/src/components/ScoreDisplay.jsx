@@ -22,13 +22,38 @@ const ScoreDisplay = ({ targetScore }) => {
     }, [targetScore]);
 
     const isEligible = displayScore >= 65;
+    const maxScore = 120; // Cap for the visual ring
+    const radius = 60;
+    const circumference = 2 * Math.PI * radius;
+    // Calculate how much to offset the stroke based on the score (0 score = full offset, 120 score = 0 offset)
+    const progressOffset = circumference - (Math.min(displayScore, maxScore) / maxScore) * circumference;
 
     return (
         <div className="score-display glass-panel">
             <div className="score-label">Total Points</div>
-            <div className="score-value">{displayScore}</div>
+            
+            <div className="score-ring-container">
+                <svg className="score-ring" width="160" height="160">
+                    <circle 
+                        className="score-ring-bg" 
+                        cx="80" cy="80" r={radius} 
+                        strokeWidth="12" 
+                    />
+                    <circle 
+                        className={`score-ring-progress ${isEligible ? 'eligible' : ''}`} 
+                        cx="80" cy="80" r={radius} 
+                        strokeWidth="12"
+                        strokeDasharray={circumference}
+                        strokeDashoffset={progressOffset}
+                    />
+                </svg>
+                <div className="score-value-wrapper">
+                    <div className="score-value">{displayScore}</div>
+                </div>
+            </div>
+
             <div className={`score-status ${isEligible ? 'success' : ''}`}>
-                {isEligible ? 'Eligible (65+ Points)' : `Insufficient (Need ${65 - displayScore} more)`}
+                {isEligible ? 'Eligible (65+ Points)' : `Need ${65 - displayScore} more pts`}
             </div>
         </div>
     );
