@@ -14,13 +14,13 @@ function BottomNav() {
 
   return (
     <nav className="bottom-nav">
-      <Link to="/profile" className={`nav-item ${currentPath === '/profile' ? 'active' : ''}`}>
-        <User className="inline-icon"/> 
-        <span>Profile</span>
-      </Link>
       <Link to="/home" className={`nav-item ${currentPath === '/home' ? 'active' : ''}`}>
         <HomeIcon className="inline-icon"/> 
         <span>Home</span>
+      </Link>
+      <Link to="/profile" className={`nav-item ${currentPath === '/profile' ? 'active' : ''}`}>
+        <User className="inline-icon"/> 
+        <span>Profile</span>
       </Link>
     </nav>
   );
@@ -73,8 +73,8 @@ function App() {
 
         <main className="main-content">
           <Routes>
-            <Route path="/login" element={!session ? <Login /> : <Navigate to="/profile" />} />
-            <Route path="/signup" element={!session ? <Signup /> : <Navigate to="/profile" />} />
+            <Route path="/login" element={!session ? <Login /> : <Navigate to="/home" />} />
+            <Route path="/signup" element={!session ? <Signup /> : <Navigate to="/home" />} />
             <Route path="/profile" element={session ? <Profile session={session} /> : <Navigate to="/login" />} />
             <Route path="/home" element={session ? <Home session={session} /> : <Navigate to="/login" />} />
             <Route path="/" element={<Navigate to={session ? "/home" : "/login"} />} />
