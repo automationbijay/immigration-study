@@ -1,48 +1,54 @@
-# Australia Visa Immigration Study
+# Australia Visa Migration Assistant
 
-A modern React-based application designed to help potential immigrants calculate their points for the Australian Skilled Nominated Visa (Subclass 190).
+A modern, mobile-first React application designed to help potential immigrants calculate their points for the Australian Skilled Nominated Visa (Subclass 190). 
 
 ## 🚀 Project Overview
 This repository contains two main components:
-1. **Frontend Web App**: A premium React UI built with Vite for users to calculate their immigration points interactively.
+1. **Frontend Web App**: A premium, minimalist React UI optimized for smartphone users. Includes secure authentication, user profiles, an age-slider interface, a dynamic countries dropdown, and an expandable points scorecard.
 2. **Data Pipeline**: Python-based web scrapers that automatically fetch the latest Australian ANZSCO skilled occupation lists and securely seed them into a Supabase PostgreSQL database.
 
 ---
 
 ## 🛠️ Tech Stack
-- **Frontend**: React, Vite, Vanilla CSS (CSS Grid, Glassmorphism design)
-- **Database**: Supabase (PostgreSQL)
+- **Frontend**: React, Vite, React Router, Lucide Icons, Vanilla CSS (Mobile-first Minimalist design, "Trust & Authority" palette, Plus Jakarta Sans)
+- **Database / Backend**: Supabase (PostgreSQL, Auth, RLS Policies)
 - **Scraping Engine**: Python, Playwright (Headless Browser)
 - **Hosting**: Vercel
 
 ---
 
 ## 📁 Directory Structure
-- `/web-app` - Contains the React Vite application.
+- `/web-app` - Contains the React Vite application (Home dashboard, Auth flow, Profile builder).
 - `/docs/australia` - Contains the raw scraped JSON datasets for the MLTSSL, ROL, and STSOL occupation lists.
 - `/script` - Contains the Python automation scripts for scraping and database seeding.
-- `/.agents/skills` - Contextual AI coding rules and best practices for Supabase and React.
+- `/supabase/migrations` - Contains SQL schemas and seed data (e.g., `profiles` and `countries` tables).
 
 ---
 
 ## 💻 Getting Started
 
 ### 1. Frontend Web App
-To run the points calculator locally:
+To run the Migration Assistant locally:
 ```bash
 cd web-app
 npm install
 npm run dev
 ```
-Navigate to `http://localhost:5173` in your browser.
+Navigate to `http://localhost:5173` in your browser. The app expects environment variables for Supabase (in `web-app/.env.local`).
 
 ### 2. Environment Variables
-To use the data pipeline scripts, you must configure a `.env` file at the root of the project with your Supabase database connection string:
+To use the data pipeline scripts, configure a `.env` file at the root of the project with your Supabase database connection string:
 ```ini
 DATABASE_URL="postgresql://postgres.[PROJECT-REF]:[YOUR-PASSWORD]@aws-0-ap-south-1.pooler.supabase.com:6543/postgres"
 ```
 
-### 3. Scraping Occupation Lists
+### 3. Database Deployment
+To push new migrations (like the `countries` table) to your remote Supabase database:
+```bash
+npx supabase db push
+```
+
+### 4. Scraping Occupation Lists
 We use Playwright to bypass pagination and extract the exact tables from ANZSCO Search. To scrape the latest data to JSON:
 ```bash
 # Scrape individual lists
@@ -54,8 +60,8 @@ python script/scrape_stsol.py
 python script/scrape_all.py
 ```
 
-### 4. Seeding the Database
-To inject the scraped JSON data into your live Supabase database tables (`anzsco_mltssl`, `anzsco_rol`, `anzsco_stsol`), run:
+### 5. Seeding the Database
+To inject the scraped JSON data into your live Supabase database tables, run:
 ```bash
 python script/seed_mltssl.py
 python script/seed_rol.py
