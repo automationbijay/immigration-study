@@ -175,6 +175,17 @@ export default function Profile({ session }) {
           <CheckCircle2 size={20} />
           {loading ? 'Saving...' : 'Save Profile'}
         </button>
+
+        <button 
+          type="button" 
+          className="btn-secondary mt-4" 
+          style={{ width: '100%', padding: '0.875rem', marginTop: '1rem', color: 'var(--color-destructive)', borderColor: 'var(--color-destructive)' }}
+          onClick={async () => {
+            await supabase.auth.signOut();
+          }}
+        >
+          Sign Out
+        </button>
       </form>
     </div>
   );
