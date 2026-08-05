@@ -14,11 +14,11 @@ import {
 } from '../lib/points';
 
 const SectionHeader = ({ icon: Icon, title }) => (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem', paddingBottom: '0.5rem', borderBottom: '1px solid var(--color-border)' }}>
-        <div style={{ background: 'rgba(161, 98, 7, 0.1)', padding: '0.5rem', borderRadius: '0.5rem', color: 'var(--color-accent)' }}>
-            <Icon size={20} />
-        </div>
-        <h3 style={{ fontSize: '1.125rem', color: 'var(--color-primary)', fontWeight: 'bold', margin: 0 }}>{title}</h3>
+    <div className="points-section-header">
+        <span className="icon-tile">
+            <Icon size={20} aria-hidden="true" />
+        </span>
+        <h3>{title}</h3>
     </div>
 );
 
@@ -52,7 +52,7 @@ const PointsForm = ({ formData, onChange }) => (
     <form id="points-form">
 
         {/* Personal Details */}
-        <div className="glass-panel" style={{ padding: '1.5rem', marginBottom: '1.5rem', borderRadius: '1rem' }}>
+        <div className="points-panel">
             <SectionHeader icon={User} title="Personal Details" />
 
             <BandSelect
@@ -66,7 +66,7 @@ const PointsForm = ({ formData, onChange }) => (
         </div>
 
         {/* Employment — stored as years, scored as points */}
-        <div className="glass-panel" style={{ padding: '1.5rem', marginBottom: '1.5rem', borderRadius: '1rem' }}>
+        <div className="points-panel">
             <SectionHeader icon={Briefcase} title="Skilled Employment (Past 10 Years)" />
 
             <BandSelect
@@ -87,14 +87,14 @@ const PointsForm = ({ formData, onChange }) => (
                         <option key={band.id} value={band.id}>{optionLabel(band)}</option>
                     ))}
                 </select>
-                <small style={{ color: 'var(--color-secondary)', fontSize: '0.75rem', marginTop: '0.5rem', display: 'block' }}>
+                <small className="field-hint">
                     * Maximum combined work experience points is {MAX_WORK_EXPERIENCE_POINTS}.
                 </small>
             </div>
         </div>
 
         {/* Education */}
-        <div className="glass-panel" style={{ padding: '1.5rem', marginBottom: '1.5rem', borderRadius: '1rem' }}>
+        <div className="points-panel">
             <SectionHeader icon={GraduationCap} title="Education & Study" />
 
             <BandSelect
@@ -125,7 +125,7 @@ const PointsForm = ({ formData, onChange }) => (
         </div>
 
         {/* Additional Criteria */}
-        <div className="glass-panel" style={{ padding: '1.5rem', marginBottom: '1.5rem', borderRadius: '1rem' }}>
+        <div className="points-panel">
             <SectionHeader icon={Award} title="Additional Criteria" />
 
             <BandSelect

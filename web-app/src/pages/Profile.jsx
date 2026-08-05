@@ -1,9 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { User, Globe, GraduationCap, Briefcase, CheckCircle2, ChevronDown, ChevronUp, Users, LogOut, FileText, Upload, Download, X } from 'lucide-react';
+import { User, Globe, GraduationCap, Briefcase, CheckCircle2, ChevronRight, Users, LogOut, FileText, Upload, Download } from 'lucide-react';
 import OccupationSearch from '../components/OccupationSearch';
 import CvUploadModal from '../components/CvUploadModal';
+import Modal from '../components/ui/Modal';
+import Toast from '../components/ui/Toast';
+import { SkeletonPage } from '../components/ui/Skeleton';
+
+const SECTIONS = [
+  { id: 'basic', label: 'Basic Details', icon: Globe },
+  { id: 'language', label: 'Language Proficiency', icon: GraduationCap },
+  { id: 'family', label: 'Family and Spouse', icon: Users },
+  { id: 'education', label: 'Education', icon: GraduationCap },
+  { id: 'experience', label: 'Experience & Extras', icon: Briefcase },
+  { id: 'cv', label: 'My CV', icon: FileText },
+];
+
+function SectionRow({ icon: Icon, label, onClick }) {
+  return (
+    <button type="button" className="profile-section-row" onClick={onClick}>
+      <Icon size={20} className="profile-section-icon" aria-hidden="true" />
+      <span className="profile-section-label">{label}</span>
+      <ChevronRight size={20} className="profile-section-chevron" aria-hidden="true" />
+    </button>
+  );
+}
 
 function CvViewer({ cvUrl }) {
   const [cvSignedUrl, setCvSignedUrl] = useState(null);
@@ -35,53 +57,26 @@ function CvViewer({ cvUrl }) {
     return () => { active = false; };
   }, [cvUrl]);
 
-  if (loadingUrl) return <div>Loading CV viewer...</div>;
-  if (!cvSignedUrl) return <div>Error loading CV: {errorMessage}</div>;
+  if (loadingUrl) return <p className="text-muted">Loading CV viewer...</p>;
+  if (!cvSignedUrl) return <div className="error-message">Error loading CV: {errorMessage}</div>;
 
   return (
-    <div style={{
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      flexWrap: 'wrap',
-      gap: '1rem',
-      padding: '1.5rem',
-      backgroundColor: 'var(--color-surface)',
-      border: '1px solid var(--color-border)',
-      borderRadius: 'var(--radius-lg)',
-      transition: 'all 0.2s ease',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
-    }}
-    onMouseOver={e => e.currentTarget.style.borderColor = 'var(--color-accent)'}
-    onMouseOut={e => e.currentTarget.style.borderColor = 'var(--color-border)'}
-    >
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-        <div style={{ 
-          backgroundColor: 'var(--color-background)', 
-          padding: '1rem', 
-          borderRadius: 'var(--radius-md)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: 'var(--color-accent)'
-        }}>
-          <FileText size={32} />
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <span style={{ fontWeight: 600, fontSize: '1.1rem', color: 'var(--color-primary)' }}>Your Resume</span>
-          <span className="text-muted" style={{ fontSize: '0.875rem' }}>Ready to download</span>
-        </div>
+    <div className="cv-viewer">
+      <span className="cv-viewer-icon">
+        <FileText size={32} aria-hidden="true" />
+      </span>
+      <div className="cv-viewer-body">
+        <span className="cv-viewer-title">Your Resume</span>
+        <span className="cv-viewer-meta">Ready to download</span>
       </div>
-      
-      <a 
-        href={cvSignedUrl} 
-        target="_blank" 
+      <a
+        href={cvSignedUrl}
+        target="_blank"
         rel="noopener noreferrer"
-        className="btn-primary"
-        style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none', padding: '0.75rem 1.5rem', borderRadius: 'var(--radius-full)' }}
+        className="btn-primary cv-viewer-download"
         download
       >
-        <Download size={18} />
+        <Download size={18} aria-hidden="true" />
         Download
       </a>
     </div>
@@ -114,13 +109,9 @@ export default function Profile({ session }) {
     country: '',
     marital_status: 'Single',
     phone_no: '',
-    marital_status: 'Single',
-    phone_no: '',
     email: '',
     cv_url: null,
   });
-
-  const [uploadingCv, setUploadingCv] = useState(false);
 
   const [languageProficiency, setLanguageProficiency] = useState([]);
 
@@ -148,7 +139,7 @@ export default function Profile({ session }) {
       setLoading(true);
       const { user } = session;
 
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('point_australia')
         .select('*')
         .eq('id', user.id)
@@ -367,10 +358,11 @@ export default function Profile({ session }) {
     }
   };
 
-  if (loading && !profile.id) return <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh'}}>Loading...</div>;
+  if (loading && !profile.id) return <SkeletonPage lines={4} label="Loading your profile" />;
 
   const userEmail = session?.user?.email || 'User';
-  const displayName = basicDetails.name || userEmail.split('@')[0];
+  const displayName = basicDetails.name || session?.user?.user_metadata?.full_name || userEmail.split('@')[0];
+  const avatarUrl = session?.user?.user_metadata?.avatar_url || session?.user?.user_metadata?.picture;
 
   const calculateAge = (dob) => {
     if (!dob) return 'N/A';
@@ -388,148 +380,76 @@ export default function Profile({ session }) {
 
   return (
     <div className="profile-container">
-      {message && (
-        <div
-          className={`toast ${message.includes('Error') ? 'error-message' : 'success-message'}`}
-          role="status"
-          aria-live="polite"
-        >
-          {message}
-        </div>
-      )}
+      <Toast message={message} />
 
-      <div className="panel" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1.5rem', marginBottom: '2rem' }}>
-        <div style={{ width: '64px', height: '64px', borderRadius: '50%', backgroundColor: 'var(--color-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <User size={32} className="text-muted" />
-        </div>
+      <div className="profile-identity">
+        {avatarUrl ? (
+          <img 
+            src={avatarUrl} 
+            alt={displayName} 
+            style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} 
+          />
+        ) : (
+          <span className="profile-avatar">
+            <User size={32} aria-hidden="true" />
+          </span>
+        )}
         <div>
-          <h2 style={{ margin: '0 0 0.25rem 0', fontSize: '1.25rem' }}>{displayName}</h2>
-          <p className="text-muted" style={{ margin: 0, fontSize: '0.875rem' }}>
+          <h2 className="profile-name">{displayName}</h2>
+          <p className="profile-meta">
             {calculatedAge !== 'N/A' ? `${calculatedAge} years old` : 'Age N/A'} &bull; {basicDetails.country || 'No Country Selected'}
           </p>
         </div>
       </div>
 
-      <div className="panel" style={{cursor: 'pointer'}} onClick={() => toggleSection('basic')}>
-        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-          <h3 className="mb-0" style={{display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0}}>
-            <Globe className="text-muted" size={20} /> Basic Details
-          </h3>
-          <span className="text-muted"><ChevronDown size={20} style={{transform: 'rotate(-90deg)'}}/></span>
-        </div>
+      <div className="profile-sections">
+        {SECTIONS.map(({ id, label, icon }) => (
+          <SectionRow key={id} icon={icon} label={label} onClick={() => toggleSection(id)} />
+        ))}
       </div>
 
-      <div className="panel" style={{cursor: 'pointer'}} onClick={() => toggleSection('language')}>
-        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-          <h3 className="mb-0" style={{display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0}}>
-            <GraduationCap className="text-muted" size={20} /> Language Proficiency
-          </h3>
-          <span className="text-muted"><ChevronDown size={20} style={{transform: 'rotate(-90deg)'}}/></span>
-        </div>
-      </div>
+      <button
+        type="button"
+        className="btn-secondary btn-danger profile-signout"
+        onClick={async () => {
+          await supabase.auth.signOut();
+        }}
+      >
+        <LogOut size={20} aria-hidden="true" />
+        <span>Sign Out</span>
+      </button>
 
-      <div className="panel" style={{cursor: 'pointer'}} onClick={() => toggleSection('family')}>
-        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-          <h3 className="mb-0" style={{display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0}}>
-            <Users className="text-muted" size={20} /> Family and Spouse
-          </h3>
-          <span className="text-muted"><ChevronDown size={20} style={{transform: 'rotate(-90deg)'}}/></span>
-        </div>
-      </div>
-
-      <div className="panel" style={{cursor: 'pointer'}} onClick={() => toggleSection('education')}>
-        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-          <h3 className="mb-0" style={{display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0}}>
-            <GraduationCap className="text-muted" size={20} /> Education
-          </h3>
-          <span className="text-muted"><ChevronDown size={20} style={{transform: 'rotate(-90deg)'}}/></span>
-        </div>
-      </div>
-
-      <div className="panel" style={{cursor: 'pointer'}} onClick={() => toggleSection('experience')}>
-        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-          <h3 className="mb-0" style={{display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0}}>
-            <Briefcase className="text-muted" size={20} /> Experience & Extras
-          </h3>
-          <span className="text-muted"><ChevronDown size={20} style={{transform: 'rotate(-90deg)'}}/></span>
-        </div>
-      </div>
-
-      <div className="panel" style={{cursor: 'pointer'}} onClick={() => toggleSection('cv')}>
-        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-          <h3 className="mb-0" style={{display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0}}>
-            <FileText className="text-muted" size={20} /> My CV
-          </h3>
-          <span className="text-muted"><ChevronDown size={20} style={{transform: 'rotate(-90deg)'}}/></span>
-        </div>
-      </div>
-
-      <div style={{ marginTop: '2rem', paddingBottom: '2rem' }}>
-        <button 
-          type="button" 
-          className="btn-secondary" 
-          style={{ width: '100%', padding: '0.875rem', color: 'var(--color-destructive)', borderColor: 'var(--color-destructive)' }}
-          onClick={async () => {
-            await supabase.auth.signOut();
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
-            <LogOut size={20} />
-            <span>Sign Out</span>
-          </div>
-        </button>
-      </div>
-
-      {expandedSection && (
-        <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal-content" onClick={e => e.stopPropagation()}>
-            <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h2 style={{margin: 0}}>
-                {expandedSection === 'basic' && 'Basic Details'}
-                {expandedSection === 'language' && 'Language Proficiency'}
-                {expandedSection === 'family' && 'Family and Spouse'}
-                {expandedSection === 'education' && 'Education'}
-                {expandedSection === 'experience' && 'Experience & Extras'}
-                {expandedSection === 'cv' && 'My CV'}
-              </h2>
-              <button type="button" onClick={closeModal} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-secondary)' }}>
-                <X size={24} />
-              </button>
-            </div>
-            
+      <Modal
+        isOpen={Boolean(expandedSection)}
+        onClose={closeModal}
+        title={SECTIONS.find((s) => s.id === expandedSection)?.label ?? ''}
+      >
             {expandedSection === 'cv' ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div className="cv-panel">
                 {basicDetails.cv_url ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                      <button 
-                        type="button" 
-                        className="btn-secondary" 
-                        style={{ padding: '0.5rem 1rem' }} 
+                  <>
+                    <div className="cv-panel-actions">
+                      <button
+                        type="button"
+                        className="btn-secondary btn-compact"
                         onClick={() => setIsCvModalOpen(true)}
                       >
-                        <Upload size={16} className="inline-icon" /> Replace CV
+                        <Upload size={16} aria-hidden="true" /> Replace CV
                       </button>
                     </div>
-                    
+
                     <CvViewer cvUrl={basicDetails.cv_url} />
-                  </div>
+                  </>
                 ) : (
-                  <div style={{ textAlign: 'center', padding: '3rem 1rem' }}>
-                    <FileText size={48} className="text-muted" style={{ marginBottom: '1rem' }} />
-                    <h3 style={{ marginBottom: '0.5rem' }}>No CV Uploaded</h3>
-                    <p className="text-muted" style={{ marginBottom: '1.5rem' }}>Upload your resume to get personalized migration insights.</p>
-                    <button 
-                      type="button" 
-                      className="btn-primary" 
-                      onClick={() => setIsCvModalOpen(true)}
-                      style={{ margin: '0 auto' }}
-                    >
-                      <Upload size={20} className="inline-icon" /> Upload CV
+                  <div className="empty-state">
+                    <FileText size={48} className="text-muted" aria-hidden="true" />
+                    <h3>No CV Uploaded</h3>
+                    <p className="text-muted">Upload your resume to get personalized migration insights.</p>
+                    <button type="button" className="btn-primary" onClick={() => setIsCvModalOpen(true)}>
+                      <Upload size={20} aria-hidden="true" /> Upload CV
                     </button>
                   </div>
                 )}
-                
               </div>
             ) : (
             <form onSubmit={handleModalSave}>
@@ -541,7 +461,7 @@ export default function Profile({ session }) {
                   </div>
                   <div className="form-group">
                     <label>Date of Birth</label>
-                    <input type="date" name="dob" value={basicDetails.dob || ''} onChange={handleBasicChange} style={{width: '100%', padding: '0.875rem 1rem', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', background: 'var(--color-surface)', fontFamily: 'inherit', fontSize: '1rem'}} />
+                    <input type="date" name="dob" value={basicDetails.dob || ''} onChange={handleBasicChange} />
                   </div>
                   <div className="form-group">
                     <label>Email</label>
@@ -562,13 +482,13 @@ export default function Profile({ session }) {
               )}
 
               {expandedSection === 'language' && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                <div className="language-tests">
                   {languageProficiency.map((test, index) => (
-                    <div key={index} style={{ border: '1px solid var(--color-border)', padding: '1rem', borderRadius: 'var(--radius-md)' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                        <h4 style={{ margin: 0 }}>Test {index + 1}</h4>
+                    <div key={index} className="language-test-card">
+                      <div className="language-test-head">
+                        <h4>Test {index + 1}</h4>
                         {languageProficiency.length > 1 && (
-                          <button type="button" onClick={() => removeLanguageTest(index)} style={{ background: 'none', border: 'none', color: 'var(--color-destructive)', cursor: 'pointer', fontSize: '0.875rem' }}>Remove</button>
+                          <button type="button" onClick={() => removeLanguageTest(index)} className="link-danger">Remove</button>
                         )}
                       </div>
                       <div className="form-group">
@@ -585,7 +505,7 @@ export default function Profile({ session }) {
                         <label>Overall Score</label>
                         <input type="number" step="0.5" name="test_score_overall" value={test.test_score_overall || ''} onChange={(e) => handleLanguageChange(index, e)} />
                       </div>
-                      <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem'}}>
+                      <div className="form-grid-2">
                         <div className="form-group">
                           <label>Listening</label>
                           <input type="number" step="0.5" name="test_score_listening" value={test.test_score_listening || ''} onChange={(e) => handleLanguageChange(index, e)} />
@@ -603,14 +523,14 @@ export default function Profile({ session }) {
                           <input type="number" step="0.5" name="test_score_speaking" value={test.test_score_speaking || ''} onChange={(e) => handleLanguageChange(index, e)} />
                         </div>
                       </div>
-                      <div className="form-group" style={{ marginBottom: 0 }}>
+                      <div className="form-group form-group-last">
                         <label>Score Published Date</label>
-                        <input type="date" name="score_published_date" value={test.score_published_date || ''} onChange={(e) => handleLanguageChange(index, e)} style={{width: '100%', padding: '0.875rem 1rem', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', background: 'var(--color-surface)', fontFamily: 'inherit', fontSize: '1rem'}} />
+                        <input type="date" name="score_published_date" value={test.score_published_date || ''} onChange={(e) => handleLanguageChange(index, e)} />
                       </div>
                     </div>
                   ))}
                   
-                  <button type="button" onClick={addLanguageTest} style={{ background: 'var(--color-surface)', border: '1px dashed var(--color-border)', color: 'var(--color-accent)', padding: '1rem', borderRadius: 'var(--radius-md)', cursor: 'pointer', fontWeight: 'bold' }}>
+                  <button type="button" onClick={addLanguageTest} className="btn-dashed">
                     + Add Another Test
                   </button>
                 </div>
@@ -630,7 +550,7 @@ export default function Profile({ session }) {
                   </div>
                   <div className="form-group">
                     <label>Spouse Details (Skills, English Level, etc.)</label>
-                    <textarea name="spouseDetails" value={profile.spouseDetails || ''} onChange={handleInputChange} rows="3" placeholder="E.g., Competent English, Positive Skills Assessment..." style={{width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'var(--color-bg)', color: 'var(--color-text)'}}></textarea>
+                    <textarea name="spouseDetails" value={profile.spouseDetails || ''} onChange={handleInputChange} rows="3" placeholder="E.g., Competent English, Positive Skills Assessment..."></textarea>
                   </div>
                   <div className="form-group">
                     <label>Number of Children</label>
@@ -642,7 +562,7 @@ export default function Profile({ session }) {
               {expandedSection === 'education' && (
                 <>
                   <div className="form-group">
-                    <label style={{marginBottom: '0.5rem'}}>Education ANZSCO Code</label>
+                    <label>Education ANZSCO Code</label>
                     <OccupationSearch
                       value={profile.educationAnzsco}
                       onChange={(val) => setProfile(prev => ({ ...prev, educationAnzsco: val }))}
@@ -677,7 +597,7 @@ export default function Profile({ session }) {
               {expandedSection === 'experience' && (
                 <>
                   <div className="form-group">
-                    <label style={{marginBottom: '0.5rem'}}>Experience ANZSCO Code</label>
+                    <label>Experience ANZSCO Code</label>
                     <OccupationSearch
                       value={profile.experienceAnzsco}
                       onChange={(val) => setProfile(prev => ({ ...prev, experienceAnzsco: val }))}
@@ -705,19 +625,17 @@ export default function Profile({ session }) {
               )}
 
               <div className="modal-actions">
-                <button type="button" className="btn-secondary" onClick={closeModal} style={{flex: 1}}>Cancel</button>
-                <button type="submit" className="btn-primary" disabled={loading} style={{flex: 1}}>
-                  <CheckCircle2 size={20} />
+                <button type="button" className="btn-secondary" onClick={closeModal}>Cancel</button>
+                <button type="submit" className="btn-primary" disabled={loading}>
+                  <CheckCircle2 size={20} aria-hidden="true" />
                   {loading ? 'Saving...' : 'Save'}
                 </button>
               </div>
             </form>
             )}
-          </div>
-        </div>
-      )}
+      </Modal>
 
-      <CvUploadModal 
+      <CvUploadModal
         isOpen={isCvModalOpen} 
         onClose={() => setIsCvModalOpen(false)} 
         onUploadComplete={(path) => {

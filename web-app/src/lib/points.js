@@ -141,6 +141,53 @@ export function workExperiencePoints(overseasYears, ausYears) {
   return Math.min(overseas + aus, MAX_WORK_EXPERIENCE_POINTS);
 }
 
+export function isEligible(points) {
+  return Number(points) >= ELIGIBILITY_THRESHOLD;
+}
+
+/**
+ * Normalise a `point_australia` row (plus `profile_basic` for the DOB) into the
+ * calculator's form shape. Everything that scores a profile goes through here,
+ * so Discover, FormsHub and Calculator cannot report different totals.
+ */
+export function formFromProfileRow(profileRow, basicRow) {
+  return {
+    ageBand: ageBandIdFromProfile(basicRow?.dob, profileRow?.age),
+    englishBand: bandIdForPoints(ENGLISH_BANDS, profileRow?.english),
+    overseasExpYears: Number(profileRow?.overseasExp) || 0,
+    ausExpYears: Number(profileRow?.ausExp) || 0,
+    educationBand: bandIdForPoints(EDUCATION_BANDS, profileRow?.education),
+    specialistEdu: Boolean(profileRow?.specialistEdu),
+    ausStudy: Boolean(profileRow?.ausStudy),
+    professionalYear: Boolean(profileRow?.professionalYear),
+    ccl: Boolean(profileRow?.ccl),
+    regionalStudy: Boolean(profileRow?.regionalStudy),
+    partnerSkillsBand: bandIdForPoints(PARTNER_SKILLS_BANDS, profileRow?.partnerSkills),
+    stateNomination: true,
+  };
+}
+
+export function totalPointsFromProfileRow(profileRow, basicRow) {
+  return totalPointsFromForm(formFromProfileRow(profileRow, basicRow));
+}
+
+/** Per-category breakdown, in display order. */
+export function pointsBreakdown(form) {
+  return [
+    { label: 'Age', points: pointsForBandId(AGE_BANDS, form.ageBand) },
+    { label: 'English', points: pointsForBandId(ENGLISH_BANDS, form.englishBand) },
+    { label: 'Education', points: pointsForBandId(EDUCATION_BANDS, form.educationBand) },
+    { label: 'Work experience', points: workExperiencePoints(form.overseasExpYears, form.ausExpYears) },
+    { label: 'Partner skills', points: pointsForBandId(PARTNER_SKILLS_BANDS, form.partnerSkillsBand) },
+    { label: 'Specialist education', points: form.specialistEdu ? 10 : 0 },
+    { label: 'Australian study', points: form.ausStudy ? 5 : 0 },
+    { label: 'Professional year', points: form.professionalYear ? 5 : 0 },
+    { label: 'Community language (CCL)', points: form.ccl ? 5 : 0 },
+    { label: 'Regional study', points: form.regionalStudy ? 5 : 0 },
+    { label: 'State nomination', points: form.stateNomination ? STATE_NOMINATION_POINTS : 0 },
+  ];
+}
+
 /** Total for the calculator's band-id form state. */
 export function totalPointsFromForm(form) {
   let points = 0;

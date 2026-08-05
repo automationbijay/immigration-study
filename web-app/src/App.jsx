@@ -11,7 +11,8 @@ import Calculator from './pages/Calculator';
 import FormsHub from './pages/FormsHub';
 import NewsHub from './pages/NewsHub';
 import Landing from './pages/Landing';
-import { User, Home as HomeIcon, Compass, LogOut } from 'lucide-react';
+import { User, Home as HomeIcon, Compass } from 'lucide-react';
+import { SkeletonPage } from './components/ui/Skeleton';
 import './index.css';
 
 function BottomNav() {
@@ -63,17 +64,19 @@ function App() {
     return () => subscription.unsubscribe();
   }, []);
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-  };
-
   if (loading) {
-    return <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: 'var(--color-primary)'}}>Loading...</div>;
+    return (
+      <div className="app-layout">
+        <main className="main-content">
+          <SkeletonPage lines={3} label="Loading" />
+        </main>
+      </div>
+    );
   }
 
   return (
     <Router>
-      <div className="app-layout">
+      <div className={`app-layout ${session ? 'has-nav' : ''}`}>
         {session && <TopHeader />}
 
         <main className="main-content">

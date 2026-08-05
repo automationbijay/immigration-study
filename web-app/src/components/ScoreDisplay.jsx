@@ -1,49 +1,55 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { ELIGIBILITY_THRESHOLD, isEligible } from '../lib/points';
+
+const DURATION_MS = 500;
+const MAX_SCORE = 120; // Cap for the visual ring
+const RADIUS = 60;
+const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
 const ScoreDisplay = ({ targetScore }) => {
     const [displayScore, setDisplayScore] = useState(0);
+    // Holds the rendered value so the animation can read its own starting point
+    // without making `displayScore` a dependency (which would restart the
+    // tween on every frame).
+    const renderedRef = useRef(0);
 
     useEffect(() => {
-        if (displayScore === targetScore) return;
-        
-        const duration = 500;
-        const stepTime = Math.abs(Math.floor(duration / (targetScore - displayScore)));
-        
-        const timer = setInterval(() => {
-            setDisplayScore(prev => {
-                if (prev < targetScore) return prev + 1;
-                if (prev > targetScore) return prev - 1;
-                clearInterval(timer);
-                return prev;
-            });
-        }, stepTime || 50);
+        const from = renderedRef.current;
+        const delta = targetScore - from;
+        if (delta === 0) return;
 
-        return () => clearInterval(timer);
+        let frame;
+        let startedAt;
+
+        const tick = (now) => {
+            if (startedAt === undefined) startedAt = now;
+            const progress = Math.min((now - startedAt) / DURATION_MS, 1);
+            const value = Math.round(from + delta * progress);
+            renderedRef.current = value;
+            setDisplayScore(value);
+            if (progress < 1) frame = requestAnimationFrame(tick);
+        };
+
+        frame = requestAnimationFrame(tick);
+        return () => cancelAnimationFrame(frame);
     }, [targetScore]);
 
-    const isEligible = displayScore >= 65;
-    const maxScore = 120; // Cap for the visual ring
-    const radius = 60;
-    const circumference = 2 * Math.PI * radius;
-    // Calculate how much to offset the stroke based on the score (0 score = full offset, 120 score = 0 offset)
-    const progressOffset = circumference - (Math.min(displayScore, maxScore) / maxScore) * circumference;
+    const eligible = isEligible(displayScore);
+    const progressOffset =
+        CIRCUMFERENCE - (Math.min(displayScore, MAX_SCORE) / MAX_SCORE) * CIRCUMFERENCE;
 
     return (
         <div className="score-display glass-panel">
             <div className="score-label">Total Points</div>
-            
+
             <div className="score-ring-container">
-                <svg className="score-ring" width="160" height="160">
-                    <circle 
-                        className="score-ring-bg" 
-                        cx="80" cy="80" r={radius} 
-                        strokeWidth="12" 
-                    />
-                    <circle 
-                        className={`score-ring-progress ${isEligible ? 'eligible' : ''}`} 
-                        cx="80" cy="80" r={radius} 
+                <svg className="score-ring" width="160" height="160" aria-hidden="true">
+                    <circle className="score-ring-bg" cx="80" cy="80" r={RADIUS} strokeWidth="12" />
+                    <circle
+                        className={`score-ring-progress ${eligible ? 'eligible' : ''}`}
+                        cx="80" cy="80" r={RADIUS}
                         strokeWidth="12"
-                        strokeDasharray={circumference}
+                        strokeDasharray={CIRCUMFERENCE}
                         strokeDashoffset={progressOffset}
                     />
                 </svg>
@@ -52,8 +58,10 @@ const ScoreDisplay = ({ targetScore }) => {
                 </div>
             </div>
 
-            <div className={`score-status ${isEligible ? 'success' : ''}`}>
-                {isEligible ? 'Eligible (65+ Points)' : `Need ${65 - displayScore} more pts`}
+            <div className={`score-status ${eligible ? 'success' : ''}`}>
+                {eligible
+                    ? `Eligible (${ELIGIBILITY_THRESHOLD}+ Points)`
+                    : `Need ${ELIGIBILITY_THRESHOLD - displayScore} more pts`}
             </div>
         </div>
     );
