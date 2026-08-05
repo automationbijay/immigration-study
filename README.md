@@ -5,7 +5,7 @@ A modern, mobile-first React application designed to help potential immigrants c
 ## 🚀 Project Overview
 This repository contains two main components:
 1. **Frontend Web App**: A premium, minimalist React UI optimized for smartphone users. Includes secure authentication, user profiles, an age-slider interface, a dynamic countries dropdown, and an expandable points scorecard. It simplifies data entry for users by collecting raw inputs (e.g. raw IELTS/PTE scores instead of subjective dropdowns).
-2. **Data Pipeline**: Python-based web scrapers that automatically fetch the latest Australian ANZSCO skilled occupation lists and securely seed them into a Supabase PostgreSQL database.
+2. **Data Pipeline**: Python and Node.js-based scripts that automatically fetch the latest Australian ANZSCO skilled occupation lists as well as global university data (from Hipolabs) and securely seed them into a Supabase PostgreSQL database.
 
 *Note: In the future, a separate logic layer will be built to convert the user's raw basic profile data into equivalent form values for probability and score calculations, further simplifying the user experience.*
 
@@ -22,7 +22,9 @@ This repository contains two main components:
 ## 📁 Directory Structure
 - `/web-app` - Contains the React Vite application (Home dashboard, Auth flow, Profile builder).
 - `/docs/australia` - Contains the raw scraped JSON datasets for the MLTSSL, ROL, and STSOL occupation lists.
+- `/docs/universities.json` - Raw fetched JSON dataset of global universities from Hipolabs.
 - `/script` - Contains the Python automation scripts for scraping and database seeding.
+- `seed_universities.js` - Node.js script that connects directly to PostgreSQL via `pg` to batch-insert global universities.
 - `/supabase/migrations` - Contains SQL schemas and seed data (e.g., `profiles` and `countries` tables).
 
 ---
@@ -70,3 +72,10 @@ python script/seed_rol.py
 python script/seed_stsol.py
 ```
 *Note: These scripts will automatically drop the existing tables, recreate them with an optimized `anzsco_code` index, and securely bulk-insert the new data.*
+
+### 6. Seeding Universities Data
+To fetch the latest global universities data from the Hipolabs API, save the JSON locally in `docs/universities.json`, and bulk insert it into the `universities` table, run:
+```bash
+node seed_universities.js
+```
+*Make sure you have run `npm install pg` in the root folder, and your `.env.local` contains the remote database credentials or connection string if connecting to a hosted database.*

@@ -9,6 +9,7 @@ import Discover from './pages/Discover';
 import Calculator from './pages/Calculator';
 import FormsHub from './pages/FormsHub';
 import NewsHub from './pages/NewsHub';
+import Landing from './pages/Landing';
 import { User, Home as HomeIcon, Compass, LogOut } from 'lucide-react';
 import './index.css';
 
@@ -84,7 +85,7 @@ function App() {
             <Route path="/forms" element={session ? <FormsHub session={session} /> : <Navigate to="/login" />} />
             <Route path="/news" element={session ? <NewsHub session={session} /> : <Navigate to="/login" />} />
             <Route path="/home" element={session ? <Home session={session} /> : <Navigate to="/login" />} />
-            <Route path="/" element={<Navigate to={session ? "/home" : "/login"} />} />
+            <Route path="/" element={<Landing session={session} />} />
           </Routes>
         </main>
         

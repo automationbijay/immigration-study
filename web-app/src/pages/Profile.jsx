@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { User, Globe, GraduationCap, Briefcase, CheckCircle2, ChevronDown, ChevronUp, Users, LogOut } from 'lucide-react';
+import OccupationSearch from '../components/OccupationSearch';
 
 export default function Profile({ session }) {
   const [loading, setLoading] = useState(true);
@@ -16,6 +17,8 @@ export default function Profile({ session }) {
     ccl: false,
     regionalStudy: false,
     partnerSkills: 0,
+    educationAnzsco: null,
+    experienceAnzsco: null,
   });
   
   const [basicDetails, setBasicDetails] = useState({
@@ -417,6 +420,13 @@ export default function Profile({ session }) {
               {expandedSection === 'education' && (
                 <>
                   <div className="form-group">
+                    <label style={{marginBottom: '0.5rem'}}>Education ANZSCO Code</label>
+                    <OccupationSearch
+                      value={profile.educationAnzsco}
+                      onChange={(val) => setProfile(prev => ({ ...prev, educationAnzsco: val }))}
+                    />
+                  </div>
+                  <div className="form-group">
                     <label>Highest Qualification</label>
                     <select name="education" value={profile.education} onChange={handleInputChange}>
                       <option value={0}>None / Unrecognized</option>
@@ -444,6 +454,13 @@ export default function Profile({ session }) {
 
               {expandedSection === 'experience' && (
                 <>
+                  <div className="form-group">
+                    <label style={{marginBottom: '0.5rem'}}>Experience ANZSCO Code</label>
+                    <OccupationSearch
+                      value={profile.experienceAnzsco}
+                      onChange={(val) => setProfile(prev => ({ ...prev, experienceAnzsco: val }))}
+                    />
+                  </div>
                   <div className="form-group">
                     <label>Overseas Experience (years)</label>
                     <input type="number" name="overseasExp" value={profile.overseasExp} onChange={handleInputChange} />

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { ChevronDown } from 'lucide-react';
+import OccupationSearch from '../components/OccupationSearch';
 
 export default function Home({ session }) {
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState(null);
+  const [occupation, setOccupation] = useState(null);
 
   useEffect(() => {
     let ignore = false;
@@ -28,13 +30,27 @@ export default function Home({ session }) {
     return () => { ignore = true; };
   }, [session]);
 
-  if (loading) return <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh'}}>Loading calculator...</div>;
+  const occupationSection = (
+    <OccupationSearch value={occupation} onChange={setOccupation} />
+  );
+
+  if (loading) {
+    return (
+      <div className="calculator-container">
+        {occupationSection}
+        <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: '30vh'}}>Loading calculator...</div>
+      </div>
+    );
+  }
 
   if (!profile) {
     return (
-      <div className="panel text-center">
-        <h3 className="mb-2">Profile Required</h3>
-        <p className="text-muted">Please complete your profile first to calculate your points.</p>
+      <div className="calculator-container">
+        {occupationSection}
+        <div className="panel text-center">
+          <h3 className="mb-2">Profile Required</h3>
+          <p className="text-muted">Please complete your profile first to calculate your points.</p>
+        </div>
       </div>
     );
   }
@@ -66,7 +82,9 @@ export default function Home({ session }) {
 
   return (
     <div className="calculator-container">
-      
+
+      {occupationSection}
+
       <div className="score-display">
         <div className="score-number">{totalPoints}</div>
         <div className="text-muted text-sm mt-1">Total Estimated Points</div>
