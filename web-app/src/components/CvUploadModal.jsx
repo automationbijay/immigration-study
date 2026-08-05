@@ -5,6 +5,33 @@ import Modal from './ui/Modal';
 
 const MAX_BYTES = 4 * 1024 * 1024;
 
+/**
+ * supabase-js collapses every failing Edge Function response into the same
+ * "non-2xx status code" message and hangs the real Response off `.context`.
+ * The function's own {"error": "..."} body is in there, and it is the only part
+ * that says what actually went wrong.
+ */
+async function describeInvokeError(error) {
+  const res = error?.context;
+  if (typeof Response === 'undefined' || !(res instanceof Response)) {
+    return { status: null, detail: error?.message ?? 'Unknown error' };
+  }
+
+  let detail = '';
+  try {
+    const body = await res.clone().json();
+    detail = body?.error || body?.message || '';
+  } catch {
+    try {
+      detail = (await res.clone().text()).slice(0, 200);
+    } catch {
+      // Body already consumed; the status alone will have to do.
+    }
+  }
+
+  return { status: res.status, detail: detail || error?.message || 'Unknown error' };
+}
+
 export default function CvUploadModal({ isOpen, onClose, onUploadComplete }) {
   const [uploadingCv, setUploadingCv] = useState(false);
   const [message, setMessage] = useState('');
@@ -29,7 +56,19 @@ export default function CvUploadModal({ isOpen, onClose, onUploadComplete }) {
         body: formData,
       });
 
-      if (error) throw error;
+      if (error) {
+        const { status, detail } = await describeInvokeError(error);
+        console.error('upload-cv failed', { status, detail, error });
+
+        // A rejected token is the user's problem to fix, not something retrying
+        // the upload will ever resolve.
+        setMessage(
+          status === 401
+            ? 'Error: your session has expired. Please sign in again and retry.'
+            : `Error uploading CV: ${detail}`,
+        );
+        return;
+      }
 
       setMessage('CV uploaded successfully!');
       setTimeout(() => {
@@ -39,9 +78,12 @@ export default function CvUploadModal({ isOpen, onClose, onUploadComplete }) {
       }, 1500);
     } catch (err) {
       console.error(err);
-      setMessage('Error uploading CV. Please try again.');
+      setMessage(`Error uploading CV: ${err?.message ?? 'unexpected error'}`);
     } finally {
       setUploadingCv(false);
+      // Without this, picking the same file again after a failure is a no-op
+      // because the input's value never changed.
+      e.target.value = '';
     }
   };
 
