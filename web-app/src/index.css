@@ -2036,46 +2036,28 @@ details[open] .accordion-icon {
   line-height: 1.5;
 }
 
-/* News Card */
-.news-card {
+/* Tool Card */
+.tool-card {
   display: flex;
   flex-direction: column;
   padding: 0;
   overflow: hidden;
 }
 
-.news-card-image {
-  display: block;
-  flex-shrink: 0;
-  width: 100%;
-  height: 160px;
-  object-fit: cover;
-  background-color: var(--color-muted);
-}
-
-.news-card-body {
+.tool-card-body {
   display: flex;
   flex-direction: column;
   flex: 1;
   padding: var(--spacing-md);
 }
 
-.news-card-date {
-  margin-bottom: var(--spacing-xs);
-  color: var(--color-secondary);
-  font-size: var(--text-xs);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.news-card-title {
+.tool-card-title {
   margin: 0;
   font-size: var(--text-lg);
   line-height: 1.3;
 }
 
-.news-card-summary {
+.tool-card-summary {
   margin-top: var(--spacing-sm);
   color: var(--color-secondary);
   font-size: var(--text-sm);

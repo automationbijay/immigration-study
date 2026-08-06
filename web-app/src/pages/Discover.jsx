@@ -1,53 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { Newspaper, FileText, Wrench } from 'lucide-react';
-import { supabase } from '../lib/supabase';
-import { totalPointsFromProfileRow } from '../lib/points';
-import { NEWS_ITEMS } from '../lib/news';
+import { FileText, Wrench } from 'lucide-react';
+import { useProfile } from '../lib/ProfileContext';
 import FormCard from '../components/FormCard';
-import NewsCard from '../components/NewsCard';
 import ToolCard from '../components/ToolCard';
 import { SkeletonPage } from '../components/ui/Skeleton';
 
 export default function Discover({ session }) {
-  const [loading, setLoading] = useState(true);
-  const [totalPoints, setTotalPoints] = useState(0);
-
-  useEffect(() => {
-    let ignore = false;
-
-    async function getProfile() {
-      if (!session?.user?.id) return;
-      try {
-        const { data: profileData, error } = await supabase
-          .from('point_australia')
-          .select('*')
-          .eq('id', session.user.id)
-          .single();
-
-        const { data: basicData } = await supabase
-          .from('profile_basic')
-          .select('*')
-          .eq('id', session.user.id)
-          .single();
-
-        if (error && error.code !== 'PGRST116') {
-          console.error('Error fetching profile:', error);
-        }
-
-        if (!ignore && profileData) {
-          setTotalPoints(totalPointsFromProfileRow(profileData, basicData));
-        }
-      } catch (error) {
-        console.error('Error in fetching profile:', error);
-      } finally {
-        if (!ignore) setLoading(false);
-      }
-    }
-
-    getProfile();
-    return () => { ignore = true; };
-  }, [session]);
+  const { totalPoints, loading } = useProfile();
 
   if (loading) return <SkeletonPage lines={2} label="Loading your dashboard" />;
 
@@ -69,22 +29,9 @@ export default function Discover({ session }) {
       <section className="section">
         <div className="section-header">
           <h2 className="section-title">
-            <Newspaper size={20} aria-hidden="true" /> News
-          </h2>
-          <Link to="/news" className="link-button">View All</Link>
-        </div>
-
-        <div className="card-rail">
-          {NEWS_ITEMS.map((news) => (
-            <NewsCard key={news.id} news={news} />
-          ))}
-        </div>
-      </section>
-      <section className="section">
-        <div className="section-header">
-          <h2 className="section-title">
             <Wrench size={20} aria-hidden="true" /> Tools
           </h2>
+          <Link to="/tools" className="link-button">View All</Link>
         </div>
 
         <div className="card-rail">
