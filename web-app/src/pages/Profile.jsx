@@ -135,6 +135,7 @@ export default function Profile({ session }) {
   const [languageProficiency, setLanguageProficiency] = useState([]);
   const [educationHistory, setEducationHistory] = useState([]);
   const [familyMembers, setFamilyMembers] = useState([]);
+  const [workExperience, setWorkExperience] = useState([]);
 
   const [countries, setCountries] = useState([]);
   const [message, setMessage] = useState('');
@@ -233,6 +234,12 @@ export default function Profile({ session }) {
         .eq('profile_id', user.id)
         .order('created_at', { ascending: true });
 
+      const { data: experienceData } = await supabase
+        .from('profile_experience')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('start_date', { ascending: false });
+
       const { data: ieltsData } = await supabase.from('test_ielts').select('*').eq('user_id', user.id);
       const { data: pteData } = await supabase.from('test_pte').select('*').eq('user_id', user.id);
       const { data: toeflData } = await supabase.from('test_toefl').select('*').eq('user_id', user.id);
@@ -313,6 +320,11 @@ export default function Profile({ session }) {
             gender: '',
             citizenship_or_pr: ''
           }]);
+        }
+        if (experienceData && experienceData.length > 0) {
+          setWorkExperience(experienceData);
+        } else {
+          setWorkExperience([{ company_name: '', role: '', country: '', start_date: '', end_date: '' }]);
         }
         if (countriesData) {
           setCountries(countriesData.map(c => c.name));
@@ -435,7 +447,27 @@ export default function Profile({ session }) {
     }
     setFamilyMembers(newFamilyMembers);
 
-    const succeeded = !profileError && !basicError && !languageError && !educationError && !familyError;
+    let experienceError = null;
+    const newWorkExperience = [...workExperience];
+    for (let i = 0; i < newWorkExperience.length; i++) {
+      const we = newWorkExperience[i];
+      if (!we.company_name || !we.role || !we.country || !we.start_date) continue; // Skip incomplete
+      const updateData = {
+        user_id: user.id,
+        company_name: we.company_name,
+        role: we.role,
+        country: we.country,
+        start_date: we.start_date,
+        end_date: we.end_date || null,
+      };
+      if (we.id) updateData.id = we.id;
+      const { data, error } = await supabase.from('profile_experience').upsert(updateData).select();
+      if (error) experienceError = error;
+      else if (data && data.length > 0) newWorkExperience[i] = { ...we, id: data[0].id };
+    }
+    setWorkExperience(newWorkExperience);
+
+    const succeeded = !profileError && !basicError && !languageError && !educationError && !familyError && !experienceError;
     setMessage(succeeded ? 'Profile saved successfully!' : 'Error updating profile!');
     setLoading(false);
     setTimeout(() => setMessage(''), 3000);
@@ -548,6 +580,30 @@ export default function Profile({ session }) {
       await supabase.from('profile_family').delete().eq('id', fmToRemove.id);
     }
     setFamilyMembers(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleExperienceChange = (index, e) => {
+    const { name, value } = e.target;
+    setWorkExperience(prev => {
+      const newArray = [...prev];
+      newArray[index] = { ...newArray[index], [name]: value };
+      return newArray;
+    });
+  };
+
+  const addExperience = () => {
+    setWorkExperience(prev => [
+      ...prev,
+      { company_name: '', role: '', country: '', start_date: '', end_date: '' }
+    ]);
+  };
+
+  const removeExperience = async (index) => {
+    const expToRemove = workExperience[index];
+    if (expToRemove.id) {
+      await supabase.from('profile_experience').delete().eq('id', expToRemove.id);
+    }
+    setWorkExperience(prev => prev.filter((_, i) => i !== index));
   };
 
   const closeModal = () => {
@@ -856,16 +912,6 @@ export default function Profile({ session }) {
 
               {expandedSection === 'education' && (
                 <>
-                  <div className="form-group">
-                    {/* The label lives inside OccupationSearch, on its input —
-                        a second one out here would point at nothing. */}
-                    <OccupationSearch
-                      label="Education ANZSCO Code"
-                      value={profile.educationAnzsco}
-                      onChange={(val) => setProfile(prev => ({ ...prev, educationAnzsco: val }))}
-                    />
-                  </div>
-                  
                   <div className="education-history">
                     <h3 style={{ marginTop: '2rem', marginBottom: '1rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.5rem' }}>Detailed Education History</h3>
                     {educationHistory.map((ed, index) => (
@@ -934,31 +980,49 @@ export default function Profile({ session }) {
 
               {expandedSection === 'experience' && (
                 <>
-                  <div className="form-group">
-                    <OccupationSearch
-                      label="Experience ANZSCO Code"
-                      value={profile.experienceAnzsco}
-                      onChange={(val) => setProfile(prev => ({ ...prev, experienceAnzsco: val }))}
-                    />
+                  <div className="experience-history">
+                    <h3 style={{ marginTop: '0', marginBottom: '1rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.5rem' }}>Work Experience</h3>
+                    
+                    {workExperience.map((we, index) => (
+                      <div key={index} className="language-test-card" style={{ marginTop: '1rem' }}>
+                        <div className="language-test-head">
+                          <h4>Experience {index + 1}</h4>
+                          {workExperience.length > 1 && (
+                            <button type="button" onClick={() => removeExperience(index)} className="link-danger">Remove</button>
+                          )}
+                        </div>
+                        <div className="form-group">
+                          <label htmlFor={`exp-${index}-company`}>Company Name</label>
+                          <input id={`exp-${index}-company`} type="text" name="company_name" value={we.company_name || ''} onChange={(e) => handleExperienceChange(index, e)} required />
+                        </div>
+                        <div className="form-group">
+                          <label htmlFor={`exp-${index}-role`}>Role / Position</label>
+                          <input id={`exp-${index}-role`} type="text" name="role" value={we.role || ''} onChange={(e) => handleExperienceChange(index, e)} required />
+                        </div>
+                        <div className="form-group">
+                          <label htmlFor={`exp-${index}-country`}>Country</label>
+                          <select id={`exp-${index}-country`} name="country" value={we.country || ''} onChange={(e) => handleExperienceChange(index, e)} required>
+                            <option value="">Select a country</option>
+                            {countries.map(c => <option key={c} value={c}>{c}</option>)}
+                          </select>
+                        </div>
+                        <div className="form-grid-2">
+                          <div className="form-group">
+                            <label htmlFor={`exp-${index}-start-date`}>Start Date</label>
+                            <input id={`exp-${index}-start-date`} type="date" name="start_date" value={we.start_date || ''} onChange={(e) => handleExperienceChange(index, e)} required />
+                          </div>
+                          <div className="form-group form-group-last">
+                            <label htmlFor={`exp-${index}-end-date`}>End Date (Leave blank if current)</label>
+                            <input id={`exp-${index}-end-date`} type="date" name="end_date" value={we.end_date || ''} onChange={(e) => handleExperienceChange(index, e)} />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    <button type="button" onClick={addExperience} className="btn-dashed" style={{ marginTop: '1rem' }}>
+                      + Add Another Experience
+                    </button>
                   </div>
-                  <div className="form-group">
-                    <label htmlFor="profile-overseas-exp">Overseas Experience (years)</label>
-                    <input id="profile-overseas-exp" type="number" min="0" name="overseasExp" value={profile.overseasExp} onChange={handleInputChange} />
-                  </div>
-                  <div className="form-group">
-                    <label htmlFor="profile-aus-exp">Australian Experience (years)</label>
-                    <input id="profile-aus-exp" type="number" min="0" name="ausExp" value={profile.ausExp} onChange={handleInputChange} />
-                  </div>
-                  <div className="checkbox-group">
-                    <label className="checkbox-label">
-                      <input type="checkbox" name="professionalYear" checked={profile.professionalYear} onChange={handleInputChange} />
-                      Professional Year in Australia
-                    </label>
-                    <label className="checkbox-label">
-                      <input type="checkbox" name="ccl" checked={profile.ccl} onChange={handleInputChange} />
-                      Credentialled Community Language (CCL)
-                    </label>
-                  </div>
+
                 </>
               )}
 

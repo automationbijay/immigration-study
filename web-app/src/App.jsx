@@ -11,6 +11,7 @@ import Calculator from './pages/Calculator';
 import FormsHub from './pages/FormsHub';
 import NewsHub from './pages/NewsHub';
 import Landing from './pages/Landing';
+import AnzscoTool from './pages/AnzscoTool';
 import { User, Home as HomeIcon, Compass } from 'lucide-react';
 import { SkeletonPage } from './components/ui/Skeleton';
 import './index.css';
@@ -80,6 +81,7 @@ function App() {
             <Route path="/australia-point-calculator" element={session ? <Calculator session={session} /> : <Navigate to="/login" />} />
             <Route path="/forms" element={session ? <FormsHub session={session} /> : <Navigate to="/login" />} />
             <Route path="/news" element={session ? <NewsHub session={session} /> : <Navigate to="/login" />} />
+            <Route path="/tools/anzsco" element={session ? <AnzscoTool /> : <Navigate to="/login" />} />
             <Route path="/home" element={session ? <Home session={session} /> : <Navigate to="/login" />} />
             <Route path="/" element={<Landing session={session} />} />
             <Route path="*" element={<NotFound session={session} />} />
