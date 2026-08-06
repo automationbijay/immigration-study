@@ -15,6 +15,7 @@ This repository contains two main components:
 - **Frontend**: React, Vite, React Router, Lucide Icons, Vanilla CSS (Mobile-first Minimalist design, "Trust & Authority" palette, Plus Jakarta Sans)
 - **Database / Backend**: Supabase (PostgreSQL, Auth, Storage, Edge Functions, RLS Policies)
 - **Scraping Engine**: Python, Playwright (Headless Browser)
+- **Monitoring & Error Tracking**: Sentry (React SDK with Vite integration for sourcemaps and Session Replay)
 - **Hosting**: Vercel
 
 ---
