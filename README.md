@@ -13,7 +13,7 @@ This repository contains two main components:
 
 ## 🛠️ Tech Stack
 - **Frontend**: React, Vite, React Router, Lucide Icons, Vanilla CSS (Mobile-first Minimalist design, "Trust & Authority" palette, Plus Jakarta Sans)
-- **Database / Backend**: Supabase (PostgreSQL, Auth, RLS Policies)
+- **Database / Backend**: Supabase (PostgreSQL, Auth, Storage, Edge Functions, RLS Policies)
 - **Scraping Engine**: Python, Playwright (Headless Browser)
 - **Hosting**: Vercel
 
@@ -27,7 +27,8 @@ This repository contains two main components:
   - `seed_universities.js` - Connects directly to PostgreSQL via `pg` to batch-insert global universities.
   - `remove_duplicates.js` - Cleans up duplicate language test entries across all test tables.
 - `/docs/reports` - Point-in-time audit and fix-plan documents (not living documentation).
-- `/supabase/migrations` - Contains SQL schemas and seed data (e.g., `profiles` and `countries` tables).
+- `/supabase/migrations` - Contains SQL schemas and seed data for the modular profile system (`profile_basic`, `point_australia`, `profile_family`, `profile_experience`, `profile_education`), occupation databases, universities, and RPC functions (like `clear_user_data`).
+- `/supabase/functions` - Contains Deno-based Edge Functions for handling complex server-side operations (e.g. `delete-user-data`, `upload-cv`, `extract-cv`, `parse-cv`, `apply-cv-profile`).
 
 ---
 
@@ -49,9 +50,13 @@ DATABASE_URL="postgresql://postgres.[PROJECT-REF]:[YOUR-PASSWORD]@aws-0-ap-south
 ```
 
 ### 3. Database Deployment
-To push new migrations (like the `countries` table) to your remote Supabase database:
+To push new database migrations to your remote Supabase database:
 ```bash
 npx supabase db push
+```
+To deploy new Edge Functions:
+```bash
+npx supabase functions deploy
 ```
 
 ### 4. Scraping Occupation Lists
