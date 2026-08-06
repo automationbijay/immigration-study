@@ -3,7 +3,16 @@ import { createRoot } from 'react-dom/client'
 import * as Sentry from "@sentry/react";
 import './index.css'
 import App from './App.jsx'
+import { registerSW } from 'virtual:pwa-register'
 
+const updateSW = registerSW({
+  onNeedRefresh() {
+    // We could show a toast here in the future
+  },
+  onOfflineReady() {
+    console.log('App ready to work offline')
+  },
+})
 Sentry.init({
   dsn: import.meta.env.VITE_SENTRY_DSN || "",
   integrations: [

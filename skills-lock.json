@@ -7,6 +7,12 @@
       "skillPath": "skills/liteparse/SKILL.md",
       "computedHash": "d1c7a1cab7d44886cfeb3c22aab5c6a7a491413d7d78d34e21fa6a24428bac70"
     },
+    "pwa-development": {
+      "source": "alinaqi/claude-bootstrap",
+      "sourceType": "github",
+      "skillPath": "skills/pwa-development/SKILL.md",
+      "computedHash": "2219041ce92f6361ba77eb06c9a927dc7a1ba48f40ff5132321a29c4154ebc7a"
+    },
     "sentry-cli": {
       "source": "cli.sentry.dev",
       "sourceUrl": "https://cli.sentry.dev",

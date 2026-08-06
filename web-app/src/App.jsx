@@ -71,6 +71,8 @@ function AnimatedRoutes({ session }) {
 function App() {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -84,8 +86,34 @@ function App() {
       setSession(session);
     });
 
-    return () => subscription.unsubscribe();
+    const handleOnline = () => setIsOffline(false);
+    const handleOffline = () => setIsOffline(true);
+    
+    const handleBeforeInstallPrompt = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    return () => {
+      subscription.unsubscribe();
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
   }, []);
+
+  const handleInstallApp = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      setDeferredPrompt(null);
+    }
+  };
 
   if (loading) {
     return (
@@ -101,6 +129,23 @@ function App() {
     <Router>
       <ProfileProvider session={session}>
         <div className={`app-layout ${session ? 'has-nav' : ''}`}>
+          {isOffline && (
+            <div style={{ backgroundColor: 'var(--danger)', color: 'white', padding: '8px', textAlign: 'center', fontSize: '14px', zIndex: 100 }}>
+              You are currently offline. Some features may be unavailable.
+            </div>
+          )}
+          {deferredPrompt && !isOffline && (
+            <div style={{ backgroundColor: 'var(--primary)', color: 'white', padding: '8px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '14px', zIndex: 100 }}>
+              <span>Install Migration Assistant for a better experience</span>
+              <button 
+                onClick={handleInstallApp}
+                style={{ backgroundColor: 'white', color: 'var(--primary)', border: 'none', padding: '4px 12px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
+              >
+                Install
+              </button>
+            </div>
+          )}
+          
           <main className="main-content">
             <AnimatedRoutes session={session} />
           </main>
