@@ -18,26 +18,6 @@ import { SkeletonPage } from './components/ui/Skeleton';
 import * as Sentry from '@sentry/react';
 import './index.css';
 
-// Add this button component to your app to test Sentry's error tracking
-function ErrorButton() {
-  return (
-    <button
-      style={{ position: 'fixed', bottom: '80px', right: '20px', zIndex: 1000, background: 'red', color: 'white', padding: '10px', borderRadius: '5px' }}
-      onClick={() => {
-        // Send a log before throwing the error
-        Sentry.logger.info('User triggered test error', {
-          action: 'test_error_button_click',
-        });
-        // Send a test metric before throwing the error
-        Sentry.metrics.count('test_counter', 1);
-        throw new Error('This is your first error!');
-      }}
-    >
-      Break the world
-    </button>
-  );
-}
-
 const NAV_ITEMS = [
   { to: '/home', label: 'Home', icon: HomeIcon },
   { to: '/discover', label: 'Discover', icon: Compass },
@@ -110,7 +90,6 @@ function App() {
             <Route path="*" element={<NotFound session={session} />} />
           </Routes>
         </main>
-        <ErrorButton />
         
         {session && <BottomNav />}
       </div>
