@@ -69,7 +69,6 @@ const CV_DATA_SCHEMA = {
         field_of_study: nullable({ type: "string" }),
         institution: nullable({ type: "string" }),
         country: nullable({ type: "string" }, "Country where the institution is located."),
-        completed_year: nullable({ type: "integer" }, `4-digit year the qualification was awarded or completed. ${NOT_STATED}`),
       },
     },
     experience: {

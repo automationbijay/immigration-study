@@ -148,19 +148,8 @@ export default function Profile({ session }) {
     
     setIsDeletingData(true);
     try {
-      const { user } = session;
-      const tables = [
-        'profile_basic', 'point_australia', 'cv_metadata', 'profile_education', 
-        'test_ielts', 'test_pte', 'test_toefl', 'test_cambridge', 'test_oet'
-      ];
-      
-      for (const table of tables) {
-        if (table === 'profile_basic' || table === 'point_australia') {
-          await supabase.from(table).delete().eq('id', user.id);
-        } else {
-          await supabase.from(table).delete().eq('user_id', user.id);
-        }
-      }
+      const { error } = await supabase.functions.invoke('delete-user-data');
+      if (error) throw error;
       
       await supabase.auth.signOut();
     } catch (err) {
@@ -302,8 +291,6 @@ export default function Profile({ session }) {
             university_name: '',
             field_of_study: '',
             country: '',
-            started_year: '',
-            completed_year: '',
             start_date: '',
             end_date: ''
           }]);
@@ -405,8 +392,6 @@ export default function Profile({ session }) {
         university_name: ed.university_name || null,
         field_of_study: ed.field_of_study || null,
         country: ed.country || null,
-        started_year: ed.started_year ? parseInt(ed.started_year) : null,
-        completed_year: ed.completed_year ? parseInt(ed.completed_year) : null,
         start_date: ed.start_date || null,
         end_date: ed.end_date || null,
         updated_at: new Date(),
@@ -545,7 +530,7 @@ export default function Profile({ session }) {
       ...prev, 
       { 
         level: '', university_name: '', field_of_study: '', country: '',
-        started_year: '', completed_year: '', start_date: '', end_date: '' 
+        start_date: '', end_date: '' 
       }
     ]);
   };
@@ -957,16 +942,6 @@ export default function Profile({ session }) {
                           <div className="form-group">
                             <label htmlFor={`edu-${index}-end-date`}>End Date</label>
                             <input id={`edu-${index}-end-date`} type="date" name="end_date" value={ed.end_date || ''} onChange={(e) => handleEducationChange(index, e)} />
-                          </div>
-                        </div>
-                        <div className="form-grid-2">
-                          <div className="form-group">
-                            <label htmlFor={`edu-${index}-started-year`}>Started Year</label>
-                            <input id={`edu-${index}-started-year`} type="number" name="started_year" value={ed.started_year || ''} onChange={(e) => handleEducationChange(index, e)} />
-                          </div>
-                          <div className="form-group form-group-last">
-                            <label htmlFor={`edu-${index}-completed-year`}>Completed Year</label>
-                            <input id={`edu-${index}-completed-year`} type="number" name="completed_year" value={ed.completed_year || ''} onChange={(e) => handleEducationChange(index, e)} />
                           </div>
                         </div>
                       </div>

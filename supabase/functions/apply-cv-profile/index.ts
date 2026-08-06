@@ -255,7 +255,6 @@ serve(async (req) => {
       if (q.field_of_study) eduCandidate.field_of_study = q.field_of_study;
       if (q.institution) eduCandidate.institution = q.institution;
       if (q.country) eduCandidate.country = q.country;
-      if (isFiniteNumber(q.completed_year)) eduCandidate.completed_year = q.completed_year;
 
       if (Object.keys(eduCandidate).length > 0) {
         const { error } = await supabase.from("profile_education").insert({
@@ -340,12 +339,11 @@ serve(async (req) => {
         point_australia_spouse_details: null,
         point_australia_children_count: null,
 
-        education_level: q.level ?? null,
-        education_field_of_study: q.field_of_study ?? null,
-        education_institution: q.institution ?? null,
-        education_country: q.country ?? null,
-        education_completed_year: isFiniteNumber(q.completed_year) ? q.completed_year : null,
-
+        education_level: q.level || null,
+        education_field_of_study: q.field_of_study || null,
+        education_institution: q.institution || null,
+        education_country: q.country || null,
+        
         most_recent_job_title: x.most_recent_job_title ?? null,
         occupation_code: occ?.occupation_code ?? null,
         occupation_job_name: occ?.job_name ?? null,
