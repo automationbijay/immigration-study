@@ -1,0 +1,222 @@
+[
+    {
+        "question": "Experience",
+        "options": [
+            {
+                "text": "1 year",
+                "points": "9"
+            },
+            {
+                "text": "2-3 years",
+                "points": "11"
+            },
+            {
+                "text": "4-5 years",
+                "points": "13"
+            },
+            {
+                "text": "6 or more years",
+                "points": "15"
+            }
+        ]
+    },
+    {
+        "question": "AgeSelect",
+        "options": [
+            {
+                "text": "Under 18",
+                "points": "0"
+            },
+            {
+                "text": "18-35",
+                "points": "12"
+            },
+            {
+                "text": "36",
+                "points": "11"
+            },
+            {
+                "text": "37",
+                "points": "10"
+            },
+            {
+                "text": "38",
+                "points": "9"
+            },
+            {
+                "text": "39",
+                "points": "8"
+            },
+            {
+                "text": "40",
+                "points": "7"
+            },
+            {
+                "text": "41",
+                "points": "6"
+            },
+            {
+                "text": "42",
+                "points": "5"
+            },
+            {
+                "text": "43",
+                "points": "4"
+            },
+            {
+                "text": "44",
+                "points": "3"
+            },
+            {
+                "text": "45",
+                "points": "2"
+            },
+            {
+                "text": "46",
+                "points": "1"
+            },
+            {
+                "text": "47 and Older",
+                "points": "00"
+            }
+        ]
+    },
+    {
+        "question": "education",
+        "options": [
+            {
+                "text": "University degree at the Doctoral (PhD) level or equal",
+                "points": "25"
+            },
+            {
+                "text": "University degree at the Master's level or equal",
+                "points": "23"
+            },
+            {
+                "text": "Bachelors degree theee or more years",
+                "points": "21"
+            },
+            {
+                "text": "Prefessional degree needed to practice in licensed profession",
+                "points": "23.1"
+            },
+            {
+                "text": "Two or more Canadian post-secondary degrees or diplomas or equal (at least one must be for a program of at least three years)",
+                "points": "22"
+            },
+            {
+                "text": "Canadian post-secondary degree or diploma for a program of three years or longer, or equal",
+                "points": "21"
+            },
+            {
+                "text": "Canadian post-secondary degree or diploma for a two-year program, or equal",
+                "points": "19"
+            },
+            {
+                "text": "Canadian post-secondary degree or diploma for a one-year program, or equal",
+                "points": "15"
+            },
+            {
+                "text": "Canadian high school diploma, or equal",
+                "points": "5"
+            }
+        ]
+    },
+    {
+        "question": "edureading",
+        "options": [
+            {
+                "text": "",
+                "points": "8"
+            },
+            {
+                "text": "",
+                "points": "7"
+            },
+            {
+                "text": "",
+                "points": "6.5"
+            },
+            {
+                "text": "",
+                "points": "6"
+            }
+        ]
+    },
+    {
+        "question": "eduwriting",
+        "options": [
+            {
+                "text": "",
+                "points": "7.5"
+            },
+            {
+                "text": "",
+                "points": "7"
+            },
+            {
+                "text": "",
+                "points": "6.5"
+            },
+            {
+                "text": "",
+                "points": "6"
+            }
+        ]
+    },
+    {
+        "question": "edulistening",
+        "options": [
+            {
+                "text": "",
+                "points": "8.5"
+            },
+            {
+                "text": "",
+                "points": "8"
+            },
+            {
+                "text": "",
+                "points": "7.5"
+            },
+            {
+                "text": "",
+                "points": "6"
+            }
+        ]
+    },
+    {
+        "question": "eduspeak",
+        "options": [
+            {
+                "text": "",
+                "points": "7.5"
+            },
+            {
+                "text": "",
+                "points": "7"
+            },
+            {
+                "text": "",
+                "points": "6.5"
+            },
+            {
+                "text": "",
+                "points": "6"
+            }
+        ]
+    },
+    {
+        "question": "arrange",
+        "options": [
+            {
+                "text": "Yes.",
+                "points": "10"
+            },
+            {
+                "text": "No",
+                "points": "0"
+            }
+        ]
+    }
+]

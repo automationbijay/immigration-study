@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canada FSW 67-Point Calculator</title>
+    <style>
+        :root {
+            --primary: #d32f2f;
+            --primary-light: #ff6659;
+            --primary-dark: #9a0007;
+            --background: #f4f6f8;
+            --surface: #ffffff;
+            --text: #333333;
+            --text-muted: #666666;
+            --border: #e0e0e0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+            margin: 0;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--surface);
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.05);
+        }
+
+        h1 {
+            color: var(--primary-dark);
+            text-align: center;
+            margin-bottom: 0.5rem;
+            font-weight: 800;
+        }
+
+        p.subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        .section {
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .section h3 {
+            color: var(--primary);
+            margin-top: 0;
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+            text-transform: capitalize;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            color: var(--text);
+            background-color: #fafafa;
+            transition: border-color 0.2s;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--primary-light);
+        }
+
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .radio-label {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .radio-label:hover {
+            background-color: #fff9f9;
+            border-color: var(--primary-light);
+        }
+
+        input[type="radio"] {
+            accent-color: var(--primary);
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Language Grid Layout */
+        .language-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .language-item h4 {
+            margin: 0 0 0.5rem 0;
+            color: var(--text-muted);
+        }
+
+        .score-panel {
+            position: sticky;
+            bottom: 20px;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(211, 47, 47, 0.3);
+            margin-top: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .score-panel h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .score-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+        }
+
+        .status {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+
+        .eligible { color: #4caf50; }
+        .not-eligible { color: #ffeb3b; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Canada FSW 67-Point Calculator</h1>
+        <p class="subtitle">Calculate your eligibility for the Federal Skilled Worker Program</p>
+        
+        <form id="calculator-form">
+            <div id="form-content"></div>
+        </form>
+
+        <div class="score-panel">
+            <div>
+                <h2>Total Points</h2>
+                <div id="status-message" class="status">Complete the form to see eligibility</div>
+            </div>
+            <div class="score-value"><span id="total-points">0</span> / 100</div>
+        </div>
+    </div>
+
+    <script>
+        // Load the extracted JSON data
+        const formData = [
+            {
+                "question": "Experience",
+                "options": [
+                    { "text": "Select Experience", "points": "0" },
+                    { "text": "1 year", "points": "9" },
+                    { "text": "2-3 years", "points": "11" },
+                    { "text": "4-5 years", "points": "13" },
+                    { "text": "6 or more years", "points": "15" }
+                ]
+            },
+            {
+                "question": "Age",
+                "options": [
+                    { "text": "Select Age", "points": "0" },
+                    { "text": "Under 18", "points": "0" },
+                    { "text": "18-35", "points": "12" },
+                    { "text": "36", "points": "11" },
+                    { "text": "37", "points": "10" },
+                    { "text": "38", "points": "9" },
+                    { "text": "39", "points": "8" },
+                    { "text": "40", "points": "7" },
+                    { "text": "41", "points": "6" },
+                    { "text": "42", "points": "5" },
+                    { "text": "43", "points": "4" },
+                    { "text": "44", "points": "3" },
+                    { "text": "45", "points": "2" },
+                    { "text": "46", "points": "1" },
+                    { "text": "47 and Older", "points": "0" }
+                ]
+            },
+            {
+                "question": "Education",
+                "options": [
+                    { "text": "University degree at the Doctoral (PhD) level or equal", "points": "25" },
+                    { "text": "University degree at the Master's level or equal", "points": "23" },
+                    { "text": "Professional degree needed to practice in licensed profession", "points": "23" },
+                    { "text": "Two or more Canadian post-secondary degrees or diplomas or equal", "points": "22" },
+                    { "text": "Bachelor's degree (three or more years)", "points": "21" },
+                    { "text": "Canadian post-secondary degree or diploma for a two-year program, or equal", "points": "19" },
+                    { "text": "Canadian post-secondary degree or diploma for a one-year program, or equal", "points": "15" },
+                    { "text": "Canadian high school diploma, or equal", "points": "5" }
+                ]
+            },
+            {
+                "question": "First Official Language (IELTS)",
+                "isLanguage": true,
+                "abilities": [
+                    {
+                        "name": "Reading",
+                        "options": [
+                            { "text": "8.0 - 9.0", "points": "6" },
+                            { "text": "7.0 - 7.5", "points": "5" },
+                            { "text": "6.0 - 6.5", "points": "4" },
+                            { "text": "Less than 6.0", "points": "0" }
+                        ]
+                    },
+                    {
+                        "name": "Writing",
+                        "options": [
+                            { "text": "7.5 - 9.0", "points": "6" },
+                            { "text": "7.0", "points": "5" },
+                            { "text": "6.5", "points": "4" },
+                            { "text": "Less than 6.5", "points": "0" }
+                        ]
+                    },
+                    {
+                        "name": "Listening",
+                        "options": [
+                            { "text": "8.5 - 9.0", "points": "6" },
+                            { "text": "8.0", "points": "5" },
+                            { "text": "7.5", "points": "4" },
+                            { "text": "Less than 7.5", "points": "0" }
+                        ]
+                    },
+                    {
+                        "name": "Speaking",
+                        "options": [
+                            { "text": "7.5 - 9.0", "points": "6" },
+                            { "text": "7.0", "points": "5" },
+                            { "text": "6.5", "points": "4" },
+                            { "text": "Less than 6.5", "points": "0" }
+                        ]
+                    }
+                ]
+            },
+            {
+                "question": "Arranged Employment in Canada",
+                "options": [
+                    { "text": "Yes", "points": "10" },
+                    { "text": "No", "points": "0" }
+                ]
+            },
+            {
+                "question": "Adaptability (Maximum 10 Points)",
+                "isCheckbox": true,
+                "options": [
+                    { "text": "Your spouse or common-law partner has a language level in either English or French at CLB 4 level or higher in all 4 language abilities.", "points": "5" },
+                    { "text": "You completed at least 2 academic years of full-time study at a secondary or post-secondary school in Canada.", "points": "5" },
+                    { "text": "Your spouse or common-law partner completed at least 2 academic years of full-time study at a secondary or post-secondary school in Canada.", "points": "5" },
+                    { "text": "You did at least 1 year of full-time work in Canada (Skill Type 0, A, or B).", "points": "10" },
+                    { "text": "Your spouse or partner did at least 1 year of full-time work in Canada on a valid work permit.", "points": "5" },
+                    { "text": "You have an Arranged employment in Canada.", "points": "5" },
+                    { "text": "You, or your spouse or common-law partner, have a relative who is living in Canada, 18 years or older and a Canadian citizen or permanent resident.", "points": "5" }
+                ]
+            }
+        ];
+
+        function renderForm() {
+            const container = document.getElementById('form-content');
+            
+            formData.forEach((section, index) => {
+                const sectionDiv = document.createElement('div');
+                sectionDiv.className = 'section';
+                
+                const title = document.createElement('h3');
+                title.textContent = section.question;
+                sectionDiv.appendChild(title);
+                
+                if (section.isLanguage) {
+                    const grid = document.createElement('div');
+                    grid.className = 'language-grid';
+                    
+                    section.abilities.forEach(ability => {
+                        const abilityDiv = document.createElement('div');
+                        abilityDiv.className = 'language-item';
+                        abilityDiv.innerHTML = `<h4>${ability.name}</h4>`;
+                        
+                        const select = document.createElement('select');
+                        select.name = ability.name.toLowerCase();
+                        select.addEventListener('change', calculatePoints);
+                        
+                        // Add default option
+                        const defaultOpt = document.createElement('option');
+                        defaultOpt.value = "0";
+                        defaultOpt.textContent = "Select score...";
+                        select.appendChild(defaultOpt);
+
+                        ability.options.forEach(opt => {
+                            const option = document.createElement('option');
+                            option.value = opt.points;
+                            option.textContent = opt.text;
+                            select.appendChild(option);
+                        });
+                        
+                        abilityDiv.appendChild(select);
+                        grid.appendChild(abilityDiv);
+                    });
+                    
+                    sectionDiv.appendChild(grid);
+                }
+                else if (section.question === "Experience" || section.question === "Age") {
+                    const select = document.createElement('select');
+                    select.name = section.question.toLowerCase();
+                    select.addEventListener('change', calculatePoints);
+                    
+                    section.options.forEach(opt => {
+                        const option = document.createElement('option');
+                        option.value = opt.points;
+                        option.textContent = opt.text;
+                        select.appendChild(option);
+                    });
+                    
+                    sectionDiv.appendChild(select);
+                } 
+                else if (section.isCheckbox) {
+                    const checkboxGroup = document.createElement('div');
+                    checkboxGroup.className = 'radio-group';
+                    
+                    section.options.forEach((opt, optIndex) => {
+                        const label = document.createElement('label');
+                        label.className = 'radio-label';
+                        
+                        const input = document.createElement('input');
+                        input.type = 'checkbox';
+                        input.name = "adaptability";
+                        input.value = opt.points;
+                        input.addEventListener('change', calculatePoints);
+                        
+                        label.appendChild(input);
+                        label.appendChild(document.createTextNode(opt.text));
+                        checkboxGroup.appendChild(label);
+                    });
+                    
+                    sectionDiv.appendChild(checkboxGroup);
+                }
+                else {
+                    const radioGroup = document.createElement('div');
+                    radioGroup.className = 'radio-group';
+                    
+                    section.options.forEach((opt, optIndex) => {
+                        const label = document.createElement('label');
+                        label.className = 'radio-label';
+                        
+                        const input = document.createElement('input');
+                        input.type = 'radio';
+                        input.name = section.question.toLowerCase();
+                        input.value = opt.points;
+                        input.addEventListener('change', calculatePoints);
+                        
+                        // Default to 0 point option if "No" or first
+                        if (opt.points === "0") input.checked = true;
+
+                        label.appendChild(input);
+                        label.appendChild(document.createTextNode(opt.text));
+                        radioGroup.appendChild(label);
+                    });
+                    
+                    sectionDiv.appendChild(radioGroup);
+                }
+                
+                container.appendChild(sectionDiv);
+            });
+        }
+
+        function calculatePoints() {
+            let total = 0;
+            
+            // Age and Experience
+            const age = parseFloat(document.querySelector('select[name="age"]').value) || 0;
+            const exp = parseFloat(document.querySelector('select[name="experience"]').value) || 0;
+            total += age + exp;
+            
+            // Education
+            const eduInput = document.querySelector('input[name="education"]:checked');
+            if(eduInput) total += parseFloat(eduInput.value);
+            
+            // Language
+            const reading = parseFloat(document.querySelector('select[name="reading"]').value) || 0;
+            const writing = parseFloat(document.querySelector('select[name="writing"]').value) || 0;
+            const listening = parseFloat(document.querySelector('select[name="listening"]').value) || 0;
+            const speaking = parseFloat(document.querySelector('select[name="speaking"]').value) || 0;
+            
+            total += reading + writing + listening + speaking;
+            
+            // Arranged Employment
+            const arrangeInput = document.querySelector('input[name="arranged employment in canada"]:checked');
+            if(arrangeInput) total += parseFloat(arrangeInput.value);
+            
+            // Adaptability (Max 10 points)
+            let adaptabilityTotal = 0;
+            document.querySelectorAll('input[name="adaptability"]:checked').forEach(cb => {
+                adaptabilityTotal += parseFloat(cb.value);
+            });
+            total += Math.min(10, adaptabilityTotal);
+            
+            // Update UI
+            document.getElementById('total-points').textContent = Math.floor(total);
+            
+            const statusElem = document.getElementById('status-message');
+            if (total >= 67) {
+                statusElem.textContent = "Eligible (67 or higher)";
+                statusElem.className = "status eligible";
+            } else {
+                statusElem.textContent = "Not Eligible (Below 67)";
+                statusElem.className = "status not-eligible";
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            renderForm();
+            calculatePoints();
+        });
+    </script>
+</body>
+</html>

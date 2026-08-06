@@ -1,0 +1,238 @@
+[
+    {
+        "name": "Experience",
+        "id": "unknown",
+        "options": [
+            {
+                "text": "Select Experience",
+                "value": ""
+            },
+            {
+                "text": "1 year",
+                "value": "9"
+            },
+            {
+                "text": "2-3 years",
+                "value": "11"
+            },
+            {
+                "text": "4-5 years",
+                "value": "13"
+            },
+            {
+                "text": "6 or more years",
+                "value": "15"
+            }
+        ]
+    },
+    {
+        "name": "AgeSelect",
+        "id": "unknown",
+        "options": [
+            {
+                "text": "Select Age",
+                "value": ""
+            },
+            {
+                "text": "Under 18",
+                "value": "0"
+            },
+            {
+                "text": "18-35",
+                "value": "12"
+            },
+            {
+                "text": "36",
+                "value": "11"
+            },
+            {
+                "text": "37",
+                "value": "10"
+            },
+            {
+                "text": "38",
+                "value": "9"
+            },
+            {
+                "text": "39",
+                "value": "8"
+            },
+            {
+                "text": "40",
+                "value": "7"
+            },
+            {
+                "text": "41",
+                "value": "6"
+            },
+            {
+                "text": "42",
+                "value": "5"
+            },
+            {
+                "text": "43",
+                "value": "4"
+            },
+            {
+                "text": "44",
+                "value": "3"
+            },
+            {
+                "text": "45",
+                "value": "2"
+            },
+            {
+                "text": "46",
+                "value": "1"
+            },
+            {
+                "text": "47 and Older",
+                "value": "00"
+            }
+        ]
+    },
+    {
+        "name": "education",
+        "type": "radio",
+        "options": [
+            {
+                "text": "University degree at the Doctoral (PhD) level or equal",
+                "value": "25"
+            },
+            {
+                "text": "University degree at the Master's level or equal",
+                "value": "23"
+            },
+            {
+                "text": "Bachelors degree theee or more years",
+                "value": "21"
+            },
+            {
+                "text": "Prefessional degree needed to practice in licensed profession",
+                "value": "23.1"
+            },
+            {
+                "text": "Two or more Canadian post-secondary degrees or diplomas or equal (at least one must be for a program of at least three years)",
+                "value": "22"
+            },
+            {
+                "text": "Canadian post-secondary degree or diploma for a program of three years or longer, or equal",
+                "value": "21"
+            },
+            {
+                "text": "Canadian post-secondary degree or diploma for a two-year program, or equal",
+                "value": "19"
+            },
+            {
+                "text": "Canadian post-secondary degree or diploma for a one-year program, or equal",
+                "value": "15"
+            },
+            {
+                "text": "Canadian high school diploma, or equal",
+                "value": "5"
+            }
+        ]
+    },
+    {
+        "name": "edureading",
+        "type": "radio",
+        "options": [
+            {
+                "text": "",
+                "value": "8"
+            },
+            {
+                "text": "",
+                "value": "7"
+            },
+            {
+                "text": "",
+                "value": "6.5"
+            },
+            {
+                "text": "",
+                "value": "6"
+            }
+        ]
+    },
+    {
+        "name": "eduwriting",
+        "type": "radio",
+        "options": [
+            {
+                "text": "",
+                "value": "7.5"
+            },
+            {
+                "text": "",
+                "value": "7"
+            },
+            {
+                "text": "",
+                "value": "6.5"
+            },
+            {
+                "text": "",
+                "value": "6"
+            }
+        ]
+    },
+    {
+        "name": "edulistening",
+        "type": "radio",
+        "options": [
+            {
+                "text": "",
+                "value": "8.5"
+            },
+            {
+                "text": "",
+                "value": "8"
+            },
+            {
+                "text": "",
+                "value": "7.5"
+            },
+            {
+                "text": "",
+                "value": "6"
+            }
+        ]
+    },
+    {
+        "name": "eduspeak",
+        "type": "radio",
+        "options": [
+            {
+                "text": "",
+                "value": "7.5"
+            },
+            {
+                "text": "",
+                "value": "7"
+            },
+            {
+                "text": "",
+                "value": "6.5"
+            },
+            {
+                "text": "",
+                "value": "6"
+            }
+        ]
+    },
+    {
+        "name": "arrange",
+        "type": "radio",
+        "options": [
+            {
+                "text": "Yes.",
+                "value": "10"
+            },
+            {
+                "text": "No",
+                "value": "0"
+            }
+        ]
+    }
+]

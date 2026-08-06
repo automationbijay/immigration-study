@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canada CRS Point Calculator</title>
+    <style>
+        :root {
+            --primary: #1976d2;
+            --primary-light: #63a4ff;
+            --primary-dark: #004ba0;
+            --background: #f4f6f8;
+            --surface: #ffffff;
+            --text: #333333;
+            --text-muted: #666666;
+            --border: #e0e0e0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+            margin: 0;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--surface);
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.05);
+        }
+
+        h1 {
+            color: var(--primary-dark);
+            text-align: center;
+            margin-bottom: 0.5rem;
+            font-weight: 800;
+        }
+
+        p.subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        .section {
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .section h3 {
+            color: var(--primary);
+            margin-top: 0;
+            margin-bottom: 1rem;
+            font-size: 1.15rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            color: var(--text);
+            background-color: #fafafa;
+            transition: border-color 0.2s;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--primary-light);
+        }
+
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .radio-label {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .radio-label:hover {
+            background-color: #f0f7ff;
+            border-color: var(--primary-light);
+        }
+
+        input[type="radio"] {
+            accent-color: var(--primary);
+            width: 18px;
+            height: 18px;
+        }
+
+        .score-panel {
+            position: sticky;
+            bottom: 20px;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(25, 118, 210, 0.3);
+            margin-top: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .score-panel h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .score-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Comprehensive Ranking System (CRS) Tool</h1>
+        <p class="subtitle">Calculate your Express Entry CRS score</p>
+        
+        <form id="crs-form">
+            <div id="form-content"></div>
+        </form>
+
+        <div class="score-panel">
+            <div>
+                <h2>Estimated CRS Score (Mock Calculation)</h2>
+                <div class="status">Note: Requires IRCC CRS mapping logic for accurate score.</div>
+            </div>
+            <div class="score-value"><span id="total-points">0</span></div>
+        </div>
+    </div>
+
+    <script>
+        const formData = [
+    {
+        "question": "q1",
+        "options": [
+            {
+                "text": "Annulled Marriage",
+                "points_or_value": "A"
+            },
+            {
+                "text": "Common-Law",
+                "points_or_value": "B"
+            },
+            {
+                "text": "Divorced / Separated",
+                "points_or_value": "C"
+            },
+            {
+                "text": "Legally Separated",
+                "points_or_value": "D"
+            },
+            {
+                "text": "Married",
+                "points_or_value": "E"
+            },
+            {
+                "text": "Never Married / Single",
+                "points_or_value": "F"
+            },
+            {
+                "text": "Widowed",
+                "points_or_value": "G"
+            }
+        ]
+    },
+    {
+        "question": "q2i",
+        "options": [
+            {
+                "text": "No",
+                "points_or_value": "A"
+            },
+            {
+                "text": "Yes",
+                "points_or_value": "B"
+            }
+        ]
+    },
+    {
+        "question": "q2ii",
+        "options": [
+            {
+                "text": "No",
+                "points_or_value": "A"
+            },
+            {
+                "text": "Yes",
+                "points_or_value": "B"
+            }
+        ]
+    },
+    {
+        "question": "q3",
+        "options": [
+            {
+                "text": "17 years of age or less",
+                "points_or_value": "A"
+            },
+            {
+                "text": "18 years of age",
+                "points_or_value": "B"
+            },
+            {
+                "text": "19 years of age",
+                "points_or_value": "C"
+            },
+            {
+                "text": "20 years of age",
+                "points_or_value": "D"
+            },
+            {
+                "text": "21 years of age",
+                "points_or_value": "E"
+            },
+            {
+                "text": "22 years of age",
+                "points_or_value": "F"
+            },
+            {
+                "text": "23 years of age",
+                "points_or_value": "G"
+            },
+            {
+                "text": "24 years of age",
+                "points_or_value": "H"
+            },
+            {
+                "text": "25 years of age",
+                "points_or_value": "I"
+            },
+            {
+                "text": "26 years of age",
+                "points_or_value": "J"
+            },
+            {
+                "text": "27 years of age",
+                "points_or_value": "K"
+            },
+            {
+                "text": "28 years of age",
+                "points_or_value": "L"
+            },
+            {
+                "text": "29 years of age",
+                "points_or_value": "M"
+            },
+            {
+                "text": "30 years of age",
+                "points_or_value": "N"
+            },
+            {
+                "text": "31 years of age",
+                "points_or_value": "O"
+            },
+            {
+                "text": "32 years of age",
+                "points_or_value": "P"
+            },
+            {
+                "text": "33 years of age",
+                "points_or_value": "Q"
+            },
+            {
+                "text": "34 years of age",
+                "points_or_value": "R"
+            },
+            {
+                "text": "35 years of age",
+                "points_or_value": "S"
+            },
+            {
+                "text": "36 years of age",
+                "points_or_value": "T"
+            },
+            {
+                "text": "37 years of age",
+                "points_or_value": "U"
+            },
+            {
+                "text": "38 years of age",
+                "points_or_value": "V"
+            },
+            {
+                "text": "39 years of age",
+                "points_or_value": "W"
+            },
+            {
+                "text": "40 years of age",
+                "points_or_value": "X"
+            },
+            {
+                "text": "41 years of age",
+                "points_or_value": "Y"
+            },
+            {
+                "text": "42 years of age",
+                "points_or_value": "Z"
+            },
+            {
+                "text": "43 years of age",
+                "points_or_value": "AA"
+            },
+            {
+                "text": "44 years of age",
+                "points_or_value": "AB"
+            },
+            {
+                "text": "45 years of age or more",
+                "points_or_value": "AC"
+            },
+            {
+                "text": "17 years of age or less",
+                "points_or_value": "A"
+            },
+            {
+                "text": "18 years of age",
+                "points_or_value": "B"
+            },
+            {
+                "text": "19 years of age",
+                "points_or_value": "C"
+            },
+            {
+                "text": "20 years of age",
+                "points_or_value": "D"
+            },
+            {
+                "text": "21 years of age",
+                "points_or_value": "E"
+            },
+            {
+                "text": "22 years of age",
+                "points_or_value": "F"
+            },
+            {
+                "text": "23 years of age",
+                "points_or_value": "G"
+            },
+            {
+                "text": "24 years of age",
+                "points_or_value": "H"
+            },
+            {
+                "text": "25 years of age",
+                "points_or_value": "I"
+            },
+            {
+                "text": "26 years of age",
+                "points_or_value": "J"
+            },
+            {
+                "text": "27 years of age",
+                "points_or_value": "K"
+            },
+            {
+                "text": "28 years of age",
+                "points_or_value": "L"
+            },
+            {
+                "text": "29 years of age",
+                "points_or_value": "M"
+            },
+            {
+                "text": "30 years of age",
+                "points_or_value": "N"
+            },
+            {
+                "text": "31 years of age",
+                "points_or_value": "O"
+            },
+            {
+                "text": "32 years of age",
+                "points_or_value": "P"
+            },
+            {
+                "text": "33 years of age",
+                "points_or_value": "Q"
+            },
+            {
+                "text": "34 years of age",
+                "points_or_value": "R"
+            },
+            {
+                "text": "35 years of age",
+                "points_or_value": "S"
+            },
+            {
+                "text": "36 years of age",
+                "points_or_value": "T"
+            },
+            {
+                "text": "37 years of age",
+                "points_or_value": "U"
+            },
+            {
+                "text": "38 years of age",
+                "points_or_value": "V"
+            },
+            {
+                "text": "39 years of age",
+                "points_or_value": "W"
+            },
+            {
+                "text": "40 years of age",
+                "points_or_value": "X"
+            },
+            {
+                "text": "41 years of age",
+                "points_or_value": "Y"
+            },
+            {
+                "text": "42 years of age",
+                "points_or_value": "Z"
+            },
+            {
+                "text": "43 years of age",
+                "points_or_value": "AA"
+            },
+            {
+                "text": "44 years of age",
+                "points_or_value": "AB"
+            },
+            {
+                "text": "45 years of age or more",
+                "points_or_value": "AC"
+            }
+        ]
+    },
+    {
+        "question": "q4",
+        "options": [
+            {
+                "text": "None, or less than secondary (high school)",
+                "points_or_value": "A"
+            },
+            {
+                "text": "Secondary diploma (high school graduation)",
+                "points_or_value": "B"
+            },
+            {
+                "text": "One-year program at a university, college, trade or technical school, or other institute",
+                "points_or_value": "C"
+            },
+            {
+                "text": "Two-year program at a university, college, trade or technical school, or other institute",
+                "points_or_value": "D"
+            },
+            {
+                "text": "Bachelor's degree (three or more year program at a university, college, trade or technical school, or other institute)",
+                "points_or_value": "E"
+            },
+            {
+                "text": "Two or more certificates, diplomas or degrees. One must be for a program of three or more years",
+                "points_or_value": "F"
+            },
+            {
+                "text": "Master's degree, or professional degree needed to practice in a licensed profession (see Help)",
+                "points_or_value": "G"
+            },
+            {
+                "text": "Doctoral level university degree (PhD)",
+                "points_or_value": "H"
+            },
+            {
+                "text": "None, or less than secondary (high school)",
+                "points_or_value": "A"
+            },
+            {
+                "text": "Secondary diploma (high school graduation)",
+                "points_or_value": "B"
+            },
+            {
+                "text": "One-year program at a university, college, trade or technical school, or other institute",
+                "points_or_value": "C"
+            },
+            {
+                "text": "Two-year program at a university, college, trade or technical school, or other institute",
+                "points_or_value": "D"
+            },
+            {
+                "text": "Bachelor's degree (three or more year program at a university, college, trade or technical school, or other institute)",
+                "points_or_value": "E"
+            },
+            {
+                "text": "Two or more certificates, diplomas or degrees. One must be for a program of three or more years",
+                "points_or_value": "F"
+            },
+            {
+                "text": "Master's degree, or professional degree needed to practice in a licensed profession (see Help)",
+                "points_or_value": "G"
+            },
+            {
+                "text": "Doctoral level university degree (PhD)",
+                "points_or_value": "H"
+            }
+        ]
+    },
+    {
+        "question": "q4b",
+        "options": [
+            {
+                "text": "No",
+                "points_or_value": "A"
+            },
+            {
+                "text": "Yes",
+                "points_or_value": "B"
+            }
+        ]
+    },
+    {
+        "question": "q4c",
+        "options": [
+            {
+                "text": "Secondary (high school) or less",
+                "points_or_value": "A"
+            },
+            {
+                "text": "One- or two-year diploma or certificate",
+                "points_or_value": "B"
+            },
+            {
+                "text": "Degree, diploma or certificate of three years or longer OR a Master\u2019s, professional or doctoral degree of at least one academic year",
+                "points_or_value": "C"
+            }
+        ]
+    },
+    {
+        "question": "q5i",
+        "options": [
+            {
+                "text": "No",
+                "points_or_value": "B"
+            },
+            {
+                "text": "Yes",
+                "points_or_value": "A"
+            }
+        ]
+    },
+    {
+        "question": "q5i-a",
+        "options": [
+            {
+                "text": "CELPIP-G",
+                "points_or_value": "A"
+            },
+            {
+                "text": "IELTS",
+                "points_or_value": "B"
+            },
+            {
+                "text": "TEF Canada",
+                "points_or_value": "C"
+            },
+            {
+                "text": "TCF Canada",
+                "points_or_value": "D"
+            }
+        ]
+    },
+    {
+        "question": "q6i",
+        "options": [
+            {
+                "text": "None or less than a year",
+                "points_or_value": "A"
+            },
+            {
+                "text": "1 year",
+                "points_or_value": "B"
+            },
+            {
+                "text": "2 years",
+                "points_or_value": "C"
+            },
+            {
+                "text": "3 years",
+                "points_or_value": "D"
+            },
+            {
+                "text": "4 years",
+                "points_or_value": "E"
+            },
+            {
+                "text": "5 years or more",
+                "points_or_value": "F"
+            }
+        ]
+    },
+    {
+        "question": "q6ii",
+        "options": [
+            {
+                "text": "None or less than a year",
+                "points_or_value": "A"
+            },
+            {
+                "text": "1 year",
+                "points_or_value": "B"
+            },
+            {
+                "text": "2 years",
+                "points_or_value": "C"
+            },
+            {
+                "text": "3 years or more",
+                "points_or_value": "D"
+            }
+        ]
+    },
+    {
+        "question": "q7",
+        "options": [
+            {
+                "text": "No",
+                "points_or_value": "A"
+            },
+            {
+                "text": "Yes",
+                "points_or_value": "B"
+            }
+        ]
+    },
+    {
+        "question": "q8",
+        "options": [
+            {
+                "text": "No",
+                "points_or_value": "A"
+            },
+            {
+                "text": "Yes",
+                "points_or_value": "B"
+            }
+        ]
+    },
+    {
+        "question": "q8a",
+        "options": [
+            {
+                "text": "NOC Skill Type 00",
+                "points_or_value": "A"
+            },
+            {
+                "text": "NOC Skill Level A or B or any Type 0 other than 00",
+                "points_or_value": "B"
+            },
+            {
+                "text": "NOC Skill Level C or D",
+                "points_or_value": "C"
+            }
+        ]
+    },
+    {
+        "question": "q9",
+        "options": [
+            {
+                "text": "No",
+                "points_or_value": "A"
+            },
+            {
+                "text": "Yes",
+                "points_or_value": "B"
+            }
+        ]
+    },
+    {
+        "question": "q10i",
+        "options": [
+            {
+                "text": "No",
+                "points_or_value": "A"
+            },
+            {
+                "text": "Yes",
+                "points_or_value": "B"
+            }
+        ]
+    },
+    {
+        "question": "q10",
+        "options": [
+            {
+                "text": "None, or less than secondary (high school)",
+                "points_or_value": "A"
+            },
+            {
+                "text": "Secondary diploma (high school graduation)",
+                "points_or_value": "B"
+            },
+            {
+                "text": "One-year program at a university, college, trade or technical school, or other institute",
+                "points_or_value": "C"
+            },
+            {
+                "text": "Two-year program at a university, college, trade or technical school, or other institute",
+                "points_or_value": "D"
+            },
+            {
+                "text": "Bachelor's degree (three or more year program at a university, college, trade or technical school, or other institute)",
+                "points_or_value": "E"
+            },
+            {
+                "text": "Two or more certificates, diplomas or degrees. One must be for a program of three or more years",
+                "points_or_value": "F"
+            },
+            {
+                "text": "Master's degree, or professional degree needed to practice in a licensed profession",
+                "points_or_value": "G"
+            },
+            {
+                "text": "Doctoral level university degree (PhD)",
+                "points_or_value": "H"
+            }
+        ]
+    },
+    {
+        "question": "q11",
+        "options": [
+            {
+                "text": "None or less than a year",
+                "points_or_value": "A"
+            },
+            {
+                "text": "1 year",
+                "points_or_value": "B"
+            },
+            {
+                "text": "2 years",
+                "points_or_value": "C"
+            },
+            {
+                "text": "3 years",
+                "points_or_value": "D"
+            },
+            {
+                "text": "4 years",
+                "points_or_value": "E"
+            },
+            {
+                "text": "5 years or more",
+                "points_or_value": "F"
+            }
+        ]
+    },
+    {
+        "question": "q12i",
+        "options": [
+            {
+                "text": "CELPIP-G",
+                "points_or_value": "A"
+            },
+            {
+                "text": "IELTS",
+                "points_or_value": "B"
+            },
+            {
+                "text": "TEF Canada",
+                "points_or_value": "C"
+            },
+            {
+                "text": "TCF Canada",
+                "points_or_value": "D"
+            },
+            {
+                "text": "not applicable",
+                "points_or_value": "E"
+            }
+        ]
+    },
+    {
+        "question": "q2i",
+        "options": [
+            {
+                "text": "No",
+                "points_or_value": "A"
+            },
+            {
+                "text": "Yes",
+                "points_or_value": "B"
+            }
+        ]
+    },
+    {
+        "question": "q2ii",
+        "options": [
+            {
+                "text": "No",
+                "points_or_value": "A"
+            },
+            {
+                "text": "Yes",
+                "points_or_value": "B"
+            }
+        ]
+    },
+    {
+        "question": "q3",
+        "options": [
+            {
+                "text": "17 years of age or less",
+                "points_or_value": "A"
+            },
+            {
+                "text": "18 years of age",
+                "points_or_value": "B"
+            },
+            {
+                "text": "19 years of age",
+                "points_or_value": "C"
+            },
+            {
+                "text": "20 years of age",
+                "points_or_value": "D"
+            },
+            {
+                "text": "21 years of age",
+                "points_or_value": "E"
+            },
+            {
+                "text": "22 years of age",
+                "points_or_value": "F"
+            },
+            {
+                "text": "23 years of age",
+                "points_or_value": "G"
+            },
+            {
+                "text": "24 years of age",
+                "points_or_value": "H"
+            },
+            {
+                "text": "25 years of age",
+                "points_or_value": "I"
+            },
+            {
+                "text": "26 years of age",
+                "points_or_value": "J"
+            },
+            {
+                "text": "27 years of age",
+                "points_or_value": "K"
+            },
+            {
+                "text": "28 years of age",
+                "points_or_value": "L"
+            },
+            {
+                "text": "29 years of age",
+                "points_or_value": "M"
+            },
+            {
+                "text": "30 years of age",
+                "points_or_value": "N"
+            },
+            {
+                "text": "31 years of age",
+                "points_or_value": "O"
+            },
+            {
+                "text": "32 years of age",
+                "points_or_value": "P"
+            },
+            {
+                "text": "33 years of age",
+                "points_or_value": "Q"
+            },
+            {
+                "text": "34 years of age",
+                "points_or_value": "R"
+            },
+            {
+                "text": "35 years of age",
+                "points_or_value": "S"
+            },
+            {
+                "text": "36 years of age",
+                "points_or_value": "T"
+            },
+            {
+                "text": "37 years of age",
+                "points_or_value": "U"
+            },
+            {
+                "text": "38 years of age",
+                "points_or_value": "V"
+            },
+            {
+                "text": "39 years of age",
+                "points_or_value": "W"
+            },
+            {
+                "text": "40 years of age",
+                "points_or_value": "X"
+            },
+            {
+                "text": "41 years of age",
+                "points_or_value": "Y"
+            },
+            {
+                "text": "42 years of age",
+                "points_or_value": "Z"
+            },
+            {
+                "text": "43 years of age",
+                "points_or_value": "AA"
+            },
+            {
+                "text": "44 years of age",
+                "points_or_value": "AB"
+            },
+            {
+                "text": "45 years of age or more",
+                "points_or_value": "AC"
+            }
+        ]
+    }
+];
+
+        const questionLabels = {
+            "q1": "What is your marital status?",
+            "q2i": "Is your spouse or common-law partner a citizen or permanent resident of Canada?",
+            "q2ii": "Will your spouse or common-law partner come with you to Canada?",
+            "q3": "How old are you?",
+            "q4": "What is your level of education?",
+            "q4b": "Have you earned a Canadian degree, diploma or certificate?",
+            "q4c": "Choose the best answer that describes this level of education (Canadian):",
+            "q5i": "Are your test results less than two years old?",
+            "q5i-a": "Which language test did you take for your first official language?",
+            "q6i": "In the last ten years, how many years of skilled work experience in Canada do you have?",
+            "q6ii": "In the last 10 years, how many total years of foreign skilled work experience do you have?",
+            "q7": "Do you have a certificate of qualification from a Canadian province, territory or federal body?",
+            "q8": "Do you have a valid job offer supported by a Labour Market Impact Assessment?",
+            "q8a": "Which NOC skill type or level is the job offer?",
+            "q9": "Do you have a nomination certificate from a province or territory?",
+            "q10i": "Do you or your spouse have at least one brother or sister living in Canada who is a citizen or PR?",
+            "q10": "What is the highest level of education for which your spouse or common-law partner's?",
+            "q11": "In the last ten years, how many years of skilled work experience in Canada does your spouse have?",
+            "q12i": "Did your spouse or common-law partner take a language test?"
+        };
+
+        function renderForm(formData) {
+            const container = document.getElementById('form-content');
+            
+            const uniqueQuestions = [];
+            const seen = new Set();
+            for (let item of formData) {
+                if (!seen.has(item.question)) {
+                    seen.add(item.question);
+                    uniqueQuestions.push(item);
+                }
+            }
+
+            uniqueQuestions.forEach((section) => {
+                const sectionDiv = document.createElement('div');
+                sectionDiv.className = 'section';
+                
+                const title = document.createElement('h3');
+                title.textContent = questionLabels[section.question] || `Question: ${section.question}`;
+                sectionDiv.appendChild(title);
+                
+                if (section.options.length > 5) {
+                    const select = document.createElement('select');
+                    select.name = section.question;
+                    select.addEventListener('change', calculatePoints);
+                    
+                    const defaultOpt = document.createElement('option');
+                    defaultOpt.value = "";
+                    defaultOpt.textContent = "Select an option...";
+                    select.appendChild(defaultOpt);
+
+                    section.options.forEach(opt => {
+                        const option = document.createElement('option');
+                        option.value = opt.points_or_value;
+                        option.textContent = opt.text;
+                        select.appendChild(option);
+                    });
+                    
+                    sectionDiv.appendChild(select);
+                } else {
+                    const radioGroup = document.createElement('div');
+                    radioGroup.className = 'radio-group';
+                    
+                    section.options.forEach(opt => {
+                        const label = document.createElement('label');
+                        label.className = 'radio-label';
+                        
+                        const input = document.createElement('input');
+                        input.type = 'radio';
+                        input.name = section.question;
+                        input.value = opt.points_or_value;
+                        input.addEventListener('change', calculatePoints);
+                        
+                        label.appendChild(input);
+                        label.appendChild(document.createTextNode(opt.text));
+                        radioGroup.appendChild(label);
+                    });
+                    
+                    sectionDiv.appendChild(radioGroup);
+                }
+                
+                container.appendChild(sectionDiv);
+            });
+        }
+
+        function calculatePoints() {
+            let total = 0;
+            const form = document.getElementById('crs-form');
+            const data = new FormData(form);
+            
+            for (let [key, value] of data.entries()) {
+                if (value && value.length > 0) {
+                    let mockScore = (value.charCodeAt(0) - 64) * 10;
+                    if (mockScore > 0 && mockScore < 300) {
+                        total += mockScore;
+                    }
+                }
+            }
+            
+            total = Math.min(total, 1200);
+            document.getElementById('total-points').textContent = total;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderForm(formData);
+        });
+    </script>
+</body>
+</html>
