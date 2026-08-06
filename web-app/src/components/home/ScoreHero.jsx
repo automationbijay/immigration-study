@@ -91,6 +91,35 @@ export default function ScoreHero({ name, basePoints, eligibleCount, fswRow, crs
   const nextSlide = () => setCurrentSlide((p) => (p + 1) % slides.length);
   const prevSlide = () => setCurrentSlide((p) => (p - 1 + slides.length) % slides.length);
 
+  // Swipe logic
+  const [touchStart, setTouchStart] = useState(null);
+  const [touchEnd, setTouchEnd] = useState(null);
+
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+    
+    if (isLeftSwipe) {
+      nextSlide();
+    }
+    if (isRightSwipe) {
+      prevSlide();
+    }
+  };
+
   // Fallback in case currentSlide is out of bounds due to data changes
   const slide = slides[currentSlide] || slides[0];
 
@@ -105,14 +134,18 @@ export default function ScoreHero({ name, basePoints, eligibleCount, fswRow, crs
         Hi {name} 👋
       </h1>
       
-      <section style={{
-        background: 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-foreground) 100%)',
-        borderRadius: 'var(--radius-xl)',
-        padding: 'var(--spacing-2xl) var(--spacing-lg)',
-        color: 'white',
-        position: 'relative',
-        overflow: 'hidden',
-        boxShadow: '0 10px 30px rgba(30, 58, 138, 0.25)',
+      <section 
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+        style={{
+          background: 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-foreground) 100%)',
+          borderRadius: 'var(--radius-xl)',
+          padding: 'var(--spacing-2xl) var(--spacing-lg)',
+          color: 'white',
+          position: 'relative',
+          overflow: 'hidden',
+          boxShadow: '0 10px 30px rgba(30, 58, 138, 0.25)',
         display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
