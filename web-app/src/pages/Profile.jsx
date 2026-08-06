@@ -148,8 +148,9 @@ export default function Profile({ session }) {
     
     setIsDeletingData(true);
     try {
-      const { error } = await supabase.functions.invoke('delete-user-data');
+      const { data, error } = await supabase.functions.invoke('delete-user-data');
       if (error) throw error;
+      if (data && data.error) throw new Error(data.error);
       
       await supabase.auth.signOut();
     } catch (err) {

@@ -44,7 +44,7 @@ export default {
       console.error("Delete user data error:", error);
       return Response.json(
         { error: error?.message ?? String(error), code: error?.code ?? null },
-        { status: 500 },
+        { status: 200 },
       );
     }
   }),
