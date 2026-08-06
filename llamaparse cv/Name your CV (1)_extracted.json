@@ -1,0 +1,123 @@
+{
+  "basics": {
+    "name": "Sarah Roberts",
+    "email": "sarah.roberts@example.com",
+    "phone": "+44 20 7123 4574",
+    "location": {
+      "city": "Manchester",
+      "region": null,
+      "country": "UK"
+    },
+    "profiles": [
+      {
+        "network": "LinkedIn",
+        "url": "linkedin.com/in/sarahroberts"
+      }
+    ],
+    "summary": "Compassionate and dedicated Registered Nurse with 7+ years of experience in acute care settings. Proven expertise in patient assessment, care planning, and clinical interventions. Strong skills in wound care, medication administration, and patient education. Committed to delivering high-quality, evidence-based nursing care. Excellent communication and teamwork abilities. Passionate about patient advocacy and continuous professional development."
+  },
+  "skills": [
+    {
+      "category": "Clinical Competencies",
+      "keywords": [
+        "Patient Assessment",
+        "Care Planning",
+        "Medication Administration",
+        "Wound Care",
+        "Clinical Procedures",
+        "Patient Education",
+        "Documentation",
+        "Team Collaboration",
+        "Emergency Care",
+        "Infection Control"
+      ],
+      "level": "expert"
+    }
+  ],
+  "experience": [
+    {
+      "company": "Manchester Royal Infirmary",
+      "position": "Staff Nurse - Medical Ward",
+      "startDate": "Mar 2019",
+      "endDate": null,
+      "highlights": [
+        "Provide comprehensive nursing care to patients with acute and chronic medical conditions.",
+        "Conduct thorough patient assessments and develop individualised care plans.",
+        "Administer medications and treatments according to protocols.",
+        "Monitor patient conditions and respond to changes in clinical status.",
+        "Collaborate with multidisciplinary team including doctors, physiotherapists, and social workers.",
+        "Mentor student nurses and newly qualified staff.",
+        "Maintain accurate nursing documentation and ensure compliance with NMC standards."
+      ],
+      "technologies": null
+    },
+    {
+      "company": "City General Hospital",
+      "position": "Staff Nurse - Emergency Department",
+      "startDate": "Jun 2017",
+      "endDate": "Feb 2019",
+      "highlights": [
+        "Provided emergency nursing care to patients presenting with acute conditions.",
+        "Triage patients and prioritise care based on clinical urgency.",
+        "Assist with emergency procedures and resuscitation.",
+        "Manage high-pressure situations and maintain calm under stress.",
+        "Work effectively in fast-paced environment with frequent patient turnover.",
+        "Collaborate with emergency medical services and specialist teams.",
+        "Maintained excellent clinical skills in emergency care protocols."
+      ],
+      "technologies": null
+    },
+    {
+      "company": "Community Health Trust",
+      "position": "Newly Qualified Nurse",
+      "startDate": "Sep 2016",
+      "endDate": "May 2017",
+      "highlights": [
+        "Completed preceptorship programme, gaining experience in various clinical areas.",
+        "Developed core nursing skills including patient assessment, care planning, and clinical procedures.",
+        "Participated in continuing professional development activities.",
+        "Worked under supervision of experienced nurses and received regular mentoring.",
+        "Maintained NMC registration and completed required competencies.",
+        "Gained experience in community nursing and health promotion."
+      ],
+      "technologies": null
+    }
+  ],
+  "education": [
+    {
+      "institution": "University of Manchester",
+      "degree": "BSc (Hons) Adult Nursing",
+      "field": "Adult Nursing",
+      "graduationDate": "Jun 2016",
+      "gpa": null
+    },
+    {
+      "institution": "Manchester High School",
+      "degree": "A Levels",
+      "field": "Biology, Chemistry, Psychology",
+      "graduationDate": "Jun 2013",
+      "gpa": null
+    }
+  ],
+  "certifications": [
+    {
+      "name": "NMC Registration",
+      "issuer": "Nursing and Midwifery Council",
+      "date": "2016",
+      "validUntil": null
+    },
+    {
+      "name": "Advanced Life Support",
+      "issuer": "Resuscitation Council UK",
+      "date": "2023",
+      "validUntil": null
+    },
+    {
+      "name": "Venepuncture and Cannulation",
+      "issuer": "NHS Trust",
+      "date": "2022",
+      "validUntil": null
+    }
+  ],
+  "publications": null
+}

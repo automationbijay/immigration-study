@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import { useProfile } from '../lib/ProfileContext';
 import { User, Globe, GraduationCap, Briefcase, CheckCircle2, ChevronRight, Users, LogOut, FileText, Upload, Download, Trash2 } from 'lucide-react';
 import OccupationSearch from '../components/OccupationSearch';
 import CvUploadModal from '../components/CvUploadModal';
@@ -100,9 +101,10 @@ function CvViewer({ cvPath, onMissing }) {
 }
 
 export default function Profile({ session }) {
+  const { profileRow, basicRow, loading: profileLoading, error: profileError, refetch } = useProfile();
   const [searchParams, setSearchParams] = useSearchParams();
   const [isCvModalOpen, setIsCvModalOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [profile, setProfile] = useState({
     spouseDetails: '',
     childrenCount: 0,
@@ -124,7 +126,7 @@ export default function Profile({ session }) {
     name: '',
     country: '',
     location: '',
-    marital_status: 'Single',
+    marital_status: '',
     phone_no: '',
     email: '',
   });
@@ -144,6 +146,8 @@ export default function Profile({ session }) {
   const [isDeletingData, setIsDeletingData] = useState(false);
   const [loadedSections, setLoadedSections] = useState({});
   const [sectionLoading, setSectionLoading] = useState(false);
+  const [sectionError, setSectionError] = useState(null);
+  const [sectionRetryToken, setSectionRetryToken] = useState(0);
 
   const handleDeleteData = async () => {
     if (!window.confirm("Are you sure you want to delete all your data? This action cannot be undone.")) return;
@@ -188,67 +192,20 @@ export default function Profile({ session }) {
     setSearchParams(next, { replace: true });
   }, [searchParams, setSearchParams]);
 
+  // point_australia + profile_basic are fetched once, app-wide, by
+  // ProfileProvider; mirror them into local editable state whenever the
+  // shared copy changes (initial load, or a refetch() after saving "basic").
+  // Deliberately does NOT touch loadedSections.basic - that flag belongs to
+  // the country-list fetch below, and conflating the two used to make the
+  // countries fetch permanently unreachable once this ran (see loadSection).
   useEffect(() => {
-    let ignore = false;
-    async function fetchBasic() {
-      setLoading(true);
-      const { user } = session;
-      const CACHE_KEY = `profile_basic_cache_${user.id}`;
-      const CACHE_EXPIRY = 30 * 60 * 1000; // 30 minutes
-
-      const cachedRaw = localStorage.getItem(CACHE_KEY);
-      if (cachedRaw) {
-        try {
-          const cached = JSON.parse(cachedRaw);
-          if (Date.now() - cached.timestamp < CACHE_EXPIRY) {
-            setProfile(prev => ({ ...prev, ...cached.profile }));
-            setBasicDetails(prev => ({ ...prev, ...cached.basic }));
-            setLoadedSections(prev => ({ ...prev, basic: true }));
-            setLoading(false);
-            return;
-          }
-        } catch (e) {
-          console.error("Failed to parse profile cache", e);
-        }
-      }
-
-      const { data } = await supabase
-        .from('point_australia')
-        .select('*')
-        .eq('id', user.id)
-        .single();
-        
-      const { data: basicData } = await supabase
-        .from('profile_basic')
-        .select('*')
-        .eq('id', user.id)
-        .single();
-
-      if (!ignore) {
-        if (data) {
-          setProfile(prev => ({ ...prev, ...data }));
-        }
-        let cleanBasicData = {};
-        if (basicData) {
-          const { cv_url: _legacyCvUrl, ...rest } = basicData;
-          cleanBasicData = rest;
-          setBasicDetails(prev => ({ ...prev, ...rest }));
-        }
-        
-        localStorage.setItem(CACHE_KEY, JSON.stringify({
-          timestamp: Date.now(),
-          profile: data || {},
-          basic: cleanBasicData
-        }));
-
-        setLoadedSections(prev => ({ ...prev, basic: true }));
-        setLoading(false);
-      }
+    if (profileLoading) return;
+    if (profileRow) setProfile(prev => ({ ...prev, ...profileRow }));
+    if (basicRow) {
+      const { cv_url: _legacyCvUrl, ...rest } = basicRow;
+      setBasicDetails(prev => ({ ...prev, ...rest }));
     }
-
-    fetchBasic();
-    return () => { ignore = true; };
-  }, [session]);
+  }, [profileRow, basicRow, profileLoading]);
 
   useEffect(() => {
     if (!expandedSection) return;
@@ -258,98 +215,112 @@ export default function Profile({ session }) {
     async function loadSection(section) {
       if (loadedSections[section]) return;
       setSectionLoading(true);
+      setSectionError(null);
 
-      if (section === 'cv') {
-        const { data } = await supabase.from('cv_metadata').select('file_url').eq('user_id', user.id).order('created_at', { ascending: false }).limit(1).maybeSingle();
-        if (!ignore) {
-          setCvPath(data?.file_url ?? null);
-          setLoadedSections(prev => ({ ...prev, cv: true }));
-        }
-      } else if (section === 'education') {
-        const { data } = await supabase.from('profile_education').select('*').eq('user_id', user.id).order('created_at', { ascending: true });
-        if (!ignore) {
-          setEducationHistory(data && data.length > 0 ? data : [{ level: '', university_name: '', field_of_study: '', country: '', start_date: '', end_date: '' }]);
-          setLoadedSections(prev => ({ ...prev, education: true }));
-        }
-      } else if (section === 'family') {
-        const { data } = await supabase.from('profile_family').select('*').eq('profile_id', user.id).order('created_at', { ascending: true });
-        if (!ignore) {
-          setFamilyMembers(data && data.length > 0 ? data : [{ relation: '', age: '', highest_education: '', language_test_type: '', language_overall_score: '', gender: '', citizenship_or_pr: '' }]);
-          setLoadedSections(prev => ({ ...prev, family: true }));
-        }
-      } else if (section === 'experience') {
-        const { data } = await supabase.from('profile_experience').select('*').eq('user_id', user.id).order('start_date', { ascending: false });
-        if (!ignore) {
-          setWorkExperience(data && data.length > 0 ? data : [{ company_name: '', role: '', country: '', start_date: '', end_date: '' }]);
-          setLoadedSections(prev => ({ ...prev, experience: true }));
-        }
-      } else if (section === 'language') {
-        const [
-          { data: ielts }, { data: pte }, { data: toefl }, { data: cambridge }, { data: oet }
-        ] = await Promise.all([
-          supabase.from('test_ielts').select('*').eq('user_id', user.id),
-          supabase.from('test_pte').select('*').eq('user_id', user.id),
-          supabase.from('test_toefl').select('*').eq('user_id', user.id),
-          supabase.from('test_cambridge').select('*').eq('user_id', user.id),
-          supabase.from('test_oet').select('*').eq('user_id', user.id)
-        ]);
-
-        const combined = [];
-        if (ielts) combined.push(...ielts.map(d => ({ ...d, language_test: 'IELTS' })));
-        if (pte) combined.push(...pte.map(d => ({ ...d, language_test: 'PTE' })));
-        if (toefl) combined.push(...toefl.map(d => ({ ...d, language_test: 'TOEFL' })));
-        if (cambridge) combined.push(...cambridge.map(d => ({ ...d, language_test: 'Cambridge' })));
-        if (oet) combined.push(...oet.map(d => ({ ...d, language_test: 'OET' })));
-
-        if (!ignore) {
-          if (combined.length > 0) {
-            setLanguageProficiency(combined.map(test => ({
-              id: test.id, language_test: test.language_test,
-              test_score_listening: test.listening ?? '', test_score_reading: test.reading ?? '',
-              test_score_writing: test.writing ?? '', test_score_speaking: test.speaking ?? '',
-              test_score_overall: test.overall ?? '', score_published_date: test.test_date ?? ''
-            })));
-          } else {
-            setLanguageProficiency([{ language_test: 'IELTS', test_score_listening: '', test_score_reading: '', test_score_writing: '', test_score_speaking: '', test_score_overall: '', score_published_date: '' }]);
+      try {
+        if (section === 'cv') {
+          const { data, error } = await supabase.from('cv_metadata').select('file_url').eq('user_id', user.id).order('created_at', { ascending: false }).limit(1).maybeSingle();
+          if (error) throw error;
+          if (!ignore) {
+            setCvPath(data?.file_url ?? null);
+            setLoadedSections(prev => ({ ...prev, cv: true }));
           }
-          setLoadedSections(prev => ({ ...prev, language: true }));
+        } else if (section === 'education') {
+          const { data, error } = await supabase.from('profile_education').select('*').eq('user_id', user.id).order('created_at', { ascending: true });
+          if (error) throw error;
+          if (!ignore) {
+            setEducationHistory(data && data.length > 0 ? data : [{ level: '', university_name: '', field_of_study: '', country: '', start_date: '', end_date: '' }]);
+            setLoadedSections(prev => ({ ...prev, education: true }));
+          }
+        } else if (section === 'family') {
+          const { data, error } = await supabase.from('profile_family').select('*').eq('profile_id', user.id).order('created_at', { ascending: true });
+          if (error) throw error;
+          if (!ignore) {
+            setFamilyMembers(data && data.length > 0 ? data : [{ relation: '', age: '', highest_education: '', language_test_type: '', language_overall_score: '', gender: '', citizenship_or_pr: '' }]);
+            setLoadedSections(prev => ({ ...prev, family: true }));
+          }
+        } else if (section === 'experience') {
+          const { data, error } = await supabase.from('profile_experience').select('*').eq('user_id', user.id).order('start_date', { ascending: false });
+          if (error) throw error;
+          if (!ignore) {
+            setWorkExperience(data && data.length > 0 ? data : [{ company_name: '', role: '', country: '', start_date: '', end_date: '' }]);
+            setLoadedSections(prev => ({ ...prev, experience: true }));
+          }
+        } else if (section === 'language') {
+          const results = await Promise.all([
+            supabase.from('test_ielts').select('*').eq('user_id', user.id),
+            supabase.from('test_pte').select('*').eq('user_id', user.id),
+            supabase.from('test_toefl').select('*').eq('user_id', user.id),
+            supabase.from('test_cambridge').select('*').eq('user_id', user.id),
+            supabase.from('test_oet').select('*').eq('user_id', user.id)
+          ]);
+
+          const firstError = results.map((r) => r.error).find(Boolean);
+          if (firstError) throw firstError;
+
+          const [
+            { data: ielts }, { data: pte }, { data: toefl }, { data: cambridge }, { data: oet }
+          ] = results;
+
+          const combined = [];
+          if (ielts) combined.push(...ielts.map(d => ({ ...d, language_test: 'IELTS' })));
+          if (pte) combined.push(...pte.map(d => ({ ...d, language_test: 'PTE' })));
+          if (toefl) combined.push(...toefl.map(d => ({ ...d, language_test: 'TOEFL' })));
+          if (cambridge) combined.push(...cambridge.map(d => ({ ...d, language_test: 'Cambridge' })));
+          if (oet) combined.push(...oet.map(d => ({ ...d, language_test: 'OET' })));
+
+          if (!ignore) {
+            if (combined.length > 0) {
+              setLanguageProficiency(combined.map(test => ({
+                id: test.id, language_test: test.language_test,
+                test_score_listening: test.listening ?? '', test_score_reading: test.reading ?? '',
+                test_score_writing: test.writing ?? '', test_score_speaking: test.speaking ?? '',
+                test_score_overall: test.overall ?? '', score_published_date: test.test_date ?? ''
+              })));
+            } else {
+              setLanguageProficiency([{ language_test: 'IELTS', test_score_listening: '', test_score_reading: '', test_score_writing: '', test_score_speaking: '', test_score_overall: '', score_published_date: '' }]);
+            }
+            setLoadedSections(prev => ({ ...prev, language: true }));
+          }
+        } else if (section === 'basic' && countries.length === 0) {
+          const { data, error } = await supabase.from('countries').select('name').order('name');
+          if (error) throw error;
+          if (!ignore) {
+            if (data) setCountries(data.map(c => c.name));
+            setLoadedSections(prev => ({ ...prev, basic: true }));
+          }
         }
-      } else if (section === 'basic' && countries.length === 0) {
-        const { data } = await supabase.from('countries').select('name').order('name');
-        if (!ignore) {
-          if (data) setCountries(data.map(c => c.name));
-          setLoadedSections(prev => ({ ...prev, basic: true }));
-        }
+      } catch (err) {
+        console.error(`Failed to load ${section}:`, err);
+        // Deliberately not marking loadedSections[section] here - closing and
+        // reopening (or Retry, wired to sectionRetryToken) must try again
+        // rather than settling on an empty section that looks like "no data".
+        if (!ignore) setSectionError(err?.message || 'Something went wrong loading this section.');
+      } finally {
+        if (!ignore) setSectionLoading(false);
       }
-      
-      if (!ignore) setSectionLoading(false);
     }
 
     loadSection(expandedSection);
     return () => { ignore = true; };
-  }, [expandedSection, session, loadedSections, countries.length]);
+  }, [expandedSection, session, loadedSections, countries.length, sectionRetryToken]);
 
   const updateProfile = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setSaving(true);
     const { user } = session;
     let succeeded = true;
 
     if (expandedSection === 'basic') {
       const profileUpdates = { id: user.id, ...profile, updated_at: new Date() };
       const basicUpdates = { id: user.id, ...basicDetails, dob: basicDetails.dob === '' ? null : basicDetails.dob, updated_at: new Date() };
-      const { error: profileError } = await supabase.from('point_australia').upsert(profileUpdates);
-      const { error: basicError } = await supabase.from('profile_basic').upsert(basicUpdates);
-      
-      if (!profileError && !basicError) {
-        localStorage.setItem(`profile_basic_cache_${user.id}`, JSON.stringify({
-          timestamp: Date.now(),
-          profile: profileUpdates,
-          basic: basicUpdates
-        }));
-      }
-      
-      succeeded = !profileError && !basicError;
+      const { error: profileSaveError } = await supabase.from('point_australia').upsert(profileUpdates);
+      const { error: basicSaveError } = await supabase.from('profile_basic').upsert(basicUpdates);
+
+      succeeded = !profileSaveError && !basicSaveError;
+      // Refresh the app-wide copy (ProfileContext) so Home's score and any
+      // other consumer picks up the save without waiting on its own fetch.
+      if (succeeded) refetch();
     } else if (expandedSection === 'language') {
       let languageError = null;
       const newLanguageProficiency = [...languageProficiency];
@@ -440,7 +411,7 @@ export default function Profile({ session }) {
     }
 
     setMessage(succeeded ? 'Profile saved successfully!' : 'Error updating profile!');
-    setLoading(false);
+    setSaving(false);
     setTimeout(() => setMessage(''), 3000);
     return succeeded;
   };
@@ -591,7 +562,19 @@ export default function Profile({ session }) {
     }
   };
 
-  if (loading && !profile.id) return <SkeletonPage lines={4} label="Loading your profile" />;
+  if (profileLoading && !profile.id) return <SkeletonPage lines={4} label="Loading your profile" />;
+
+  if (profileError && !profile.id) {
+    return (
+      <div className="profile-container">
+        <div className="empty-state">
+          <h3>We couldn&apos;t load your profile</h3>
+          <p className="text-muted">Check your connection and try again.</p>
+          <button type="button" className="btn-primary" onClick={refetch}>Retry</button>
+        </div>
+      </div>
+    );
+  }
 
   const userEmail = session?.user?.email || 'User';
   const displayName = basicDetails.name || session?.user?.user_metadata?.full_name || userEmail.split('@')[0];
@@ -677,6 +660,18 @@ export default function Profile({ session }) {
           <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
             Loading {SECTIONS.find((s) => s.id === expandedSection)?.label}...
           </div>
+        ) : sectionError ? (
+          <div className="empty-state">
+            <h3>Couldn&apos;t load this section</h3>
+            <p className="text-muted">{sectionError}</p>
+            <button
+              type="button"
+              className="btn-primary"
+              onClick={() => setSectionRetryToken((t) => t + 1)}
+            >
+              Retry
+            </button>
+          </div>
         ) : (
           <>
             {expandedSection === 'cv' ? (
@@ -739,7 +734,8 @@ export default function Profile({ session }) {
                   </div>
                   <div className="form-group">
                     <label htmlFor="profile-marital-status">Marital Status</label>
-                    <select id="profile-marital-status" name="marital_status" value={basicDetails.marital_status || 'Single'} onChange={handleBasicChange}>
+                    <select id="profile-marital-status" name="marital_status" value={basicDetails.marital_status || ''} onChange={handleBasicChange}>
+                      <option value="">Select</option>
                       <option value="Single">Single</option>
                       <option value="Married">Married</option>
                       <option value="De Facto">De Facto</option>
@@ -995,8 +991,8 @@ export default function Profile({ session }) {
 
               <div className="modal-actions">
                 <button type="button" className="btn-secondary" onClick={closeModal}>Cancel</button>
-                <button type="submit" className="btn-primary" disabled={loading}>
-                  {loading ? 'Saving...' : 'Save Details'}
+                <button type="submit" className="btn-primary" disabled={saving}>
+                  {saving ? 'Saving...' : 'Save Details'}
                 </button>
               </div>
             </form>

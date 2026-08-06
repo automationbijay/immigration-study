@@ -1,0 +1,121 @@
+{
+  "basics": {
+    "name": "Dr. James Mitchell",
+    "email": "james.mitchell@example.com",
+    "phone": "+44 20 7123 4573",
+    "location": {
+      "city": "London",
+      "region": null,
+      "country": "UK"
+    },
+    "profiles": [
+      {
+        "network": "LinkedIn",
+        "url": "linkedin.com/in/jamesmitchell"
+      }
+    ],
+    "summary": "Experienced General Practitioner with 8+ years of clinical practice in primary care. Proven track record of providing high-quality patient care and managing complex medical conditions. Strong expertise in chronic disease management, preventive medicine, and patient education. Committed to evidence-based practice and continuous professional development. Excellent communication skills with patients, families, and multidisciplinary teams."
+  },
+  "skills": [
+    {
+      "category": "Clinical Skills",
+      "keywords": [
+        "Primary Care Medicine",
+        "Chronic Disease Management",
+        "Preventive Medicine",
+        "Clinical Diagnosis",
+        "Patient Communication",
+        "Medical Record Keeping",
+        "Prescribing",
+        "Minor Surgery",
+        "Family Planning",
+        "Child Health"
+      ],
+      "level": "expert"
+    }
+  ],
+  "experience": [
+    {
+      "company": "NHS Health Centre",
+      "position": "General Practitioner",
+      "startDate": "Jan 2018",
+      "endDate": null,
+      "highlights": [
+        "Provide comprehensive primary care services to a patient list of 2,200+ patients.",
+        "Diagnose and treat a wide range of acute and chronic conditions.",
+        "Manage complex cases including diabetes, hypertension, and mental health conditions.",
+        "Conduct regular health screenings and preventive care consultations.",
+        "Collaborate with practice nurses, pharmacists, and specialists to deliver coordinated care.",
+        "Participate in clinical governance and quality improvement initiatives.",
+        "Achieved 95% patient satisfaction rating in recent surveys."
+      ],
+      "technologies": null
+    },
+    {
+      "company": "City Medical Practice",
+      "position": "GP Registrar",
+      "startDate": "Aug 2016",
+      "endDate": "Dec 2017",
+      "highlights": [
+        "Completed GP specialty training, gaining experience across all areas of primary care.",
+        "Managed diverse patient caseload under supervision of experienced GPs.",
+        "Participated in on-call rotas and out-of-hours services.",
+        "Developed expertise in minor surgery, family planning, and child health.",
+        "Maintained detailed clinical records and participated in clinical audits.",
+        "Completed required assessments and examinations for GP certification."
+      ],
+      "technologies": null
+    },
+    {
+      "company": "St. Mary's Hospital",
+      "position": "Foundation Doctor",
+      "startDate": "Aug 2014",
+      "endDate": "Jul 2016",
+      "highlights": [
+        "Completed foundation training in various medical specialties including general medicine, surgery, and emergency medicine.",
+        "Managed acute medical admissions and provided ward-based care.",
+        "Participated in multidisciplinary team meetings and case discussions.",
+        "Developed clinical skills in history taking, physical examination, and diagnostic reasoning.",
+        "Maintained accurate medical records and communicated effectively with patients and families."
+      ],
+      "technologies": null
+    }
+  ],
+  "education": [
+    {
+      "institution": "Imperial College London",
+      "degree": "MBBS (Bachelor of Medicine, Bachelor of Surgery)",
+      "field": null,
+      "graduationDate": "Jun 2014",
+      "gpa": null
+    },
+    {
+      "institution": "London Grammar School",
+      "degree": "A Levels",
+      "field": null,
+      "graduationDate": "Jun 2009",
+      "gpa": null
+    }
+  ],
+  "certifications": [
+    {
+      "name": "GMC Registration",
+      "issuer": "General Medical Council",
+      "date": "2014",
+      "validUntil": null
+    },
+    {
+      "name": "MRCGP",
+      "issuer": "Royal College of General Practitioners",
+      "date": "2017",
+      "validUntil": null
+    },
+    {
+      "name": "Advanced Life Support",
+      "issuer": "Resuscitation Council UK",
+      "date": "2023",
+      "validUntil": null
+    }
+  ],
+  "publications": null
+}

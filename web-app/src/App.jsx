@@ -68,6 +68,34 @@ function AnimatedRoutes({ session }) {
   );
 }
 
+function RouteErrorFallback() {
+  return (
+    <div style={{ padding: '3rem 1.5rem', textAlign: 'center' }}>
+      <h2 style={{ marginBottom: '0.5rem' }}>Something went wrong</h2>
+      <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem' }}>
+        This page hit an unexpected error. Reloading usually fixes it.
+      </p>
+      <button type="button" className="btn-primary" onClick={() => window.location.reload()}>
+        Reload
+      </button>
+    </div>
+  );
+}
+
+// Keyed by pathname so navigating away from a crashed page (via BottomNav,
+// which lives outside this boundary) remounts a fresh boundary instead of
+// staying stuck on the fallback.
+function MainContent({ session }) {
+  const location = useLocation();
+  return (
+    <main className="main-content">
+      <Sentry.ErrorBoundary key={location.pathname} fallback={RouteErrorFallback}>
+        <AnimatedRoutes session={session} />
+      </Sentry.ErrorBoundary>
+    </main>
+  );
+}
+
 function App() {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -146,10 +174,8 @@ function App() {
             </div>
           )}
           
-          <main className="main-content">
-            <AnimatedRoutes session={session} />
-          </main>
-          
+          <MainContent session={session} />
+
           {session && <BottomNav />}
         </div>
       </ProfileProvider>

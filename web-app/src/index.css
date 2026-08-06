@@ -1,18 +1,18 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 
 :root {
-  --color-primary: #171717;
+  --color-primary: #1E3A8A;
   --color-on-primary: #FFFFFF;
-  --color-secondary: #404040;
-  --color-accent: #A16207;
-  --color-background: #F9FAFB;
-  --color-foreground: #171717;
-  --color-border: #E5E5E5;
-  --color-ring: #171717;
+  --color-secondary: #3B82F6;
+  --color-accent: #7C3AED;
+  --color-background: #F8FAFC;
+  --color-foreground: #1E40AF;
+  --color-border: #BFDBFE;
+  --color-ring: #1E3A8A;
   --color-surface: #FFFFFF;
 
   /* Surface tint, never a text colour — it fails contrast on white. */
-  --color-muted: #E8ECF0;
+  --color-muted: #E9EEF5;
 
   /* Accent wash behind icons, badges and selected rows. */
   --color-accent-subtle: rgba(161, 98, 7, 0.1);
@@ -81,7 +81,7 @@
 }
 
 body {
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: 'Archivo', sans-serif;
   background-color: var(--color-background);
   color: var(--color-foreground);
   min-height: 100vh;
@@ -90,6 +90,7 @@ body {
 }
 
 h1, h2, h3, h4 {
+  font-family: 'Space Grotesk', sans-serif;
   font-weight: 700;
   letter-spacing: -0.02em;
   color: var(--color-primary);
@@ -441,7 +442,7 @@ input[type="checkbox"] {
   border-radius: var(--radius-lg);
   padding: var(--spacing-xl) var(--spacing-lg);
   margin-bottom: var(--spacing-lg);
-  box-shadow: var(--shadow-sm);
+  /* Flat design: no box-shadow */
 }
 
 /* Auth Specific */

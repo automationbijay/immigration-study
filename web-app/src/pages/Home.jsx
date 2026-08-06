@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { Compass, TrendingUp, Globe2, Upload } from 'lucide-react';
+import { Compass, Upload, ArrowRight } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { useProfile } from '../lib/ProfileContext';
 import { formFromProfileRow, basePointsFromForm } from '../lib/points';
 import {
   buildContext,
   eligiblePathways,
   nearestPathway,
   unlockOptions,
-  opportunities,
   profileGaps,
   completeness,
 } from '../lib/visas';
@@ -16,37 +16,26 @@ import { SkeletonPage } from '../components/ui/Skeleton';
 import ScoreHero from '../components/home/ScoreHero';
 import PathwayCard from '../components/home/PathwayCard';
 import NearestPathway from '../components/home/NearestPathway';
-import Opportunities from '../components/home/Opportunities';
-import AssistantCard from '../components/home/AssistantCard';
-import CountryRoadmap from '../components/home/CountryRoadmap';
 import ProfileChecklist from '../components/home/ProfileChecklist';
 
 export default function Home({ session }) {
-  const [loading, setLoading] = useState(true);
-  const [rows, setRows] = useState({ profile: null, basic: null, cv: null });
+  const { profileRow, basicRow, loading: profileLoading } = useProfile();
+  const [cvLoading, setCvLoading] = useState(true);
+  const [cv, setCv] = useState(null);
 
   const email = session?.user?.email || '';
   const fallbackName = email ? email.split('@')[0] : 'there';
 
+  // point_australia + profile_basic now come from the shared ProfileContext
+  // (fetched once app-wide) instead of being re-fetched here; only the CV
+  // pointer is specific to this page.
   useEffect(() => {
     let ignore = false;
 
-    async function load() {
+    async function loadCv() {
       if (!session?.user?.id) return;
       try {
-        const { data: profile, error } = await supabase
-          .from('point_australia')
-          .select('*')
-          .eq('id', session.user.id)
-          .single();
-
-        const { data: basic } = await supabase
-          .from('profile_basic')
-          .select('*')
-          .eq('id', session.user.id)
-          .single();
-
-        const { data: cv, error: cvError } = await supabase
+        const { data: cvData, error: cvError } = await supabase
           .from('cv_metadata')
           .select('file_url')
           .eq('user_id', session.user.id)
@@ -54,28 +43,26 @@ export default function Home({ session }) {
           .limit(1)
           .maybeSingle();
 
-        if (error && error.code !== 'PGRST116') {
-          console.error('Error fetching profile:', error);
-        }
         if (cvError && cvError.code !== 'PGRST116') {
           console.error('Error fetching CV:', cvError);
         }
 
-        if (!ignore) setRows({ profile, basic, cv });
+        if (!ignore) setCv(cvData ?? null);
       } catch (err) {
-        console.error('Error in fetching profile:', err);
+        console.error('Error in fetching CV:', err);
       } finally {
-        if (!ignore) setLoading(false);
+        if (!ignore) setCvLoading(false);
       }
     }
 
-    load();
+    loadCv();
     return () => { ignore = true; };
   }, [session]);
 
+  const loading = profileLoading || cvLoading;
   const insights = useMemo(() => {
-    const form = formFromProfileRow(rows.profile, rows.basic);
-    const ctx = buildContext(form, rows.profile, rows.basic);
+    const form = formFromProfileRow(profileRow, basicRow);
+    const ctx = buildContext(form, profileRow, basicRow);
     const gaps = profileGaps(form, ctx);
     const eligible = eligiblePathways(form, ctx);
     const nearest = eligible.length === 0 ? nearestPathway(form, ctx) : null;
@@ -85,22 +72,21 @@ export default function Home({ session }) {
       eligible,
       nearest,
       unlocks: nearest ? unlockOptions(form, nearest.gap) : [],
-      boosts: opportunities(form),
       gaps,
       percent: completeness(gaps),
     };
-  }, [rows]);
+  }, [profileRow, basicRow]);
 
   if (loading) return <SkeletonPage lines={3} label="Working out your pathways" />;
 
-  const name = rows.basic?.name?.split(' ')[0] || fallbackName;
-  const { basePoints, eligible, nearest, unlocks, boosts, gaps, percent } = insights;
+  const name = basicRow?.name?.split(' ')[0] || fallbackName;
+  const { basePoints, eligible, nearest, unlocks, gaps, percent } = insights;
 
   // On a sparse profile the score is not yet meaningful, so asking for the
   // missing facts outranks showing a gap the person may already have closed.
   const profileFirst = percent < 50;
-  
-  const hasNotAddedCV = !rows.cv?.file_url;
+
+  const hasNotAddedCV = !cv?.file_url;
   const needsUploadCvCta = hasNotAddedCV || percent < 50;
 
   const checklistSection = percent < 100 && (
@@ -129,83 +115,50 @@ export default function Home({ session }) {
   );
 
   return (
-    <div className="home">
+    <div className="home" style={{ maxWidth: '600px', margin: '0 auto' }}>
       <ScoreHero name={name} basePoints={basePoints} eligibleCount={eligible.length} />
 
-      {profileFirst && uploadCvSection}
-      {profileFirst && checklistSection}
+      {profileFirst ? (
+        <>
+          {uploadCvSection}
+          {checklistSection}
+        </>
+      ) : (
+        <>
+          {eligible.length > 0 ? (
+            <section className="section" style={{ marginBottom: 'var(--spacing-xl)' }}>
+              <h2 className="section-title" style={{ fontSize: '1.5rem', marginBottom: 'var(--spacing-md)' }}>
+                Your Top Pathway
+              </h2>
+              <div className="pathway-list-stack">
+                <PathwayCard match={eligible[0]} />
+              </div>
+            </section>
+          ) : nearest ? (
+            <section className="section" style={{ marginBottom: 'var(--spacing-xl)' }}>
+              <h2 className="section-title" style={{ fontSize: '1.5rem', marginBottom: 'var(--spacing-md)' }}>
+                Your Closest Pathway
+              </h2>
+              <NearestPathway match={nearest} unlocks={unlocks} />
+            </section>
+          ) : (
+            <section className="section" style={{ marginBottom: 'var(--spacing-xl)' }}>
+              <div className="roadmap-note" style={{ padding: 'var(--spacing-xl)', textAlign: 'center', background: 'var(--color-surface)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-border)' }}>
+                <h3 style={{ fontSize: '1.25rem', marginBottom: 'var(--spacing-sm)' }}>We are expanding</h3>
+                <p style={{ color: 'var(--color-secondary)' }}>
+                  Right now we match against Australia's points-tested skilled visas. More pathways are on the way.
+                </p>
+              </div>
+            </section>
+          )}
 
-      {eligible.length > 0 && (
-        <section className="section">
-          <h2 className="section-title">
-            <Compass size={20} aria-hidden="true" /> Your pathways
-          </h2>
-          <p className="section-caption">
-            Based on your profile today. Tap any pathway to see what it gives you and how to apply.
-          </p>
-          <div className="pathway-list-stack">
-            {eligible.map((match) => (
-              <PathwayCard key={match.visa.id} match={match} />
-            ))}
-          </div>
-        </section>
+          <section className="section" style={{ marginTop: 'var(--spacing-xl)', textAlign: 'center' }}>
+            <Link to="/discover" className="btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', justifyContent: 'center', padding: '1rem', width: '100%' }}>
+              Explore all pathways & opportunities <ArrowRight size={18} />
+            </Link>
+          </section>
+        </>
       )}
-
-      {nearest && (
-        <section className="section">
-          <h2 className="section-title">
-            <Compass size={20} aria-hidden="true" /> Your closest pathway
-          </h2>
-          <p className="section-caption">You are not far off. Here is what opens it.</p>
-          <NearestPathway match={nearest} unlocks={unlocks} />
-        </section>
-      )}
-
-      {/* Nothing qualifies and nothing is within reach of more points — say so
-          plainly via the profile checklist rather than inventing a goal. */}
-      {eligible.length === 0 && !nearest && (
-        <section className="section">
-          <div className="roadmap-note">
-            <h3>We are still expanding what we cover</h3>
-            <p>
-              Right now we match against Australia&rsquo;s points-tested skilled visas.
-              Employer-sponsored and business pathways, plus more countries, are on the way.
-            </p>
-          </div>
-        </section>
-      )}
-
-      {!profileFirst && uploadCvSection}
-      {!profileFirst && checklistSection}
-
-      {boosts.length > 0 && (
-        <section className="section">
-          <h2 className="section-title">
-            <TrendingUp size={20} aria-hidden="true" /> Ways to score higher
-          </h2>
-          <p className="section-caption">
-            A higher score widens your options and improves your chances of an invitation.
-          </p>
-          <Opportunities items={boosts} />
-          <Link to="/australia-point-calculator" className="btn-secondary home-cta">
-            Open the calculator
-          </Link>
-        </section>
-      )}
-
-      <section className="section">
-        <AssistantCard />
-      </section>
-
-      <section className="section">
-        <h2 className="section-title">
-          <Globe2 size={20} aria-hidden="true" /> Where you could go next
-        </h2>
-        <p className="section-caption">
-          Australia is live today. More destinations are coming, and your profile carries over.
-        </p>
-        <CountryRoadmap />
-      </section>
     </div>
   );
 }
