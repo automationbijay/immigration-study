@@ -130,26 +130,28 @@ export default function Calculator({ session }) {
         description="This form is pre-populated with data from your profile. You can tweak the values here to see how it affects your total points."
       />
 
-      <ScoreDisplay targetScore={totalPoints} />
+      <div style={{ paddingBottom: '120px' }}>
+        <ScoreDisplay targetScore={totalPoints} />
 
-      <div className="nomination-note">
-        <span className="nomination-note-icon">
-          <CheckCircle2 size={20} aria-hidden="true" />
-        </span>
-        <div className="nomination-note-body">
-          <h4>State Nomination (190)</h4>
-          <p>Automatically included in your total score</p>
+        <div className="nomination-note">
+          <span className="nomination-note-icon">
+            <CheckCircle2 size={20} aria-hidden="true" />
+          </span>
+          <div className="nomination-note-body">
+            <h4>State Nomination (190)</h4>
+            <p>Automatically included in your total score</p>
+          </div>
+          <span className="nomination-note-points">+{STATE_NOMINATION_POINTS} Points</span>
         </div>
-        <span className="nomination-note-points">+{STATE_NOMINATION_POINTS} Points</span>
-      </div>
 
-      <div className="calculator-form">
-        <PointsForm formData={formData} onChange={handleChange} />
-      </div>
+        <div className="calculator-form">
+          <PointsForm formData={formData} onChange={handleChange} />
+        </div>
 
-      <button onClick={handleSave} className="btn-primary" disabled={saving}>
-        {saving ? 'Saving...' : 'Save to Profile'}
-      </button>
+        <button onClick={handleSave} className="btn-primary" disabled={saving}>
+          {saving ? 'Saving...' : 'Save to Profile'}
+        </button>
+      </div>
     </>
   );
 }

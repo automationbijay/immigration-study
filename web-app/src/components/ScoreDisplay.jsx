@@ -1,10 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ELIGIBILITY_THRESHOLD, isEligible } from '../lib/points';
+import FloatingScoreCard from './FloatingScoreCard';
 
 const DURATION_MS = 500;
-const MAX_SCORE = 120; // Cap for the visual ring
-const RADIUS = 60;
-const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
 /**
  * The count-up is driven by requestAnimationFrame, so CSS cannot switch it
@@ -49,35 +47,14 @@ const ScoreDisplay = ({ targetScore }) => {
     }, [targetScore]);
 
     const eligible = isEligible(displayScore);
-    const progressOffset =
-        CIRCUMFERENCE - (Math.min(displayScore, MAX_SCORE) / MAX_SCORE) * CIRCUMFERENCE;
 
     return (
-        <div className="score-display glass-panel">
-            <div className="score-label">Total Points</div>
-
-            <div className="score-ring-container">
-                <svg className="score-ring" width="160" height="160" aria-hidden="true">
-                    <circle className="score-ring-bg" cx="80" cy="80" r={RADIUS} strokeWidth="12" />
-                    <circle
-                        className={`score-ring-progress ${eligible ? 'eligible' : ''}`}
-                        cx="80" cy="80" r={RADIUS}
-                        strokeWidth="12"
-                        strokeDasharray={CIRCUMFERENCE}
-                        strokeDashoffset={progressOffset}
-                    />
-                </svg>
-                <div className="score-value-wrapper">
-                    <div className="score-value">{displayScore}</div>
-                </div>
-            </div>
-
-            <div className={`score-status ${eligible ? 'success' : ''}`}>
-                {eligible
-                    ? `Eligible (${ELIGIBILITY_THRESHOLD}+ Points)`
-                    : `Need ${ELIGIBILITY_THRESHOLD - displayScore} more pts`}
-            </div>
-        </div>
+        <FloatingScoreCard
+            title="Estimated Total Points"
+            subtitle={eligible ? `Eligible (${ELIGIBILITY_THRESHOLD}+ Points)` : `Need ${ELIGIBILITY_THRESHOLD - displayScore} more pts`}
+            score={displayScore}
+            maxWidth="900px"
+        />
     );
 };
 

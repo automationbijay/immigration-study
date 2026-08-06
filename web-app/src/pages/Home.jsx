@@ -115,7 +115,7 @@ export default function Home({ session }) {
   );
 
   return (
-    <div className="home" style={{ maxWidth: '600px', margin: '0 auto' }}>
+    <div className="home" style={{ maxWidth: '600px', margin: '0 auto', paddingBottom: 'var(--spacing-2xl)' }}>
       <ScoreHero name={name} basePoints={basePoints} eligibleCount={eligible.length} />
 
       {profileFirst ? (
@@ -153,8 +153,23 @@ export default function Home({ session }) {
           )}
 
           <section className="section" style={{ marginTop: 'var(--spacing-xl)', textAlign: 'center' }}>
-            <Link to="/discover" className="btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', justifyContent: 'center', padding: '1rem', width: '100%' }}>
-              Explore all pathways & opportunities <ArrowRight size={18} />
+            <Link to="/discover" style={{ 
+              display: 'inline-flex', 
+              alignItems: 'center', 
+              gap: '12px', 
+              justifyContent: 'center', 
+              padding: '1.25rem', 
+              width: '100%',
+              background: 'linear-gradient(135deg, var(--color-foreground) 0%, var(--color-primary) 100%)',
+              color: 'white',
+              borderRadius: 'var(--radius-xl)',
+              fontWeight: 700,
+              fontSize: '1.1rem',
+              textDecoration: 'none',
+              boxShadow: '0 8px 20px rgba(30, 58, 138, 0.25)',
+              transition: 'transform 0.2s ease, box-shadow 0.2s ease'
+            }}>
+              Explore all pathways & opportunities <ArrowRight size={22} />
             </Link>
           </section>
         </>

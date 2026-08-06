@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase';
 import { useProfile } from '../lib/ProfileContext';
 import { FileText, Save, Calculator } from 'lucide-react';
 import PageHeader from '../components/ui/PageHeader';
-// Let's just use standard alert if toast is not certain, or use a state for messages
+import FloatingScoreCard from '../components/FloatingScoreCard';
 
 export default function CanadaFSWCalculator({ session }) {
   const { profile, refetch } = useProfile();
@@ -303,24 +303,13 @@ export default function CanadaFSWCalculator({ session }) {
           </div>
         </form>
 
-        <div style={{ 
-          position: 'fixed', bottom: '80px', left: '50%', transform: 'translateX(-50%)', 
-          width: '90%', maxWidth: '800px', 
-          background: 'linear-gradient(135deg, var(--color-foreground) 0%, var(--color-primary) 100%)',
-          color: 'white', padding: '1.5rem', borderRadius: '12px',
-          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          boxShadow: '0 10px 25px rgba(211, 47, 47, 0.3)', zIndex: 10
-        }}>
-          <div>
-            <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 600 }}>Total Points</h2>
-            <div style={{ marginTop: '0.5rem', fontWeight: 600, color: isEligible ? '#4caf50' : '#ffeb3b' }}>
-              {isEligible ? "Eligible (67 or higher)" : "Not Eligible (Below 67)"}
-            </div>
-          </div>
-          <div style={{ fontSize: '2.5rem', fontWeight: 800 }}>
-            {totalPoints} / 100
-          </div>
-        </div>
+        <FloatingScoreCard
+            title="Total Points"
+            subtitle={isEligible ? "Eligible (67 or higher)" : "Not Eligible (Below 67)"}
+            subtitleColor={isEligible ? '#4ade80' : '#fde047'}
+            score={`${totalPoints} / 100`}
+            maxWidth="800px"
+        />
       </div>
     </>
   );

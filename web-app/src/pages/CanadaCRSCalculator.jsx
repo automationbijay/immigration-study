@@ -4,6 +4,7 @@ import { useProfile } from '../lib/ProfileContext';
 import { Calculator } from 'lucide-react';
 import PageHeader from '../components/ui/PageHeader';
 import { formData, questionLabels } from '../lib/crsData';
+import FloatingScoreCard from '../components/FloatingScoreCard';
 
 export default function CanadaCRSCalculator({ session }) {
   const { refetch } = useProfile();
@@ -176,24 +177,12 @@ export default function CanadaCRSCalculator({ session }) {
           </div>
         </form>
 
-        <div style={{ 
-          position: 'fixed', bottom: '80px', left: '50%', transform: 'translateX(-50%)', 
-          width: '90%', maxWidth: '900px', 
-          background: 'linear-gradient(135deg, var(--color-foreground) 0%, var(--color-primary) 100%)',
-          color: 'white', padding: '1.5rem', borderRadius: '12px',
-          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          boxShadow: '0 10px 25px rgba(30, 64, 175, 0.3)', zIndex: 10
-        }}>
-          <div>
-            <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 600 }}>Estimated CRS Score</h2>
-            <div style={{ marginTop: '0.5rem', fontWeight: 500, fontSize: '0.9rem', opacity: 0.9 }}>
-              Note: Requires IRCC CRS mapping logic for accurate score.
-            </div>
-          </div>
-          <div style={{ fontSize: '2.5rem', fontWeight: 800 }}>
-            {totalPoints}
-          </div>
-        </div>
+        <FloatingScoreCard
+            title="Estimated CRS Score"
+            subtitle="Note: Requires IRCC CRS mapping logic for accurate score."
+            score={totalPoints}
+            maxWidth="900px"
+        />
       </div>
     </>
   );
