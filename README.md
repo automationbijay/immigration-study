@@ -4,7 +4,7 @@ A modern, mobile-first React application designed to help potential immigrants c
 
 ## 🚀 Project Overview
 This repository contains two main components:
-1. **Frontend Web App**: A premium, minimalist React UI optimized for smartphone users. Includes secure authentication, user profiles, an age-slider interface, a dynamic countries dropdown, and an interactive points calculator. It simplifies data entry for users by collecting raw inputs (e.g. raw IELTS/PTE scores instead of subjective dropdowns).
+1. **Frontend Web App**: A premium, minimalist React UI optimized for smartphone users. Includes secure authentication, user profiles, an age-slider interface, a dynamic countries dropdown, and an interactive points calculator. It simplifies data entry for users by collecting raw inputs (e.g. raw IELTS/PTE scores instead of subjective dropdowns). Also includes robust discovery tools (ANZSCO Code Finder and University Finder) powered by typo-tolerant PostgreSQL fuzzy search.
 2. **Data Pipeline**: Python and Node.js-based scripts that automatically fetch the latest Australian ANZSCO skilled occupation lists as well as global university data (from Hipolabs) and securely seed them into a Supabase PostgreSQL database.
 
 *Note: In the future, a separate logic layer will be built to convert the user's raw basic profile data into equivalent form values for probability and score calculations, further simplifying the user experience.*
