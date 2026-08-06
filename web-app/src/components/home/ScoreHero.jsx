@@ -11,6 +11,7 @@ export default function ScoreHero({ name, basePoints, eligibleCount, fswRow, crs
   allScoreSlides.push({
     id: 'aus',
     title: `Hi ${name}, your Australia score is`,
+    flagUrl: 'https://flagcdn.com/w40/au.png',
     score: basePoints,
     suffix: 'pts',
     isEligible: eligibleCount > 0,
@@ -33,6 +34,7 @@ export default function ScoreHero({ name, basePoints, eligibleCount, fswRow, crs
     allScoreSlides.push({
       id: 'crs',
       title: 'Canada CRS Score',
+      flagUrl: 'https://flagcdn.com/w40/ca.png',
       score: crsRow.total_points || 0,
       suffix: 'pts',
       isEligible: crsRow.total_points > 400, // Assuming a competitive score
@@ -51,6 +53,7 @@ export default function ScoreHero({ name, basePoints, eligibleCount, fswRow, crs
     allScoreSlides.push({
       id: 'fsw',
       title: 'Canada FSW 67',
+      flagUrl: 'https://flagcdn.com/w40/ca.png',
       score: fswRow.total_points || 0,
       suffix: '/ 100',
       isEligible: fswRow.is_eligible,
@@ -134,7 +137,8 @@ export default function ScoreHero({ name, basePoints, eligibleCount, fswRow, crs
         </div>
       ) : (
         <div style={{ zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <p style={{ fontSize: '1.1rem', fontWeight: 500, marginBottom: 'var(--spacing-md)', opacity: 0.9 }}>
+          <p style={{ fontSize: '1.1rem', fontWeight: 500, marginBottom: 'var(--spacing-md)', opacity: 0.9, display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {slide.flagUrl && <img src={slide.flagUrl} alt="flag" style={{ width: '24px', height: 'auto', borderRadius: '2px' }} />}
             {slide.title}
           </p>
 
