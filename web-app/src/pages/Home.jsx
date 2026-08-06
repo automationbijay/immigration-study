@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { Compass, TrendingUp, Globe2 } from 'lucide-react';
+import { Compass, TrendingUp, Globe2, Upload } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { formFromProfileRow, basePointsFromForm } from '../lib/points';
 import {
@@ -23,7 +23,7 @@ import ProfileChecklist from '../components/home/ProfileChecklist';
 
 export default function Home({ session }) {
   const [loading, setLoading] = useState(true);
-  const [rows, setRows] = useState({ profile: null, basic: null });
+  const [rows, setRows] = useState({ profile: null, basic: null, cv: null });
 
   const email = session?.user?.email || '';
   const fallbackName = email ? email.split('@')[0] : 'there';
@@ -46,11 +46,22 @@ export default function Home({ session }) {
           .eq('id', session.user.id)
           .single();
 
+        const { data: cv, error: cvError } = await supabase
+          .from('cv_metadata')
+          .select('file_url')
+          .eq('user_id', session.user.id)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
         if (error && error.code !== 'PGRST116') {
           console.error('Error fetching profile:', error);
         }
+        if (cvError && cvError.code !== 'PGRST116') {
+          console.error('Error fetching CV:', cvError);
+        }
 
-        if (!ignore) setRows({ profile, basic });
+        if (!ignore) setRows({ profile, basic, cv });
       } catch (err) {
         console.error('Error in fetching profile:', err);
       } finally {
@@ -88,6 +99,9 @@ export default function Home({ session }) {
   // On a sparse profile the score is not yet meaningful, so asking for the
   // missing facts outranks showing a gap the person may already have closed.
   const profileFirst = percent < 50;
+  
+  const hasNotAddedCV = !rows.cv?.file_url;
+  const needsUploadCvCta = hasNotAddedCV || percent < 50;
 
   const checklistSection = percent < 100 && (
     <section className="section">
@@ -95,10 +109,30 @@ export default function Home({ session }) {
     </section>
   );
 
+  const uploadCvSection = needsUploadCvCta && (
+    <section className="section">
+      <div className="checklist-card" style={{ textAlign: 'center', padding: 'var(--spacing-xl) var(--spacing-lg)' }}>
+        <div style={{ marginBottom: 'var(--spacing-md)' }}>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--color-text)', marginBottom: 'var(--spacing-xs)' }}>
+            Complete your profile instantly
+          </h2>
+          <p style={{ color: 'var(--color-secondary)', fontSize: 'var(--text-sm)', lineHeight: 1.5 }}>
+            Upload your CV and we'll automatically fill in your experience, education, and skills.
+          </p>
+        </div>
+        <Link to="/profile?intent=upload_cv" className="btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
+          <Upload size={18} />
+          Upload CV
+        </Link>
+      </div>
+    </section>
+  );
+
   return (
     <div className="home">
       <ScoreHero name={name} basePoints={basePoints} eligibleCount={eligible.length} />
 
+      {profileFirst && uploadCvSection}
       {profileFirst && checklistSection}
 
       {eligible.length > 0 && (
@@ -141,6 +175,7 @@ export default function Home({ session }) {
         </section>
       )}
 
+      {!profileFirst && uploadCvSection}
       {!profileFirst && checklistSection}
 
       {boosts.length > 0 && (
