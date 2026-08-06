@@ -94,5 +94,18 @@ export function ProfileProvider({ children, session }) {
 }
 
 export function useProfile() {
-  return useContext(ProfileContext);
+  const context = useContext(ProfileContext);
+  if (context === undefined) {
+    return {
+      loading: false,
+      error: null,
+      profileRow: null,
+      basicRow: null,
+      fswRow: null,
+      crsRow: null,
+      totalPoints: 0,
+      refetch: () => {}
+    };
+  }
+  return context;
 }
