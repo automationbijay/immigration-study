@@ -19,7 +19,7 @@ import NearestPathway from '../components/home/NearestPathway';
 import ProfileChecklist from '../components/home/ProfileChecklist';
 
 export default function Home({ session }) {
-  const { profileRow, basicRow, loading: profileLoading } = useProfile();
+  const { profileRow, basicRow, fswRow, crsRow, loading: profileLoading } = useProfile();
   const [cvLoading, setCvLoading] = useState(true);
   const [cv, setCv] = useState(null);
 
@@ -116,7 +116,7 @@ export default function Home({ session }) {
 
   return (
     <div className="home" style={{ maxWidth: '600px', margin: '0 auto', paddingBottom: 'var(--spacing-2xl)' }}>
-      <ScoreHero name={name} basePoints={basePoints} eligibleCount={eligible.length} />
+      <ScoreHero name={name} basePoints={basePoints} eligibleCount={eligible.length} fswRow={fswRow} crsRow={crsRow} />
 
       {profileFirst ? (
         <>
