@@ -1,11 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FileText, Wrench, Calculator, ChevronRight } from 'lucide-react';
+import { FileText, Wrench } from 'lucide-react';
 import { useProfile } from '../lib/ProfileContext';
-import FormCard from '../components/FormCard';
+import VisaFormCard from '../components/VisaFormCard';
 import ToolCard from '../components/ToolCard';
-import Card from '../components/ui/Card';
-import ScoreBadge from '../components/ScoreBadge';
 import { SkeletonPage } from '../components/ui/Skeleton';
 
 export default function Discover({ session }) {
@@ -24,31 +22,35 @@ export default function Discover({ session }) {
         </div>
 
         <div className="card-rail">
-          <FormCard totalPoints={totalPoints} />
+          <VisaFormCard 
+            title="Australia Point Estimation"
+            description="Calculate and estimate your points for Australian skilled migration visas (Subclass 189, 190, 491)."
+            score={totalPoints}
+            to="/australia-point-calculator"
+            countryCode="au"
+            colorBg="var(--color-surface)"
+            colorText="var(--color-primary)"
+          />
           
-          <Card as={Link} to="/forms/canada-fsw" interactive className="form-card">
-            <div className="form-card-head">
-              <span className="icon-tile" style={{ backgroundColor: 'var(--color-primary-light)', color: 'var(--color-primary)' }}>
-                <Calculator size={20} aria-hidden="true" />
-              </span>
-              <h3 className="form-card-title">Canada FSW 67-Point</h3>
-              <ChevronRight size={20} className="form-card-chevron" aria-hidden="true" />
-            </div>
-            <p className="form-card-body">Calculate eligibility for the Canadian FSW Program.</p>
-            {fswRow?.total_points > 0 && <ScoreBadge points={fswRow.total_points} />}
-          </Card>
+          <VisaFormCard 
+            title="Canada FSW 67-Point"
+            description="Calculate your eligibility for the Canadian Federal Skilled Worker Program."
+            score={fswRow?.total_points}
+            to="/forms/canada-fsw"
+            countryCode="ca"
+            colorBg="var(--color-primary-light)"
+            colorText="var(--color-primary)"
+          />
 
-          <Card as={Link} to="/forms/canada-crs" interactive className="form-card">
-            <div className="form-card-head">
-              <span className="icon-tile" style={{ backgroundColor: 'var(--color-accent-subtle)', color: 'var(--color-accent)' }}>
-                <Calculator size={20} aria-hidden="true" />
-              </span>
-              <h3 className="form-card-title">Canada CRS Tool</h3>
-              <ChevronRight size={20} className="form-card-chevron" aria-hidden="true" />
-            </div>
-            <p className="form-card-body">Calculate your Express Entry CRS score.</p>
-            {crsRow?.total_points > 0 && <ScoreBadge points={crsRow.total_points} />}
-          </Card>
+          <VisaFormCard 
+            title="Canada CRS Tool"
+            description="Calculate your Express Entry Comprehensive Ranking System (CRS) score."
+            score={crsRow?.total_points}
+            to="/forms/canada-crs"
+            countryCode="ca"
+            colorBg="var(--color-accent-subtle)"
+            colorText="var(--color-accent)"
+          />
         </div>
       </section>
 
