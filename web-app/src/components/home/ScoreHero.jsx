@@ -10,7 +10,7 @@ export default function ScoreHero({ name, basePoints, eligibleCount, fswRow, crs
   // Slide 1: Australia
   allScoreSlides.push({
     id: 'aus',
-    title: `Hi ${name}, your Australia score is`,
+    title: `Your Australia score is`,
     flagUrl: 'https://flagcdn.com/w40/au.png',
     score: basePoints,
     suffix: 'pts',
@@ -33,7 +33,7 @@ export default function ScoreHero({ name, basePoints, eligibleCount, fswRow, crs
   if (crsRow) {
     allScoreSlides.push({
       id: 'crs',
-      title: 'Canada CRS Score',
+      title: `Your Canada CRS score is`,
       flagUrl: 'https://flagcdn.com/w40/ca.png',
       score: crsRow.total_points || 0,
       suffix: 'pts',
@@ -52,7 +52,7 @@ export default function ScoreHero({ name, basePoints, eligibleCount, fswRow, crs
   if (fswRow) {
     allScoreSlides.push({
       id: 'fsw',
-      title: 'Canada FSW 67',
+      title: `Your Canada FSW score is`,
       flagUrl: 'https://flagcdn.com/w40/ca.png',
       score: fswRow.total_points || 0,
       suffix: '/ 100',
@@ -95,16 +95,25 @@ export default function ScoreHero({ name, basePoints, eligibleCount, fswRow, crs
   const slide = slides[currentSlide] || slides[0];
 
   return (
-    <section style={{
-      background: 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-foreground) 100%)',
-      borderRadius: 'var(--radius-xl)',
-      padding: 'var(--spacing-2xl) var(--spacing-lg)',
-      color: 'white',
-      position: 'relative',
-      overflow: 'hidden',
-      boxShadow: '0 10px 30px rgba(30, 58, 138, 0.25)',
-      marginBottom: 'var(--spacing-xl)',
-      display: 'flex',
+    <div style={{ marginBottom: 'var(--spacing-xl)' }}>
+      <h1 style={{ 
+        fontSize: '1.75rem', 
+        fontWeight: 700, 
+        color: 'var(--color-primary)', 
+        marginBottom: 'var(--spacing-md)' 
+      }}>
+        Hi {name} 👋
+      </h1>
+      
+      <section style={{
+        background: 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-foreground) 100%)',
+        borderRadius: 'var(--radius-xl)',
+        padding: 'var(--spacing-2xl) var(--spacing-lg)',
+        color: 'white',
+        position: 'relative',
+        overflow: 'hidden',
+        boxShadow: '0 10px 30px rgba(30, 58, 138, 0.25)',
+        display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
       textAlign: 'center',
@@ -210,6 +219,7 @@ export default function ScoreHero({ name, basePoints, eligibleCount, fswRow, crs
           </div>
         </>
       )}
-    </section>
+      </section>
+    </div>
   );
 }
