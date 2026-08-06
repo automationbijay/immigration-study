@@ -93,6 +93,11 @@ export default function Discover({ session }) {
             description="Search and find the correct ANZSCO code for your occupation to check your visa eligibility."
             to="/tools/anzsco" 
           />
+          <ToolCard 
+            title="University Finder" 
+            description="Search and find recognized universities to check eligibility for visas or claiming points."
+            to="/tools/university" 
+          />
         </div>
       </section>
     </>
