@@ -154,7 +154,7 @@ export default function Profile({ session }) {
       await supabase.auth.signOut();
     } catch (err) {
       console.error(err);
-      alert('Failed to delete data. Please try again.');
+      alert(`Failed to delete data: ${err.message || JSON.stringify(err)}. Please try again.`);
     } finally {
       setIsDeletingData(false);
     }

@@ -13,7 +13,7 @@ export default {
       const bucketName = 'cv-uploads';
 
       // 1. Delete all user files from the cv-uploads storage bucket
-      const { data: files, error: listError } = await ctx.supabaseAdmin.storage
+      const { data: files, error: listError } = await ctx.supabase.storage
         .from(bucketName)
         .list(user.id);
 
@@ -22,7 +22,7 @@ export default {
       } else if (files && files.length > 0) {
         // Map the listed files to their full paths within the bucket
         const filePaths = files.map(file => `${user.id}/${file.name}`);
-        const { error: deleteError } = await ctx.supabaseAdmin.storage
+        const { error: deleteError } = await ctx.supabase.storage
           .from(bucketName)
           .remove(filePaths);
           
