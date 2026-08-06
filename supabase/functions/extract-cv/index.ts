@@ -56,9 +56,10 @@ const CV_DATA_SCHEMA = {
           { type: "string", enum: ["Single", "Married", "De Facto", "Divorced", "Widowed"] },
           `Only if explicitly stated on the CV — most CVs do not include this. ${NOT_STATED}`,
         ),
+        location: nullable({ type: "string" }, "City or specific location of residence, if stated."),
       },
     },
-    highest_qualification: {
+    education: {
       type: "object",
       description: "The single highest COMPLETED educational qualification. Ignore study that is in progress or unfinished.",
       properties: {
@@ -69,46 +70,27 @@ const CV_DATA_SCHEMA = {
         field_of_study: nullable({ type: "string" }),
         institution: nullable({ type: "string" }),
         country: nullable({ type: "string" }, "Country where the institution is located."),
+        start_date: nullable({ type: "string" }, `Start date as YYYY-MM-DD. ${NOT_STATED}`),
+        end_date: nullable({ type: "string" }, `End date or graduation date as YYYY-MM-DD. ${NOT_STATED}`),
+        university_name: nullable({ type: "string" }, "Name of the university, if different or more specific than institution."),
       },
     },
     experience: {
       type: "object",
+      description: "The most recent or primary professional work experience.",
       properties: {
-        overseas_years: nullable(
-          { type: "number" },
-          `Total years of professional work experience OUTSIDE Australia, summed across all roles, as a number of years not months. Sum from the roles' date ranges; count overlapping roles once; treat 'Present'/'Current' as today's date; round down to whole years. Exclude internships, unpaid work, and full-time study. ${NOT_STATED}`,
-        ),
-        australian_years: nullable(
-          { type: "number" },
-          `Same calculation as overseas_years, but only for roles explicitly located in Australia, as a number of years not months. ${NOT_STATED}`,
-        ),
-        most_recent_job_title: nullable({ type: "string" }),
-      },
-    },
-    // english_test and australian_factors were removed deliberately — they
-    // exist ONLY to feed the Australia points calculation (point_australia's
-    // english/ausStudy/regionalStudy/professionalYear/ccl columns), and that
-    // data is too consequential to let an LLM guess from CV text. Users enter
-    // it manually through the app's own forms instead. overseas_years /
-    // australian_years / highest_qualification.level / occupation stay —
-    // they double as raw record data (education table, job title) even
-    // though some of them also feed points.
-    occupation: {
-      type: "object",
-      properties: {
-        occupation_code: nullable(
-          { type: "string" },
-          `ANZSCO occupation code, ONLY if you can confidently match the candidate's primary/most recent occupation to a specific code from the description of their role. ${NOT_STATED}`,
-        ),
-        job_name: nullable({ type: "string" }),
-        category: nullable({ type: "string" }),
+        company_name: nullable({ type: "string" }, "Name of the company."),
+        role: nullable({ type: "string" }, "Job title or role."),
+        country: nullable({ type: "string" }, "Country where this experience took place."),
+        start_date: nullable({ type: "string" }, `Start date as YYYY-MM-DD. ${NOT_STATED}`),
+        end_date: nullable({ type: "string" }, `End date as YYYY-MM-DD, or null if current/present. ${NOT_STATED}`),
       },
     },
     assumptions: {
       type: "array",
       items: { type: "string" },
       description:
-        "Free-text notes on anything inferred rather than read verbatim (e.g. 'summed 3 overlapping contract roles as 2 years of overseas experience'). Leave empty if nothing was inferred.",
+        "Free-text notes on anything inferred rather than read verbatim.",
     },
   },
 }

@@ -163,6 +163,7 @@ serve(async (req) => {
     fillIfEmpty(basicUpdates, basicRow, "email", p.email, filled, skipped);
     fillIfEmpty(basicUpdates, basicRow, "phone_no", p.phone, filled, skipped);
     fillIfEmpty(basicUpdates, basicRow, "country", p.country_of_residence, filled, skipped);
+    fillIfEmpty(basicUpdates, basicRow, "location", p.location, filled, skipped);
     if (p.date_of_birth && /^\d{4}-\d{2}-\d{2}$/.test(p.date_of_birth)) {
       fillIfEmpty(basicUpdates, basicRow, "dob", p.date_of_birth, filled, skipped);
     }
@@ -175,74 +176,8 @@ serve(async (req) => {
       if (error) console.error("profile_basic upsert failed:", error);
     }
 
-    // ---- point_australia ---------------------------------------------------
-    const { data: pointsRow } = await supabase
-      .from("point_australia")
-      .select("*")
-      .eq("id", userId)
-      .maybeSingle();
-
-    const q = profile.highest_qualification ?? {};
-    const x = profile.experience ?? {};
-    const af = profile.australian_factors ?? {};
-    const pointUpdates: Record<string, unknown> = { id: userId, updated_at: new Date() };
-
-    if (q.level && q.level in EDUCATION_POINTS) {
-      fillIfEmpty(pointUpdates, pointsRow, "education", EDUCATION_POINTS[q.level], filled, skipped);
-    }
-
-    // YEARS, not points — see the note at the top of this file.
-    if (isFiniteNumber(x.overseas_years)) {
-      fillIfEmpty(
-        pointUpdates, pointsRow, "overseasExp",
-        Math.max(0, Math.floor(x.overseas_years)), filled, skipped,
-      );
-    }
-    if (isFiniteNumber(x.australian_years)) {
-      fillIfEmpty(
-        pointUpdates, pointsRow, "ausExp",
-        Math.max(0, Math.floor(x.australian_years)), filled, skipped,
-      );
-    }
-
-    const test = profile.english_test ?? {};
-    const english = englishPoints(test);
-    if (english !== null) {
-      fillIfEmpty(pointUpdates, pointsRow, "english", english, filled, skipped);
-    }
-
-    // Boolean flags are only ever turned on, never off.
-    for (const [column, value] of [
-      ["ausStudy", af.studied_in_australia],
-      ["regionalStudy", af.studied_in_regional_australia],
-      ["professionalYear", af.completed_professional_year],
-      ["ccl", af.completed_ccl],
-    ] as const) {
-      if (value === true && !pointsRow?.[column]) {
-        pointUpdates[column] = true;
-        filled.push(column);
-      }
-    }
-
-    // Occupation, if n8n resolved one against the anzsco tables.
-    const occ = profile.occupation ?? null;
-    if (occ?.occupation_code) {
-      fillIfEmpty(pointUpdates, pointsRow, "experienceAnzsco", occ, filled, skipped);
-    }
-
-    if (Object.keys(pointUpdates).length > 2) {
-      const { error } = await supabase.from("point_australia").upsert(pointUpdates);
-      if (error) console.error("point_australia upsert failed:", error);
-    }
-
-    // ---- education ----------------------------------------------------------
-    // This table now supports multiple rows per user (concurrent schema
-    // change, see 20260806000001_update_education_table.sql — user_id +
-    // generated id, no longer 1:1). CV extraction only inserts when the user
-    // has NO education rows at all; if they've entered even one themselves,
-    // that's their data to manage and this stays out of it entirely — same
-    // "CV is evidence, not authority" rule as everywhere else in this file,
-    // just applied at row-existence granularity instead of per-field.
+    // ---- profile_education ----------------------------------------------------------
+    const q = profile.education ?? {};
     const { data: existingEducation } = await supabase
       .from("profile_education")
       .select("id")
@@ -255,6 +190,9 @@ serve(async (req) => {
       if (q.field_of_study) eduCandidate.field_of_study = q.field_of_study;
       if (q.institution) eduCandidate.institution = q.institution;
       if (q.country) eduCandidate.country = q.country;
+      if (q.start_date) eduCandidate.start_date = q.start_date;
+      if (q.end_date) eduCandidate.end_date = q.end_date;
+      if (q.university_name) eduCandidate.university_name = q.university_name;
 
       if (Object.keys(eduCandidate).length > 0) {
         const { error } = await supabase.from("profile_education").insert({
@@ -269,39 +207,36 @@ serve(async (req) => {
       skipped.push("education");
     }
 
-    // ---- English test scores ----------------------------------------------
-    const testTable = typeof test.test_type === "string" ? TEST_TABLES[test.test_type] : null;
-    if (testTable && isFiniteNumber(test.overall)) {
-      const { data: existing } = await supabase
-        .from(testTable)
-        .select("id")
-        .eq("user_id", userId)
-        .limit(1);
+    // ---- profile_experience ----------------------------------------------------------
+    const x = profile.experience ?? {};
+    const { data: existingExperience } = await supabase
+      .from("profile_experience")
+      .select("id")
+      .eq("user_id", userId)
+      .limit(1);
 
-      // Only add a row when the user has no test of this type — never edit a
-      // score they entered themselves.
-      if (!existing || existing.length === 0) {
-        const { error } = await supabase.from(testTable).insert({
+    if (!existingExperience || existingExperience.length === 0) {
+      const expCandidate: Record<string, unknown> = {};
+      if (x.company_name) expCandidate.company_name = x.company_name;
+      if (x.role) expCandidate.role = x.role;
+      if (x.country) expCandidate.country = x.country;
+      if (x.start_date) expCandidate.start_date = x.start_date;
+      if (x.end_date) expCandidate.end_date = x.end_date;
+
+      if (Object.keys(expCandidate).length > 0) {
+        const { error } = await supabase.from("profile_experience").insert({
           user_id: userId,
-          listening: test.listening ?? null,
-          reading: test.reading ?? null,
-          writing: test.writing ?? null,
-          speaking: test.speaking ?? null,
-          overall: test.overall,
-          test_date: test.test_date ?? null,
-          updated_at: new Date(),
+          created_at: new Date().toISOString(),
+          ...expCandidate,
         });
-        if (error) console.error(`${testTable} insert failed:`, error);
-        else filled.push(`${test.test_type} scores`);
-      } else {
-        skipped.push(`${test.test_type} scores`);
+        if (error) console.error("experience insert failed:", error);
+        else filled.push("experience");
       }
+    } else {
+      skipped.push("experience");
     }
 
-    // ---- cv_llamaparsed (full audit record of everything this extraction found,
-    // regardless of whether fillIfEmpty above actually applied each field —
-    // this is a "what did we find" record, not just "what we applied") ------
-    const eduPoints = q.level && q.level in EDUCATION_POINTS ? EDUCATION_POINTS[q.level] : null;
+    // ---- cv_llamaparsed (full audit record) -------------------------------------------
     const dobCandidate = typeof p.date_of_birth === "string" && /^\d{4}-\d{2}-\d{2}$/.test(p.date_of_birth)
       ? p.date_of_birth
       : null;
@@ -319,36 +254,21 @@ serve(async (req) => {
         profile_basic_country: p.country_of_residence ?? null,
         profile_basic_dob: dobCandidate,
         profile_basic_marital_status: maritalCandidate,
+        profile_basic_location: p.location ?? null,
 
-        point_australia_education: eduPoints,
-        point_australia_overseas_exp: isFiniteNumber(x.overseas_years) ? Math.max(0, Math.floor(x.overseas_years)) : null,
-        point_australia_aus_exp: isFiniteNumber(x.australian_years) ? Math.max(0, Math.floor(x.australian_years)) : null,
-        // english_test / australian_factors are no longer part of the
-        // extraction schema (too consequential to let an LLM guess) — these
-        // stay null unless some future caller of this endpoint sends them.
-        point_australia_english: english,
-        point_australia_aus_study: af.studied_in_australia ?? null,
-        point_australia_regional_study: af.studied_in_regional_australia ?? null,
-        point_australia_professional_year: af.completed_professional_year ?? null,
-        point_australia_ccl: af.completed_ccl ?? null,
-        point_australia_age: null,
-        point_australia_specialist_edu: null,
-        point_australia_partner_skills: null,
-        point_australia_education_anzsco: null,
-        point_australia_experience_anzsco: occ?.occupation_code ? occ : null,
-        point_australia_spouse_details: null,
-        point_australia_children_count: null,
+        profile_education_level: q.level ?? null,
+        profile_education_field_of_study: q.field_of_study ?? null,
+        profile_education_institution: q.institution ?? null,
+        profile_education_country: q.country ?? null,
+        profile_education_start_date: q.start_date ?? null,
+        profile_education_end_date: q.end_date ?? null,
+        profile_education_university_name: q.university_name ?? null,
 
-        education_level: q.level || null,
-        education_field_of_study: q.field_of_study || null,
-        education_institution: q.institution || null,
-        education_country: q.country || null,
-        
-        most_recent_job_title: x.most_recent_job_title ?? null,
-        occupation_code: occ?.occupation_code ?? null,
-        occupation_job_name: occ?.job_name ?? null,
-        occupation_category: occ?.category ?? null,
-        assumptions: profile.assumptions ?? [],
+        profile_experience_company_name: x.company_name ?? null,
+        profile_experience_role: x.role ?? null,
+        profile_experience_country: x.country ?? null,
+        profile_experience_start_date: x.start_date ?? null,
+        profile_experience_end_date: x.end_date ?? null,
       },
       { onConflict: "cv_id" },
     );
@@ -366,6 +286,6 @@ serve(async (req) => {
     });
   } catch (error) {
     console.error("apply-cv-profile error:", error);
-    return Response.json({ error: String(error?.message ?? error) }, { status: 500 });
+    return Response.json({ error: String((error as Error)?.message ?? error) }, { status: 500 });
   }
 });
