@@ -218,6 +218,13 @@ export default function Profile({ session }) {
       setSectionError(null);
 
       try {
+        if (['basic', 'family', 'education', 'experience'].includes(section) && countries.length === 0) {
+          const { data, error } = await supabase.from('countries').select('name').order('name');
+          if (!error && !ignore && data) {
+            setCountries(data.map(c => c.name));
+          }
+        }
+
         if (section === 'cv') {
           const { data, error } = await supabase.from('cv_metadata').select('file_url').eq('user_id', user.id).order('created_at', { ascending: false }).limit(1).maybeSingle();
           if (error) throw error;
@@ -282,11 +289,8 @@ export default function Profile({ session }) {
             }
             setLoadedSections(prev => ({ ...prev, language: true }));
           }
-        } else if (section === 'basic' && countries.length === 0) {
-          const { data, error } = await supabase.from('countries').select('name').order('name');
-          if (error) throw error;
+        } else if (section === 'basic') {
           if (!ignore) {
-            if (data) setCountries(data.map(c => c.name));
             setLoadedSections(prev => ({ ...prev, basic: true }));
           }
         }
@@ -723,7 +727,7 @@ export default function Profile({ session }) {
                   </div>
                   <div className="form-group">
                     <label htmlFor="profile-country">Current Country</label>
-                    <select id="profile-country" name="country" value={basicDetails.country} onChange={handleBasicChange}>
+                    <select id="profile-country" name="country" value={basicDetails.country || ''} onChange={handleBasicChange}>
                       <option value="">Select a country</option>
                       {countries.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
