@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import UniversitySearch from '../components/UniversitySearch';
 import { GraduationCap } from 'lucide-react';
 import PageHeader from '../components/ui/PageHeader';
 
 export default function UniversityTool() {
+  const [selectedUniversity, setSelectedUniversity] = useState(null);
+
   return (
     <>
       <PageHeader 
@@ -26,7 +28,11 @@ export default function UniversityTool() {
           </p>
         </div>
 
-        <UniversitySearch label="Search for your University" />
+        <UniversitySearch 
+          label="Search for your University" 
+          value={selectedUniversity}
+          onChange={setSelectedUniversity}
+        />
       </div>
     </>
   );

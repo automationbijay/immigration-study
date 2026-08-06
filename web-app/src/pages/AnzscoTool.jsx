@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import OccupationSearch from '../components/OccupationSearch';
 import { Briefcase } from 'lucide-react';
 import PageHeader from '../components/ui/PageHeader';
 
 export default function AnzscoTool() {
+  const [selectedOccupation, setSelectedOccupation] = useState(null);
+
   return (
     <>
       <PageHeader 
@@ -26,7 +28,11 @@ export default function AnzscoTool() {
           </p>
         </div>
 
-        <OccupationSearch label="Search for your ANZSCO Code" />
+        <OccupationSearch 
+          label="Search for your ANZSCO Code" 
+          value={selectedOccupation}
+          onChange={setSelectedOccupation}
+        />
       </div>
     </>
   );
