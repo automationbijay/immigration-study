@@ -1,0 +1,11 @@
+# Environment Variables
+
+SUPABASE_URL=http://127.0.0.1:54321
+SUPABASE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU
+DATABASE_URL=postgresql://postgres.mvycqvmojoqtfyvjsigv:2OZOM2Q5tm1XpUfj@aws-0-ap-south-1.pooler.supabase.com:6543/postgres
+
+LOGIN_EMAIL=puribijay@gmail.com
+LOGIN_PASSWORD=puribijay@gmail.com
+CV_PARSER_API_KEY=cvp_live_FFagItmCN3DjuNLpB5bq0dpcdOrwYrao6Kq4PNPtYo
+LLAMA_CLOUD_API_KEY=llx-A4YvN6OsQAUl366vsapAJH1dXjeqXxUDKznEAtsKbNpsHqJI
+LLAMA_CLOUD_PROJECT_ID=d8895a61-fbf3-407e-b3df-3cbbb1c8752c
