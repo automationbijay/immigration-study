@@ -1,22 +1,23 @@
-@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bodoni+Moda:wght@400;500;600;700&family=Jost:wght@300;400;500;600;700&display=swap');
 
 :root {
   --color-primary: #1E3A8A;
   --color-on-primary: #FFFFFF;
-  --color-secondary: #3B82F6;
-  --color-accent: #7C3AED;
+  --color-secondary: #1E40AF;
+  --color-accent: #B45309;
   --color-background: #F8FAFC;
-  --color-foreground: #1E40AF;
-  --color-border: #BFDBFE;
+  --color-foreground: #0F172A;
+  --color-border: #CBD5E1;
   --color-ring: #1E3A8A;
   --color-surface: #FFFFFF;
+  --color-destructive: #DC2626;
 
   /* Surface tint, never a text colour — it fails contrast on white. */
   --color-muted: #E9EEF5;
 
   /* Accent wash behind icons, badges and selected rows. */
-  --color-accent-subtle: rgba(161, 98, 7, 0.1);
-  --color-accent-ring: rgba(161, 98, 7, 0.2);
+  --color-accent-subtle: rgba(180, 83, 9, 0.1);
+  --color-accent-ring: rgba(180, 83, 9, 0.2);
 
   --color-success: #16A34A;
   --color-success-strong: #15803D;
@@ -81,7 +82,7 @@
 }
 
 body {
-  font-family: 'Archivo', sans-serif;
+  font-family: 'Jost', sans-serif;
   background-color: var(--color-background);
   color: var(--color-foreground);
   min-height: 100vh;
@@ -90,7 +91,7 @@ body {
 }
 
 h1, h2, h3, h4 {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Bodoni Moda', serif;
   font-weight: 700;
   letter-spacing: -0.02em;
   color: var(--color-primary);

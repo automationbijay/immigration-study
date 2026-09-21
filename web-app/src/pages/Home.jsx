@@ -19,47 +19,10 @@ import NearestPathway from '../components/home/NearestPathway';
 import ProfileChecklist from '../components/home/ProfileChecklist';
 
 export default function Home({ session }) {
-  const { profileRow, basicRow, fswRow, crsRow, loading: profileLoading } = useProfile();
-  const [cvLoading, setCvLoading] = useState(true);
-  const [cv, setCv] = useState(null);
+  const { profileRow, basicRow, fswRow, crsRow, cvRow, loading } = useProfile();
 
   const email = session?.user?.email || '';
   const fallbackName = email ? email.split('@')[0] : 'there';
-
-  // point_australia + profile_basic now come from the shared ProfileContext
-  // (fetched once app-wide) instead of being re-fetched here; only the CV
-  // pointer is specific to this page.
-  useEffect(() => {
-    let ignore = false;
-
-    async function loadCv() {
-      if (!session?.user?.id) return;
-      try {
-        const { data: cvData, error: cvError } = await supabase
-          .from('cv_metadata')
-          .select('file_url')
-          .eq('user_id', session.user.id)
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .maybeSingle();
-
-        if (cvError && cvError.code !== 'PGRST116') {
-          console.error('Error fetching CV:', cvError);
-        }
-
-        if (!ignore) setCv(cvData ?? null);
-      } catch (err) {
-        console.error('Error in fetching CV:', err);
-      } finally {
-        if (!ignore) setCvLoading(false);
-      }
-    }
-
-    loadCv();
-    return () => { ignore = true; };
-  }, [session]);
-
-  const loading = profileLoading || cvLoading;
   const insights = useMemo(() => {
     const form = formFromProfileRow(profileRow, basicRow);
     const ctx = buildContext(form, profileRow, basicRow);
@@ -86,7 +49,7 @@ export default function Home({ session }) {
   // missing facts outranks showing a gap the person may already have closed.
   const profileFirst = percent < 50;
 
-  const hasNotAddedCV = !cv?.file_url;
+  const hasNotAddedCV = !cvRow?.file_url;
   const needsUploadCvCta = hasNotAddedCV || percent < 50;
 
   const checklistSection = percent < 100 && (

@@ -1,24 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, NavLink, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
-import NotFound from './pages/NotFound';
 import { supabase } from './lib/supabase';
 import { ProfileProvider } from './lib/ProfileContext';
 import PageTransition from './components/ui/PageTransition';
 
-import Login from './pages/Login';
-import Signup from './pages/Signup';
-import Profile from './pages/Profile';
-import Home from './pages/Home';
-import Discover from './pages/Discover';
-import Calculator from './pages/Calculator';
-import FormsHub from './pages/FormsHub';
-import CanadaFSWCalculator from './pages/CanadaFSWCalculator';
-import CanadaCRSCalculator from './pages/CanadaCRSCalculator';
-import ToolsHub from './pages/ToolsHub';
-import Landing from './pages/Landing';
-import AnzscoTool from './pages/AnzscoTool';
-import UniversityTool from './pages/UniversityTool';
+const NotFound = lazy(() => import('./pages/NotFound'));
+const Login = lazy(() => import('./pages/Login'));
+const Signup = lazy(() => import('./pages/Signup'));
+const Profile = lazy(() => import('./pages/Profile'));
+const Home = lazy(() => import('./pages/Home'));
+const Discover = lazy(() => import('./pages/Discover'));
+const Calculator = lazy(() => import('./pages/Calculator'));
+const FormsHub = lazy(() => import('./pages/FormsHub'));
+const CanadaFSWCalculator = lazy(() => import('./pages/CanadaFSWCalculator'));
+const CanadaCRSCalculator = lazy(() => import('./pages/CanadaCRSCalculator'));
+const ToolsHub = lazy(() => import('./pages/ToolsHub'));
+const Landing = lazy(() => import('./pages/Landing'));
+const AnzscoTool = lazy(() => import('./pages/AnzscoTool'));
+const UniversityTool = lazy(() => import('./pages/UniversityTool'));
 import { User, Home as HomeIcon, Compass } from 'lucide-react';
 import { SkeletonPage } from './components/ui/Skeleton';
 import * as Sentry from '@sentry/react';
@@ -52,22 +52,24 @@ function AnimatedRoutes({ session }) {
   const location = useLocation();
   return (
     <AnimatePresence mode="wait">
-      <Routes location={location} key={location.pathname}>
-        <Route path="/login" element={!session ? <PageTransition><Login /></PageTransition> : <Navigate to="/home" />} />
-        <Route path="/signup" element={!session ? <PageTransition><Signup /></PageTransition> : <Navigate to="/home" />} />
-        <Route path="/profile" element={session ? <PageTransition><Profile session={session} /></PageTransition> : <Navigate to="/login" />} />
-        <Route path="/discover" element={session ? <PageTransition><Discover session={session} /></PageTransition> : <Navigate to="/login" />} />
-        <Route path="/australia-point-calculator" element={session ? <PageTransition><Calculator session={session} /></PageTransition> : <Navigate to="/login" />} />
-        <Route path="/forms" element={session ? <PageTransition><FormsHub session={session} /></PageTransition> : <Navigate to="/login" />} />
-        <Route path="/forms/canada-fsw" element={session ? <PageTransition><CanadaFSWCalculator session={session} /></PageTransition> : <Navigate to="/login" />} />
-        <Route path="/forms/canada-crs" element={session ? <PageTransition><CanadaCRSCalculator session={session} /></PageTransition> : <Navigate to="/login" />} />
-        <Route path="/tools" element={session ? <PageTransition><ToolsHub /></PageTransition> : <Navigate to="/login" />} />
-        <Route path="/tools/anzsco" element={session ? <PageTransition><AnzscoTool /></PageTransition> : <Navigate to="/login" />} />
-        <Route path="/tools/university" element={session ? <PageTransition><UniversityTool /></PageTransition> : <Navigate to="/login" />} />
-        <Route path="/home" element={session ? <PageTransition><Home session={session} /></PageTransition> : <Navigate to="/login" />} />
-        <Route path="/" element={<PageTransition><Landing session={session} /></PageTransition>} />
-        <Route path="*" element={<PageTransition><NotFound session={session} /></PageTransition>} />
-      </Routes>
+      <Suspense key={location.pathname} fallback={<PageTransition><SkeletonPage lines={3} label="Loading page..." /></PageTransition>}>
+        <Routes location={location}>
+          <Route path="/login" element={!session ? <PageTransition><Login /></PageTransition> : <Navigate to="/home" />} />
+          <Route path="/signup" element={!session ? <PageTransition><Signup /></PageTransition> : <Navigate to="/home" />} />
+          <Route path="/profile" element={session ? <PageTransition><Profile session={session} /></PageTransition> : <Navigate to="/login" />} />
+          <Route path="/discover" element={session ? <PageTransition><Discover session={session} /></PageTransition> : <Navigate to="/login" />} />
+          <Route path="/australia-point-calculator" element={session ? <PageTransition><Calculator session={session} /></PageTransition> : <Navigate to="/login" />} />
+          <Route path="/forms" element={session ? <PageTransition><FormsHub session={session} /></PageTransition> : <Navigate to="/login" />} />
+          <Route path="/forms/canada-fsw" element={session ? <PageTransition><CanadaFSWCalculator session={session} /></PageTransition> : <Navigate to="/login" />} />
+          <Route path="/forms/canada-crs" element={session ? <PageTransition><CanadaCRSCalculator session={session} /></PageTransition> : <Navigate to="/login" />} />
+          <Route path="/tools" element={session ? <PageTransition><ToolsHub /></PageTransition> : <Navigate to="/login" />} />
+          <Route path="/tools/anzsco" element={session ? <PageTransition><AnzscoTool /></PageTransition> : <Navigate to="/login" />} />
+          <Route path="/tools/university" element={session ? <PageTransition><UniversityTool /></PageTransition> : <Navigate to="/login" />} />
+          <Route path="/home" element={session ? <PageTransition><Home session={session} /></PageTransition> : <Navigate to="/login" />} />
+          <Route path="/" element={<PageTransition><Landing session={session} /></PageTransition>} />
+          <Route path="*" element={<PageTransition><NotFound session={session} /></PageTransition>} />
+        </Routes>
+      </Suspense>
     </AnimatePresence>
   );
 }

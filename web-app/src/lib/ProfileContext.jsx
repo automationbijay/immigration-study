@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from './supabase';
 import { totalPointsFromProfileRow } from './points';
 
@@ -16,6 +16,7 @@ export function ProfileProvider({ children, session }) {
   const [basicRow, setBasicRow] = useState(null);
   const [fswRow, setFswRow] = useState(null);
   const [crsRow, setCrsRow] = useState(null);
+  const [cvRow, setCvRow] = useState(null);
   const [error, setError] = useState(null);
   const [totalPoints, setTotalPoints] = useState(0);
   const [refreshToken, setRefreshToken] = useState(0);
@@ -30,6 +31,7 @@ export function ProfileProvider({ children, session }) {
           setBasicRow(null);
           setFswRow(null);
           setCrsRow(null);
+          setCvRow(null);
           setTotalPoints(0);
           setError(null);
           setLoading(false);
@@ -46,11 +48,13 @@ export function ProfileProvider({ children, session }) {
           { data: basicData, error: basicError },
           { data: fswData, error: fswError },
           { data: crsData, error: crsError },
+          { data: cvData, error: cvError },
         ] = await Promise.all([
           supabase.from('point_australia').select('*').eq('id', session.user.id).single(),
           supabase.from('profile_basic').select('*').eq('id', session.user.id).single(),
           supabase.from('point_fsw67').select('*').eq('user_id', session.user.id).maybeSingle(),
           supabase.from('points_canada_crs').select('*').eq('user_id', session.user.id).maybeSingle(),
+          supabase.from('cv_metadata').select('*').eq('user_id', session.user.id).order('created_at', { ascending: false }).limit(1).maybeSingle(),
         ]);
 
         // PGRST116 = no row found, which is expected for a brand-new user.
@@ -58,18 +62,21 @@ export function ProfileProvider({ children, session }) {
         const realBasicError = basicError && basicError.code !== 'PGRST116' ? basicError : null;
         const realFswError = fswError && fswError.code !== 'PGRST116' ? fswError : null;
         const realCrsError = crsError && crsError.code !== 'PGRST116' ? crsError : null;
+        const realCvError = cvError && cvError.code !== 'PGRST116' ? cvError : null;
         
         if (realProfileError) console.error('Error fetching profile:', realProfileError);
         if (realBasicError) console.error('Error fetching basic profile:', realBasicError);
         if (realFswError) console.error('Error fetching FSW points:', realFswError);
         if (realCrsError) console.error('Error fetching CRS points:', realCrsError);
+        if (realCvError) console.error('Error fetching CV metadata:', realCvError);
 
         if (!ignore) {
           setProfileRow(profileData ?? null);
           setBasicRow(basicData ?? null);
           setFswRow(fswData ?? null);
           setCrsRow(crsData ?? null);
-          setError(realProfileError || realBasicError || realFswError || realCrsError || null);
+          setCvRow(cvData ?? null);
+          setError(realProfileError || realBasicError || realFswError || realCrsError || realCvError || null);
           setTotalPoints(profileData ? totalPointsFromProfileRow(profileData, basicData) : 0);
         }
       } catch (err) {
@@ -86,8 +93,12 @@ export function ProfileProvider({ children, session }) {
 
   const refetch = useCallback(() => setRefreshToken((t) => t + 1), []);
 
+  const contextValue = useMemo(() => ({
+    loading, error, profileRow, basicRow, fswRow, crsRow, cvRow, totalPoints, refetch
+  }), [loading, error, profileRow, basicRow, fswRow, crsRow, cvRow, totalPoints, refetch]);
+
   return (
-    <ProfileContext.Provider value={{ loading, error, profileRow, basicRow, fswRow, crsRow, totalPoints, refetch }}>
+    <ProfileContext.Provider value={contextValue}>
       {children}
     </ProfileContext.Provider>
   );
@@ -103,6 +114,7 @@ export function useProfile() {
       basicRow: null,
       fswRow: null,
       crsRow: null,
+      cvRow: null,
       totalPoints: 0,
       refetch: () => {}
     };
