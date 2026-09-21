@@ -38,6 +38,12 @@
       "skillPath": "skills/supabase-server/SKILL.md",
       "computedHash": "de3068fa3b606fa50a661992ab7e3a8570d310d793b7b8a7e6ddb1a9b716b1a6"
     },
+    "typesafe-ai": {
+      "source": "typesafe-ai/skills",
+      "sourceType": "github",
+      "skillPath": "skills/typesafe-ai/SKILL.md",
+      "computedHash": "a6ed7d8a3d2b2d962f8e44b17663767c433b7d1fc32d1ed0349a44f7372513e8"
+    },
     "ui-ux-pro-max": {
       "source": "nextlevelbuilder/ui-ux-pro-max-skill",
       "sourceType": "github",

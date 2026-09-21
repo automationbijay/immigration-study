@@ -51,9 +51,9 @@ export const AUS_EXP_BANDS = [
 // cannot tell them apart on reload, and the distinction changes no total.
 export const EDUCATION_BANDS = [
   { id: 'none', label: 'None', points: 0 },
-  { id: 'doctorate', label: 'Doctorate from an Australian or recognised institution', points: 20 },
-  { id: 'bachelor_masters', label: 'Bachelor or Masters from an Australian or recognised institution', points: 15 },
-  { id: 'diploma_or_award', label: 'Diploma or trade qualification in Australia, or other recognised award', points: 10 },
+  { id: 'doctorate', label: 'Doctorate degree', points: 20 },
+  { id: 'bachelor_masters', label: 'Bachelor or Masters degree', points: 15 },
+  { id: 'diploma_or_award', label: 'Diploma or trade qualification', points: 10 },
   { id: 'lesser', label: 'Lesser qualification recognised by an assessing authority', points: 5 },
 ];
 

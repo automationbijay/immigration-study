@@ -2,6 +2,9 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1103.0",
     "@supabase/supabase-js": "^2.112.1",
+    "@typesafe-ai/sdk": "^0.6.0",
+    "csv-parse": "^7.0.2",
+    "dotenv": "^18.0.1",
     "pg": "^8.22.0"
   }
 }

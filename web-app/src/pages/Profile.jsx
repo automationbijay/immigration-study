@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useProfile } from '../lib/ProfileContext';
 import { User, Globe, GraduationCap, Briefcase, CheckCircle2, ChevronRight, Users, LogOut, FileText, Upload, Download, Trash2 } from 'lucide-react';
@@ -12,17 +12,50 @@ import { SkeletonPage } from '../components/ui/Skeleton';
 const SECTIONS = [
   { id: 'basic', label: 'Basic Details', icon: Globe },
   { id: 'language', label: 'Language Proficiency', icon: GraduationCap },
+  { id: 'profession', label: 'Profession', icon: Briefcase },
   { id: 'family', label: 'Family and Spouse', icon: Users },
   { id: 'education', label: 'Education', icon: GraduationCap },
   { id: 'experience', label: 'Experience & Extras', icon: Briefcase },
   { id: 'cv', label: 'My CV', icon: FileText },
 ];
 
-function SectionRow({ icon: Icon, label, onClick }) {
+function SectionRow({ icon: Icon, label, onClick, isComplete, counts }) {
+  const unanswered = counts ? counts.total - counts.answered : 0;
   return (
     <button type="button" className="profile-section-row" onClick={onClick}>
       <Icon size={20} className="profile-section-icon" aria-hidden="true" />
-      <span className="profile-section-label">{label}</span>
+      <span className="profile-section-label" style={{ flexGrow: 1, textAlign: 'left' }}>{label}</span>
+      {isComplete ? (
+        <span style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '4px',
+          background: '#dcfce7',
+          color: '#166534',
+          padding: '2px 8px',
+          borderRadius: '12px',
+          fontSize: '12px',
+          fontWeight: 500,
+          marginRight: '8px'
+        }}>
+          <CheckCircle2 size={14} /> Done
+        </span>
+      ) : (
+        <span style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '4px',
+          background: '#f1f5f9',
+          color: '#475569',
+          padding: '2px 8px',
+          borderRadius: '12px',
+          fontSize: '12px',
+          fontWeight: 500,
+          marginRight: '8px'
+        }}>
+          Incomplete {counts && counts.total > 0 && `(${unanswered}/${counts.total})`}
+        </span>
+      )}
       <ChevronRight size={20} className="profile-section-chevron" aria-hidden="true" />
     </button>
   );
@@ -103,6 +136,7 @@ function CvViewer({ cvPath, onMissing }) {
 export default function Profile({ session }) {
   const { profileRow, basicRow, loading: profileLoading, error: profileError, refetch } = useProfile();
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [isCvModalOpen, setIsCvModalOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [profile, setProfile] = useState({
@@ -148,6 +182,81 @@ export default function Profile({ session }) {
   const [sectionLoading, setSectionLoading] = useState(false);
   const [sectionError, setSectionError] = useState(null);
   const [sectionRetryToken, setSectionRetryToken] = useState(0);
+  const [sectionStatuses, setSectionStatuses] = useState({});
+  const [sectionCounts, setSectionCounts] = useState({});
+
+  useEffect(() => {
+    if (!session?.user?.id) return;
+    let active = true;
+
+    async function fetchStatuses() {
+      const isBasic = Boolean(basicRow?.name && basicRow?.dob);
+      const isProfession = Boolean(profileRow?.experienceAnzsco);
+      const isLanguage = profileRow?.english !== null && profileRow?.english !== undefined;
+      
+      const promises = [
+        supabase.from('profile_education').select('*').eq('user_id', session.user.id).limit(1).maybeSingle(),
+        supabase.from('profile_experience').select('*').eq('user_id', session.user.id).limit(1).maybeSingle(),
+        supabase.from('profile_family').select('*').eq('profile_id', session.user.id).limit(1).maybeSingle(),
+        supabase.from('cv_metadata').select('id').eq('user_id', session.user.id).limit(1).maybeSingle(),
+        supabase.from('test_ielts').select('*').eq('user_id', session.user.id).limit(1).maybeSingle(),
+        supabase.from('test_pte').select('*').eq('user_id', session.user.id).limit(1).maybeSingle(),
+        supabase.from('test_toefl').select('*').eq('user_id', session.user.id).limit(1).maybeSingle(),
+        supabase.from('test_cambridge').select('*').eq('user_id', session.user.id).limit(1).maybeSingle(),
+        supabase.from('test_oet').select('*').eq('user_id', session.user.id).limit(1).maybeSingle(),
+      ];
+      
+      const [edu, exp, fam, cvRes, ielts, pte, toefl, cambridge, oet] = await Promise.all(promises);
+      if (!active) return;
+      
+      setSectionStatuses({
+        basic: isBasic,
+        profession: isProfession,
+        language: isLanguage,
+        education: !!edu.data,
+        experience: !!exp.data,
+        family: !!fam.data,
+        cv: !!cvRes.data,
+      });
+
+      const counts = {
+        basic: { total: 7, answered: 0 },
+        profession: { total: 1, answered: 0 },
+        language: { total: 7, answered: 0 },
+        education: { total: 6, answered: 0 },
+        experience: { total: 5, answered: 0 },
+        family: { total: 7, answered: 0 },
+        cv: { total: 1, answered: 0 }
+      };
+
+      if (basicRow) {
+        counts.basic.answered = ['name', 'dob', 'email', 'phone_no', 'country', 'location', 'marital_status'].filter(k => Boolean(basicRow[k])).length;
+      }
+      
+      if (profileRow?.experienceAnzsco) counts.profession.answered = 1;
+      if (cvRes.data) counts.cv.answered = 1;
+
+      if (edu.data) {
+        counts.education.answered = ['level', 'university_name', 'field_of_study', 'country', 'start_date', 'end_date'].filter(k => Boolean(edu.data[k])).length;
+      }
+      if (exp.data) {
+        counts.experience.answered = ['company_name', 'role', 'country', 'start_date', 'end_date'].filter(k => Boolean(exp.data[k])).length;
+      }
+      if (fam.data) {
+        counts.family.answered = ['relation', 'age', 'gender', 'highest_education', 'language_test_type', 'language_overall_score', 'citizenship_or_pr'].filter(k => Boolean(fam.data[k])).length;
+      }
+
+      const langData = ielts.data || pte.data || toefl.data || cambridge.data || oet.data;
+      if (langData) {
+        counts.language.answered = 1 + ['listening', 'reading', 'writing', 'speaking', 'overall', 'test_date'].filter(k => Boolean(langData[k])).length;
+      }
+
+      setSectionCounts(counts);
+    }
+
+    fetchStatuses();
+    return () => { active = false; };
+  }, [session, basicRow, profileRow, expandedSection]);
 
   const handleDeleteData = async () => {
     if (!window.confirm("Are you sure you want to delete all your data? This action cannot be undone.")) return;
@@ -168,6 +277,10 @@ export default function Profile({ session }) {
   };
 
   const toggleSection = (section) => {
+    if (section === 'profession') {
+      navigate('/tools/anzsco');
+      return;
+    }
     setExpandedSection(prev => prev === section ? null : section);
   };
 
@@ -629,7 +742,7 @@ export default function Profile({ session }) {
 
       <div className="profile-sections">
         {SECTIONS.map(({ id, label, icon }) => (
-          <SectionRow key={id} icon={icon} label={label} onClick={() => toggleSection(id)} />
+          <SectionRow key={id} icon={icon} label={label} onClick={() => toggleSection(id)} isComplete={sectionStatuses[id]} counts={sectionCounts[id]} />
         ))}
       </div>
 

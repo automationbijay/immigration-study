@@ -1,0 +1,32 @@
+Category,Option_ID,Description,Points,Notes,Details
+Age,18_24,18 - 24 years,25,,Applicant is between 18 and 24 years of age inclusive.
+Age,25_32,25 - 32 years,30,,Applicant is between 25 and 32 years of age inclusive.
+Age,33_39,33 - 39 years,25,,Applicant is between 33 and 39 years of age inclusive.
+Age,40_44,40 - 44 years,15,,Applicant is between 40 and 44 years of age inclusive.
+Age,45_plus,45 years and over,0,,Applicant is 45 years of age or older.
+English,competent,Competent,0,,Basic competent English (e.g. IELTS 6 in each band).
+English,proficient,Proficient,10,,Proficient English (e.g. IELTS 7 in each band).
+English,superior,Superior,20,,Superior English (e.g. IELTS 8 in each band).
+Overseas Experience,lt3,Less than 3 years,0,Max 20 points combined for all Work Experience,Less than 3 years of skilled employment outside Australia.
+Overseas Experience,3_4,3 - 4 years,5,Max 20 points combined for all Work Experience,Between 3 and strictly less than 5 years of skilled employment outside Australia.
+Overseas Experience,5_7,5 - 7 years,10,Max 20 points combined for all Work Experience,Between 5 and strictly less than 8 years of skilled employment outside Australia.
+Overseas Experience,8_plus,8 years or more,15,Max 20 points combined for all Work Experience,8 or more years of skilled employment outside Australia.
+Australian Experience,lt1,Less than 1 year,0,Max 20 points combined for all Work Experience,Less than 1 year of skilled employment inside Australia.
+Australian Experience,1_2,1 - 2 years,5,Max 20 points combined for all Work Experience,Between 1 and strictly less than 3 years of skilled employment inside Australia.
+Australian Experience,3_4,3 - 4 years,10,Max 20 points combined for all Work Experience,Between 3 and strictly less than 5 years of skilled employment inside Australia.
+Australian Experience,5_7,5 - 7 years,15,Max 20 points combined for all Work Experience,Between 5 and strictly less than 8 years of skilled employment inside Australia.
+Australian Experience,8_plus,8 years or more,20,Max 20 points combined for all Work Experience,8 or more years of skilled employment inside Australia.
+Education,none,None,0,,No recognised educational qualifications.
+Education,doctorate,Doctorate degree,20,,PhD or equivalent doctorate level degree.
+Education,bachelor_masters,Bachelor or Masters degree,15,,A Bachelor degree or a Masters degree.
+Education,diploma_or_award,Diploma or trade qualification,10,,Diploma or trade/vocational qualification.
+Education,lesser,Lesser qualification recognised by an assessing authority,5,,Other lesser qualifications that are formally recognised.
+Partner Skills,none,Not applicable,0,,Has a partner who is not an Australian citizen/PR and does not have competent English.
+Partner Skills,single_or_skilled_partner,"Single, partner is an Australian citizen/PR, or partner has competent English and a skills assessment",10,,"Applicant is single, OR their partner is an Australian citizen/PR, OR their partner has both competent English and a positive skills assessment."
+Partner Skills,partner_english,Partner has competent English (no skills assessment),5,,Partner has competent English but does not have a positive skills assessment.
+Bonus,specialistEdu,Specialist education,10,,Master by research or Doctorate from an Australian institution in a STEM (Science Technology Engineering Mathematics/ICT) field.
+Bonus,ausStudy,Australian study,5,,Completed one or more degrees/diplomas/trade qualifications awarded by an Australian institution meeting the Australian study requirement (min 2 academic years).
+Bonus,professionalYear,Professional year,5,,Completed a Professional Year program in Australia in accounting ICT or engineering.
+Bonus,ccl,Community language (CCL),5,,Holds a recognized credential in a community language (e.g. NAATI).
+Bonus,regionalStudy,Regional study,5,,Studied and lived in a designated regional area of Australia.
+Bonus,stateNomination,State nomination,5,,Nominated by a State or Territory government agency.
