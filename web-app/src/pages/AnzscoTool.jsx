@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import OccupationSearch from '../components/OccupationSearch';
 import { Briefcase, CheckCircle2, Save } from 'lucide-react';
 import PageHeader from '../components/ui/PageHeader';
@@ -15,6 +15,27 @@ export default function AnzscoTool() {
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const navigate = useNavigate();
   const { refetch } = useProfile();
+
+  useEffect(() => {
+    async function loadSaved() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      
+      const { data } = await supabase
+        .from('profile_job_classification')
+        .select('anzsco_code, anzsco_title')
+        .eq('user_id', user.id)
+        .maybeSingle();
+        
+      if (data) {
+        setSelectedOccupation({
+          occupation_code: data.anzsco_code,
+          job_name: data.anzsco_title
+        });
+      }
+    }
+    loadSaved();
+  }, []);
 
   const handleSave = async () => {
     if (!selectedOccupation) return;
