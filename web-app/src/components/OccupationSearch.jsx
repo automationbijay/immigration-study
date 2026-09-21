@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useId } from 'react';
 import { supabase } from '../lib/supabase';
-import { Search, X, Check, Briefcase } from 'lucide-react';
+import { Search, X, Check, Briefcase, HelpCircle, Save } from 'lucide-react';
 
 const DEBOUNCE_MS = 250;
 const MIN_CHARS = 2;
@@ -10,7 +10,14 @@ const MATCH_COUNT = 20;
 // `label` names the field for the one control this component owns. A caller
 // that rendered its own <label> beside this one would leave that label pointing
 // at nothing, so the wording is passed in instead.
-export default function OccupationSearch({ value = null, onChange, label = 'Select your occupation' }) {
+export default function OccupationSearch({ 
+  value = null, 
+  onChange, 
+  label = 'Select your occupation',
+  onHelpClick,
+  onSave,
+  saving = false
+}) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
   const [open, setOpen] = useState(false);
@@ -129,30 +136,57 @@ export default function OccupationSearch({ value = null, onChange, label = 'Sele
 
   return (
     <section className="panel occupation-search" ref={containerRef}>
-      <label htmlFor={`${listboxId}-input`} className="occupation-question">
-        {label}
-      </label>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <label htmlFor={`${listboxId}-input`} className="occupation-question">
+          {label}
+        </label>
+        {onHelpClick && (
+          <button 
+            type="button" 
+            onClick={onHelpClick} 
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--primary)', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
+            aria-label="Help"
+          >
+            <HelpCircle size={18} />
+            <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>Help</span>
+          </button>
+        )}
+      </div>
       <p className="text-muted text-sm mb-2">
         Start typing your job title or ANZSCO code &mdash; spelling doesn&apos;t have to be exact.
       </p>
 
       {value ? (
-        <div className="occupation-selected">
-          <Briefcase size={18} className="occupation-selected-icon" />
-          <div className="occupation-selected-body">
-            <span className="occupation-selected-name">{value.job_name}</span>
-            <span className="occupation-selected-meta">
-              ANZSCO {value.occupation_code} &middot; {value.category}
-            </span>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div className="occupation-selected">
+            <Briefcase size={18} className="occupation-selected-icon" />
+            <div className="occupation-selected-body">
+              <span className="occupation-selected-name">{value.job_name}</span>
+              <span className="occupation-selected-meta">
+                ANZSCO {value.occupation_code} &middot; {value.category}
+              </span>
+            </div>
+            <button
+              type="button"
+              className="occupation-clear"
+              onClick={clear}
+              aria-label="Clear selected occupation"
+            >
+              <X size={18} />
+            </button>
           </div>
-          <button
-            type="button"
-            className="occupation-clear"
-            onClick={clear}
-            aria-label="Clear selected occupation"
-          >
-            <X size={18} />
-          </button>
+          
+          {onSave && (
+            <button 
+              className="btn-primary" 
+              onClick={onSave} 
+              disabled={saving}
+              style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', alignSelf: 'flex-start' }}
+            >
+              <Save size={18} />
+              {saving ? 'Saving...' : 'Save to Profile'}
+            </button>
+          )}
         </div>
       ) : (
         <div className="occupation-input-wrap">

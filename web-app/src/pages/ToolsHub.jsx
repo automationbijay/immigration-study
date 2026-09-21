@@ -10,7 +10,7 @@ export default function ToolsHub() {
 
       <div className="card-grid">
         <ToolCard 
-          title="ANZSCO Code Finder" 
+          title="Profession Classification" 
           description="Search and find the correct ANZSCO code for your occupation to check your visa eligibility."
           to="/tools/anzsco" 
         />
