@@ -59,6 +59,4 @@ ALTER FUNCTION public.update_language_classification() SET search_path = '';
 ALTER FUNCTION public.sync_english_points_to_profile() SET search_path = '';
 ALTER FUNCTION public.handle_new_user() SET search_path = '';
 
--- 3. Extension in Public Schema
-CREATE SCHEMA IF NOT EXISTS extensions;
-ALTER EXTENSION pg_net SET SCHEMA extensions;
+
