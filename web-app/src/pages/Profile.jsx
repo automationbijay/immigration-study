@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase';
 import { useProfile } from '../lib/ProfileContext';
 import { User, Globe, GraduationCap, Briefcase, CheckCircle2, ChevronRight, Users, LogOut, FileText, Upload, Download, Trash2 } from 'lucide-react';
 import OccupationSearch from '../components/OccupationSearch';
+import UniversitySearch from '../components/UniversitySearch';
 import CvUploadModal from '../components/CvUploadModal';
 import Modal from '../components/ui/Modal';
 import Toast from '../components/ui/Toast';
@@ -225,7 +226,7 @@ export default function Profile({ session }) {
         language: { total: 7, answered: 0 },
         education: { total: 6, answered: 0 },
         experience: { total: 5, answered: 0 },
-        family: { total: 7, answered: 0 },
+        family: { total: 8, answered: 0 },
         cv: { total: 1, answered: 0 }
       };
 
@@ -243,7 +244,7 @@ export default function Profile({ session }) {
         counts.experience.answered = ['company_name', 'role', 'country', 'start_date', 'end_date'].filter(k => Boolean(exp.data[k])).length;
       }
       if (fam.data) {
-        counts.family.answered = ['relation', 'age', 'gender', 'highest_education', 'language_test_type', 'language_overall_score', 'citizenship_or_pr'].filter(k => Boolean(fam.data[k])).length;
+        counts.family.answered = ['relation', 'age', 'gender', 'highest_education', 'language_test_type', 'language_overall_score', 'citizenship_or_pr', 'current_country_of_residence'].filter(k => Boolean(fam.data[k])).length;
       }
 
       const langData = ielts.data || pte.data || toefl.data || cambridge.data || oet.data;
@@ -356,7 +357,7 @@ export default function Profile({ session }) {
           const { data, error } = await supabase.from('profile_family').select('*').eq('profile_id', user.id).order('created_at', { ascending: true });
           if (error) throw error;
           if (!ignore) {
-            setFamilyMembers(data && data.length > 0 ? data : [{ relation: '', age: '', highest_education: '', language_test_type: '', language_overall_score: '', gender: '', citizenship_or_pr: '' }]);
+            setFamilyMembers(data && data.length > 0 ? data : [{ relation: '', age: '', highest_education: '', language_test_type: '', language_overall_score: '', gender: '', citizenship_or_pr: '', current_country_of_residence: '' }]);
             setLoadedSections(prev => ({ ...prev, family: true }));
           }
         } else if (section === 'experience') {
@@ -480,7 +481,7 @@ export default function Profile({ session }) {
         const ed = newEducationHistory[i];
         const updateData = {
           user_id: user.id, level: ed.level || null, university_name: ed.university_name || null,
-          field_of_study: ed.field_of_study || null, country: ed.country || null,
+          university_id: ed.university_id || null, field_of_study: ed.field_of_study || null, country: ed.country || null,
           start_date: ed.start_date || null, end_date: ed.end_date || null, updated_at: new Date(),
         };
         if (ed.id) updateData.id = ed.id;
@@ -499,7 +500,7 @@ export default function Profile({ session }) {
           profile_id: user.id, relation: fm.relation || null, age: fm.age ? parseInt(fm.age) : null,
           highest_education: fm.highest_education || null, language_test_type: fm.language_test_type || null,
           language_overall_score: fm.language_overall_score ? parseFloat(fm.language_overall_score) : null,
-          gender: fm.gender || null, citizenship_or_pr: fm.citizenship_or_pr || null, updated_at: new Date(),
+          gender: fm.gender || null, citizenship_or_pr: fm.citizenship_or_pr || null, current_country_of_residence: fm.current_country_of_residence || null, updated_at: new Date(),
         };
         if (fm.id) updateData.id = fm.id;
         const { data, error } = await supabase.from('profile_family').upsert(updateData).select();
@@ -629,7 +630,7 @@ export default function Profile({ session }) {
   const addFamilyMember = () => {
     setFamilyMembers(prev => [
       ...prev, 
-      { relation: '', age: '', highest_education: '', language_test_type: '', language_overall_score: '', gender: '', citizenship_or_pr: '' }
+      { relation: '', age: '', highest_education: '', language_test_type: '', language_overall_score: '', gender: '', citizenship_or_pr: '', current_country_of_residence: '' }
     ]);
   };
 
@@ -975,6 +976,15 @@ export default function Profile({ session }) {
                           ))}
                         </select>
                       </div>
+                      <div className="form-group">
+                        <label htmlFor={`fam-${index}-current_country_of_residence`}>Current Country of Residence</label>
+                        <select id={`fam-${index}-current_country_of_residence`} name="current_country_of_residence" value={member.current_country_of_residence || ''} onChange={(e) => handleFamilyChange(index, e)}>
+                          <option value="">Select Country</option>
+                          {countries.map(c => (
+                            <option key={c} value={c}>{c}</option>
+                          ))}
+                        </select>
+                      </div>
                       <div className="form-group-row">
                         <div className="form-group">
                           <label htmlFor={`fam-${index}-language_test_type`}>Language Test Type</label>
@@ -1024,9 +1034,19 @@ export default function Profile({ session }) {
                             <option value="Unrecognized">Unrecognized</option>
                           </select>
                         </div>
-                        <div className="form-group">
-                          <label htmlFor={`edu-${index}-uni`}>University / Institution</label>
-                          <input id={`edu-${index}-uni`} type="text" name="university_name" value={ed.university_name || ''} onChange={(e) => handleEducationChange(index, e)} />
+                        <div className="form-group" style={{ position: 'relative' }}>
+                          <UniversitySearch
+                            asPanel={false}
+                            value={ed.university_name ? { name: ed.university_name, country: ed.country, state_province: null } : null}
+                            onChange={(uni) => {
+                              handleEducationChange(index, { target: { name: 'university_name', value: uni?.name || '' } });
+                              handleEducationChange(index, { target: { name: 'university_id', value: uni?.id || null } });
+                              if (uni?.country) {
+                                handleEducationChange(index, { target: { name: 'country', value: uni.country } });
+                              }
+                            }}
+                            label="University / Institution"
+                          />
                         </div>
                         <div className="form-group">
                           <label htmlFor={`edu-${index}-field`}>Field of Study</label>

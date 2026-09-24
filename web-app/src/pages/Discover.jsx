@@ -1,9 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FileText, Wrench } from 'lucide-react';
+import { FileText } from 'lucide-react';
 import { useProfile } from '../lib/ProfileContext';
 import VisaFormCard from '../components/VisaFormCard';
-import ToolCard from '../components/ToolCard';
 import { SkeletonPage } from '../components/ui/Skeleton';
 
 export default function Discover({ session }) {
@@ -50,28 +49,6 @@ export default function Discover({ session }) {
             countryCode="ca"
             colorBg="var(--color-accent-subtle)"
             colorText="var(--color-accent)"
-          />
-        </div>
-      </section>
-
-      <section className="section">
-        <div className="section-header">
-          <h2 className="section-title">
-            <Wrench size={20} aria-hidden="true" /> Tools
-          </h2>
-          <Link to="/tools" className="link-button">View All</Link>
-        </div>
-
-        <div className="card-rail">
-          <ToolCard 
-            title="Profession Classification" 
-            description="Search and find the correct ANZSCO code for your occupation to check your visa eligibility."
-            to="/tools/anzsco" 
-          />
-          <ToolCard 
-            title="University Finder" 
-            description="Search and find recognized universities to check eligibility for visas or claiming points."
-            to="/tools/university" 
           />
         </div>
       </section>

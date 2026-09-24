@@ -1,0 +1,1 @@
+ALTER TABLE public.profile_education ADD COLUMN university_id bigint REFERENCES public.universities(id);

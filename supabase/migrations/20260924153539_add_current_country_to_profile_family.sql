@@ -1,0 +1,1 @@
+ALTER TABLE public.profile_family ADD COLUMN current_country_of_residence text;

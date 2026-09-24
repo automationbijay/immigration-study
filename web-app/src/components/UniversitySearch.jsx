@@ -7,7 +7,7 @@ const MIN_CHARS = 2;
 const MATCH_THRESHOLD = 0.3;
 const MATCH_COUNT = 20;
 
-export default function UniversitySearch({ value = null, onChange, label = 'Select your university' }) {
+export default function UniversitySearch({ value = null, onChange, label = 'Select your university', asPanel = true }) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
   const [open, setOpen] = useState(false);
@@ -119,7 +119,7 @@ export default function UniversitySearch({ value = null, onChange, label = 'Sele
   };
 
   return (
-    <section className="panel occupation-search" ref={containerRef}>
+    <section className={`occupation-search ${asPanel ? 'panel' : ''}`} ref={containerRef}>
       <label htmlFor={`${listboxId}-input`} className="occupation-question">
         {label}
       </label>

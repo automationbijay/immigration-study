@@ -31,5 +31,6 @@ ALTER FUNCTION public.sync_english_points_to_profile() SET search_path = '';
 ALTER FUNCTION public.handle_new_user() SET search_path = '';
 
 -- 4. Move pg_net extension to extensions schema
-CREATE SCHEMA IF NOT EXISTS extensions;
-ALTER EXTENSION pg_net SET SCHEMA extensions;
+-- (Disabled: pg_net does not support SET SCHEMA)
+-- CREATE SCHEMA IF NOT EXISTS extensions;
+-- ALTER EXTENSION pg_net SET SCHEMA extensions;
