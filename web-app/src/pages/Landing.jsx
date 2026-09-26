@@ -29,9 +29,14 @@ export default function Landing({ session }) {
                 <button className="btn-primary-large" onClick={() => navigate('/signup?intent=upload_cv')}>
                   <Upload className="inline-icon" /> Upload CV
                 </button>
-                <button className="btn-secondary-large" onClick={() => navigate('/login')}>
-                  Log In
-                </button>
+                <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                  <button className="btn-secondary-large" onClick={() => navigate('/login')}>
+                    Log In
+                  </button>
+                  <button className="btn-secondary-large" style={{ backgroundColor: 'var(--color-surface)', color: 'var(--color-primary)' }} onClick={() => navigate('/discover')}>
+                    <Search className="inline-icon" /> Discover Options
+                  </button>
+                </div>
               </>
             ) : (
               <button className="btn-primary-large" onClick={() => navigate('/home')}>

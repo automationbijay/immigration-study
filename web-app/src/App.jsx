@@ -58,15 +58,15 @@ function AnimatedRoutes({ session }) {
           <Route path="/login" element={!session ? <PageTransition><Login /></PageTransition> : <Navigate to="/home" />} />
           <Route path="/signup" element={!session ? <PageTransition><Signup /></PageTransition> : <Navigate to="/home" />} />
           <Route path="/profile" element={session ? <PageTransition><Profile session={session} /></PageTransition> : <Navigate to="/login" />} />
-          <Route path="/discover" element={session ? <PageTransition><Discover session={session} /></PageTransition> : <Navigate to="/login" />} />
-          <Route path="/australia-point-calculator" element={session ? <PageTransition><Calculator session={session} /></PageTransition> : <Navigate to="/login" />} />
-          <Route path="/forms" element={session ? <PageTransition><FormsHub session={session} /></PageTransition> : <Navigate to="/login" />} />
-          <Route path="/visas" element={session ? <PageTransition><VisasHub session={session} /></PageTransition> : <Navigate to="/login" />} />
-          <Route path="/forms/canada-fsw" element={session ? <PageTransition><CanadaFSWCalculator session={session} /></PageTransition> : <Navigate to="/login" />} />
-          <Route path="/forms/canada-crs" element={session ? <PageTransition><CanadaCRSCalculator session={session} /></PageTransition> : <Navigate to="/login" />} />
-          <Route path="/tools" element={session ? <PageTransition><ToolsHub /></PageTransition> : <Navigate to="/login" />} />
-          <Route path="/tools/anzsco" element={session ? <PageTransition><AnzscoTool /></PageTransition> : <Navigate to="/login" />} />
-          <Route path="/tools/university" element={session ? <PageTransition><UniversityTool /></PageTransition> : <Navigate to="/login" />} />
+          <Route path="/discover" element={<PageTransition><Discover session={session} /></PageTransition>} />
+          <Route path="/australia-point-calculator" element={<PageTransition><Calculator session={session} /></PageTransition>} />
+          <Route path="/forms" element={<PageTransition><FormsHub session={session} /></PageTransition>} />
+          <Route path="/visas" element={<PageTransition><VisasHub session={session} /></PageTransition>} />
+          <Route path="/forms/canada-fsw" element={<PageTransition><CanadaFSWCalculator session={session} /></PageTransition>} />
+          <Route path="/forms/canada-crs" element={<PageTransition><CanadaCRSCalculator session={session} /></PageTransition>} />
+          <Route path="/tools" element={<PageTransition><ToolsHub /></PageTransition>} />
+          <Route path="/tools/anzsco" element={<PageTransition><AnzscoTool /></PageTransition>} />
+          <Route path="/tools/university" element={<PageTransition><UniversityTool /></PageTransition>} />
           <Route path="/home" element={session ? <PageTransition><Home session={session} /></PageTransition> : <Navigate to="/login" />} />
           <Route path="/" element={<PageTransition><Landing session={session} /></PageTransition>} />
           <Route path="*" element={<PageTransition><NotFound session={session} /></PageTransition>} />
