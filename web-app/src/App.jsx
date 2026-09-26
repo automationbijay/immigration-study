@@ -13,6 +13,7 @@ const Home = lazy(() => import('./pages/Home'));
 const Discover = lazy(() => import('./pages/Discover'));
 const Calculator = lazy(() => import('./pages/Calculator'));
 const FormsHub = lazy(() => import('./pages/FormsHub'));
+const VisasHub = lazy(() => import('./pages/VisasHub'));
 const CanadaFSWCalculator = lazy(() => import('./pages/CanadaFSWCalculator'));
 const CanadaCRSCalculator = lazy(() => import('./pages/CanadaCRSCalculator'));
 const ToolsHub = lazy(() => import('./pages/ToolsHub'));
@@ -60,6 +61,7 @@ function AnimatedRoutes({ session }) {
           <Route path="/discover" element={session ? <PageTransition><Discover session={session} /></PageTransition> : <Navigate to="/login" />} />
           <Route path="/australia-point-calculator" element={session ? <PageTransition><Calculator session={session} /></PageTransition> : <Navigate to="/login" />} />
           <Route path="/forms" element={session ? <PageTransition><FormsHub session={session} /></PageTransition> : <Navigate to="/login" />} />
+          <Route path="/visas" element={session ? <PageTransition><VisasHub session={session} /></PageTransition> : <Navigate to="/login" />} />
           <Route path="/forms/canada-fsw" element={session ? <PageTransition><CanadaFSWCalculator session={session} /></PageTransition> : <Navigate to="/login" />} />
           <Route path="/forms/canada-crs" element={session ? <PageTransition><CanadaCRSCalculator session={session} /></PageTransition> : <Navigate to="/login" />} />
           <Route path="/tools" element={session ? <PageTransition><ToolsHub /></PageTransition> : <Navigate to="/login" />} />

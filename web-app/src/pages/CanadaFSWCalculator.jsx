@@ -6,8 +6,8 @@ import PageHeader from '../components/ui/PageHeader';
 import FloatingScoreCard from '../components/FloatingScoreCard';
 
 export default function CanadaFSWCalculator({ session }) {
-  const { profile, refetch } = useProfile();
-  const [loading, setLoading] = useState(false);
+  const { fswRow, loading: profileLoading, refetch } = useProfile();
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   // Form State
@@ -30,64 +30,43 @@ export default function CanadaFSWCalculator({ session }) {
   const [adaptArrangedEmp, setAdaptArrangedEmp] = useState(false);
   const [adaptRelative, setAdaptRelative] = useState(false);
 
-  const [totalPoints, setTotalPoints] = useState(0);
-  const [isEligible, setIsEligible] = useState(false);
+  // Derive points during render
+  const langTotal = reading + writing + listening + speaking;
+  let adaptTotal = 0;
+  if (adaptSpouseLang) adaptTotal += 5;
+  if (adaptPastStudy) adaptTotal += 5;
+  if (adaptSpouseStudy) adaptTotal += 5;
+  if (adaptPastWork) adaptTotal += 10;
+  if (adaptSpouseWork) adaptTotal += 5;
+  if (adaptArrangedEmp) adaptTotal += 5;
+  if (adaptRelative) adaptTotal += 5;
+  
+  const finalAdapt = Math.min(10, adaptTotal);
+  const totalPoints = experience + age + education + langTotal + arrangedEmp + finalAdapt;
+  const isEligible = totalPoints >= 67;
 
   useEffect(() => {
-    // Calculate total points whenever a dependency changes
-    const langTotal = reading + writing + listening + speaking;
-    
-    let adaptTotal = 0;
-    if (adaptSpouseLang) adaptTotal += 5;
-    if (adaptPastStudy) adaptTotal += 5;
-    if (adaptSpouseStudy) adaptTotal += 5;
-    if (adaptPastWork) adaptTotal += 10;
-    if (adaptSpouseWork) adaptTotal += 5;
-    if (adaptArrangedEmp) adaptTotal += 5;
-    if (adaptRelative) adaptTotal += 5;
-    
-    // Adaptability is capped at 10 points
-    const finalAdapt = Math.min(10, adaptTotal);
-
-    const calculatedTotal = experience + age + education + langTotal + arrangedEmp + finalAdapt;
-    setTotalPoints(calculatedTotal);
-    setIsEligible(calculatedTotal >= 67);
-  }, [experience, age, education, reading, writing, listening, speaking, arrangedEmp, adaptSpouseLang, adaptPastStudy, adaptSpouseStudy, adaptPastWork, adaptSpouseWork, adaptArrangedEmp, adaptRelative]);
-
-  useEffect(() => {
-    // Load existing data if any
-    const loadData = async () => {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('point_fsw67')
-        .select('*')
-        .eq('user_id', session.user.id)
-        .maybeSingle();
-
-      if (data) {
-        setExperience(data.experience_points || 0);
-        setAge(data.age_points || 0);
-        setEducation(data.education_points || 0);
-        setReading(data.language_reading_points || 0);
-        setWriting(data.language_writing_points || 0);
-        setListening(data.language_listening_points || 0);
-        setSpeaking(data.language_speaking_points || 0);
-        setArrangedEmp(data.arranged_employment_points || 0);
-        setAdaptSpouseLang(data.adaptability_spouse_lang > 0);
-        setAdaptPastStudy(data.adaptability_past_study > 0);
-        setAdaptSpouseStudy(data.adaptability_spouse_study > 0);
-        setAdaptPastWork(data.adaptability_past_work > 0);
-        setAdaptSpouseWork(data.adaptability_spouse_work > 0);
-        setAdaptArrangedEmp(data.adaptability_arranged_emp > 0);
-        setAdaptRelative(data.adaptability_relative > 0);
+    if (!profileLoading) {
+      if (fswRow) {
+        setExperience(fswRow.experience_points || 0);
+        setAge(fswRow.age_points || 0);
+        setEducation(fswRow.education_points || 0);
+        setReading(fswRow.language_reading_points || 0);
+        setWriting(fswRow.language_writing_points || 0);
+        setListening(fswRow.language_listening_points || 0);
+        setSpeaking(fswRow.language_speaking_points || 0);
+        setArrangedEmp(fswRow.arranged_employment_points || 0);
+        setAdaptSpouseLang(fswRow.adaptability_spouse_lang > 0);
+        setAdaptPastStudy(fswRow.adaptability_past_study > 0);
+        setAdaptSpouseStudy(fswRow.adaptability_spouse_study > 0);
+        setAdaptPastWork(fswRow.adaptability_past_work > 0);
+        setAdaptSpouseWork(fswRow.adaptability_spouse_work > 0);
+        setAdaptArrangedEmp(fswRow.adaptability_arranged_emp > 0);
+        setAdaptRelative(fswRow.adaptability_relative > 0);
       }
       setLoading(false);
-    };
-
-    if (session?.user?.id) {
-      loadData();
     }
-  }, [session]);
+  }, [profileLoading, fswRow]);
 
   const handleSave = async (e) => {
     e.preventDefault();

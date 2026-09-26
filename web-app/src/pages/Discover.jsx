@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FileText } from 'lucide-react';
+import { FileText, Globe } from 'lucide-react';
 import { useProfile } from '../lib/ProfileContext';
 import VisaFormCard from '../components/VisaFormCard';
 import { SkeletonPage } from '../components/ui/Skeleton';
@@ -49,6 +49,42 @@ export default function Discover({ session }) {
             countryCode="ca"
             colorBg="var(--color-accent-subtle)"
             colorText="var(--color-accent)"
+          />
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="section-header">
+          <h2 className="section-title">
+            <Globe size={20} aria-hidden="true" /> Skilled Visas
+          </h2>
+          <Link to="/visas" className="link-button">View All</Link>
+        </div>
+
+        <div className="card-rail">
+          <VisaFormCard 
+            title="Subclass 189"
+            description="Skilled — Independent. Points-tested, no sponsor needed. Permanent residency."
+            to="/visas"
+            countryCode="au"
+            colorBg="var(--color-surface)"
+            colorText="var(--color-primary)"
+          />
+          <VisaFormCard 
+            title="Subclass 190"
+            description="Skilled — Nominated. Points-tested, nominated by a state/territory government."
+            to="/visas"
+            countryCode="au"
+            colorBg="var(--color-surface)"
+            colorText="var(--color-primary)"
+          />
+          <VisaFormCard 
+            title="Subclass 491"
+            description="Skilled — Regional (Provisional). 5-year provisional for regional areas. Pathway to PR via 191."
+            to="/visas"
+            countryCode="au"
+            colorBg="var(--color-surface)"
+            colorText="var(--color-primary)"
           />
         </div>
       </section>

@@ -7,8 +7,8 @@ import { formData, questionLabels } from '../lib/crsData';
 import FloatingScoreCard from '../components/FloatingScoreCard';
 
 export default function CanadaCRSCalculator({ session }) {
-  const { refetch } = useProfile();
-  const [loading, setLoading] = useState(false);
+  const { crsRow, loading: profileLoading, refetch } = useProfile();
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   
   // Deduplicate questions just like the HTML does
@@ -28,54 +28,35 @@ export default function CanadaCRSCalculator({ session }) {
   });
   
   const [formState, setFormState] = useState(initialFormState);
-  const [totalPoints, setTotalPoints] = useState(0);
+
+  // Derive points during render
+  let totalPoints = 0;
+  for (let key in formState) {
+    const value = formState[key];
+    if (value && value.length > 0) {
+      let mockScore = (value.charCodeAt(0) - 64) * 10;
+      if (mockScore > 0 && mockScore < 300) {
+        totalPoints += mockScore;
+      }
+    }
+  }
+  totalPoints = Math.min(totalPoints, 1200);
 
   useEffect(() => {
-    // Load existing data
-    const loadData = async () => {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('points_canada_crs')
-        .select('*')
-        .eq('user_id', session.user.id)
-        .maybeSingle();
-
-      if (data) {
+    if (!profileLoading) {
+      if (crsRow) {
         const loadedState = { ...initialFormState };
         uniqueQuestions.forEach(q => {
-          // the database column might be named slightly differently if it has hyphens
           const colName = q.question.replace('-', '_');
-          if (data[colName]) {
-            loadedState[q.question] = data[colName];
+          if (crsRow[colName]) {
+            loadedState[q.question] = crsRow[colName];
           }
         });
         setFormState(loadedState);
       }
       setLoading(false);
-    };
-
-    if (session?.user?.id) {
-      loadData();
     }
-  }, [session]);
-
-  useEffect(() => {
-    // Calculate total points
-    let total = 0;
-    
-    for (let key in formState) {
-      const value = formState[key];
-      if (value && value.length > 0) {
-        let mockScore = (value.charCodeAt(0) - 64) * 10;
-        if (mockScore > 0 && mockScore < 300) {
-          total += mockScore;
-        }
-      }
-    }
-    
-    total = Math.min(total, 1200);
-    setTotalPoints(total);
-  }, [formState]);
+  }, [profileLoading, crsRow]);
 
   const handleSave = async (e) => {
     e.preventDefault();

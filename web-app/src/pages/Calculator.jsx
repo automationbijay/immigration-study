@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import PointsForm from '../components/PointsForm';
 import ScoreDisplay from '../components/ScoreDisplay';
 import { supabase } from '../lib/supabase';
+import { useProfile } from '../lib/ProfileContext';
 import { Calculator as CalculatorIcon, CheckCircle2 } from 'lucide-react';
 import PageHeader from '../components/ui/PageHeader';
 import Toast from '../components/ui/Toast';
@@ -18,6 +19,8 @@ import {
 } from '../lib/points';
 
 export default function Calculator({ session }) {
+  const { profileRow, basicRow, loading: profileLoading, refetch } = useProfile();
+  
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
@@ -39,48 +42,20 @@ export default function Calculator({ session }) {
     stateNomination: true,
   });
 
-  const [totalPoints, setTotalPoints] = useState(0);
-
   useEffect(() => {
-    async function getProfile() {
-      if (!session?.user?.id) return;
-      try {
-        const { data: profileData, error } = await supabase
-          .from('point_australia')
-          .select('*')
-          .eq('id', session.user.id)
-          .single();
-
-        const { data: basicData } = await supabase
-          .from('profile_basic')
-          .select('*')
-          .eq('id', session.user.id)
-          .single();
-
-        if (error && error.code !== 'PGRST116') {
-          console.error('Error fetching profile:', error);
-        }
-
-        if (profileData) {
-          setFormData(formFromProfileRow(profileData, basicData));
-        }
-      } catch (error) {
-        console.error('Error in fetching profile:', error);
-      } finally {
-        setLoading(false);
+    if (!profileLoading) {
+      if (profileRow) {
+        setFormData(formFromProfileRow(profileRow, basicRow));
       }
+      setLoading(false);
     }
+  }, [profileLoading, profileRow, basicRow]);
 
-    getProfile();
-  }, [session]);
+  const totalPoints = totalPointsFromForm(formData);
 
-  useEffect(() => {
-    setTotalPoints(totalPointsFromForm(formData));
-  }, [formData]);
-
-  const handleChange = (name, value) => {
+  const handleChange = useCallback((name, value) => {
     setFormData(prev => ({ ...prev, [name]: value }));
-  };
+  }, []);
 
   const handleSave = async () => {
     if (!session?.user?.id) return;

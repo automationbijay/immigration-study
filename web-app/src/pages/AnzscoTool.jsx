@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import OccupationSearch from '../components/OccupationSearch';
+import ProfessionDetails from '../components/ProfessionDetails';
 import { Briefcase, CheckCircle2, Save } from 'lucide-react';
 import PageHeader from '../components/ui/PageHeader';
 import Modal from '../components/ui/Modal';
@@ -90,9 +91,15 @@ export default function AnzscoTool() {
           value={selectedOccupation}
           onChange={setSelectedOccupation}
           onHelpClick={() => setIsHelpOpen(true)}
-          onSave={handleSave}
-          saving={saving}
         />
+        {selectedOccupation && (
+          <ProfessionDetails 
+            anzscoCode={selectedOccupation.occupation_code} 
+            jobName={selectedOccupation.job_name} 
+            onSave={handleSave}
+            saving={saving}
+          />
+        )}
       </div>
 
       <Modal isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)} title="What is ANZSCO?">

@@ -1,8 +1,49 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
+import React, { createContext, useContext, useMemo } from 'react';
+import useSWR from 'swr';
 import { supabase } from './supabase';
 import { totalPointsFromProfileRow } from './points';
 
 const ProfileContext = createContext();
+
+const fetchProfile = async (userId) => {
+  const [
+    { data: profileData, error: profileError },
+    { data: basicData, error: basicError },
+    { data: fswData, error: fswError },
+    { data: crsData, error: crsError },
+    { data: cvData, error: cvError },
+  ] = await Promise.all([
+    supabase.from('point_australia').select('*').eq('id', userId).single(),
+    supabase.from('profile_basic').select('*').eq('id', userId).single(),
+    supabase.from('point_fsw67').select('*').eq('user_id', userId).maybeSingle(),
+    supabase.from('points_canada_crs').select('*').eq('user_id', userId).maybeSingle(),
+    supabase.from('cv_metadata').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(1).maybeSingle(),
+  ]);
+
+  const realProfileError = profileError && profileError.code !== 'PGRST116' ? profileError : null;
+  const realBasicError = basicError && basicError.code !== 'PGRST116' ? basicError : null;
+  const realFswError = fswError && fswError.code !== 'PGRST116' ? fswError : null;
+  const realCrsError = crsError && crsError.code !== 'PGRST116' ? crsError : null;
+  const realCvError = cvError && cvError.code !== 'PGRST116' ? cvError : null;
+  
+  if (realProfileError) console.error('Error fetching profile:', realProfileError);
+  if (realBasicError) console.error('Error fetching basic profile:', realBasicError);
+  if (realFswError) console.error('Error fetching FSW points:', realFswError);
+  if (realCrsError) console.error('Error fetching CRS points:', realCrsError);
+  if (realCvError) console.error('Error fetching CV metadata:', realCvError);
+
+  const error = realProfileError || realBasicError || realFswError || realCrsError || realCvError || null;
+  if (error) throw error;
+
+  return {
+    profileRow: profileData ?? null,
+    basicRow: basicData ?? null,
+    fswRow: fswData ?? null,
+    crsRow: crsData ?? null,
+    cvRow: cvData ?? null,
+    totalPoints: profileData ? totalPointsFromProfileRow(profileData, basicData) : 0,
+  };
+};
 
 /**
  * Single shared fetch of point_australia + profile_basic for the whole app.
@@ -11,91 +52,24 @@ const ProfileContext = createContext();
  * now read from here instead.
  */
 export function ProfileProvider({ children, session }) {
-  const [loading, setLoading] = useState(true);
-  const [profileRow, setProfileRow] = useState(null);
-  const [basicRow, setBasicRow] = useState(null);
-  const [fswRow, setFswRow] = useState(null);
-  const [crsRow, setCrsRow] = useState(null);
-  const [cvRow, setCvRow] = useState(null);
-  const [error, setError] = useState(null);
-  const [totalPoints, setTotalPoints] = useState(0);
-  const [refreshToken, setRefreshToken] = useState(0);
+  const userId = session?.user?.id;
 
-  useEffect(() => {
-    let ignore = false;
-
-    async function getProfile() {
-      if (!session?.user?.id) {
-        if (!ignore) {
-          setProfileRow(null);
-          setBasicRow(null);
-          setFswRow(null);
-          setCrsRow(null);
-          setCvRow(null);
-          setTotalPoints(0);
-          setError(null);
-          setLoading(false);
-        }
-        return;
-      }
-
-      setLoading(true);
-      try {
-        // Independent queries against different tables - run in parallel
-        // rather than one-after-another so this only costs one round trip.
-        const [
-          { data: profileData, error: profileError },
-          { data: basicData, error: basicError },
-          { data: fswData, error: fswError },
-          { data: crsData, error: crsError },
-          { data: cvData, error: cvError },
-        ] = await Promise.all([
-          supabase.from('point_australia').select('*').eq('id', session.user.id).single(),
-          supabase.from('profile_basic').select('*').eq('id', session.user.id).single(),
-          supabase.from('point_fsw67').select('*').eq('user_id', session.user.id).maybeSingle(),
-          supabase.from('points_canada_crs').select('*').eq('user_id', session.user.id).maybeSingle(),
-          supabase.from('cv_metadata').select('*').eq('user_id', session.user.id).order('created_at', { ascending: false }).limit(1).maybeSingle(),
-        ]);
-
-        // PGRST116 = no row found, which is expected for a brand-new user.
-        const realProfileError = profileError && profileError.code !== 'PGRST116' ? profileError : null;
-        const realBasicError = basicError && basicError.code !== 'PGRST116' ? basicError : null;
-        const realFswError = fswError && fswError.code !== 'PGRST116' ? fswError : null;
-        const realCrsError = crsError && crsError.code !== 'PGRST116' ? crsError : null;
-        const realCvError = cvError && cvError.code !== 'PGRST116' ? cvError : null;
-        
-        if (realProfileError) console.error('Error fetching profile:', realProfileError);
-        if (realBasicError) console.error('Error fetching basic profile:', realBasicError);
-        if (realFswError) console.error('Error fetching FSW points:', realFswError);
-        if (realCrsError) console.error('Error fetching CRS points:', realCrsError);
-        if (realCvError) console.error('Error fetching CV metadata:', realCvError);
-
-        if (!ignore) {
-          setProfileRow(profileData ?? null);
-          setBasicRow(basicData ?? null);
-          setFswRow(fswData ?? null);
-          setCrsRow(crsData ?? null);
-          setCvRow(cvData ?? null);
-          setError(realProfileError || realBasicError || realFswError || realCrsError || realCvError || null);
-          setTotalPoints(profileData ? totalPointsFromProfileRow(profileData, basicData) : 0);
-        }
-      } catch (err) {
-        console.error('Error in fetching profile:', err);
-        if (!ignore) setError(err);
-      } finally {
-        if (!ignore) setLoading(false);
-      }
-    }
-
-    getProfile();
-    return () => { ignore = true; };
-  }, [session, refreshToken]);
-
-  const refetch = useCallback(() => setRefreshToken((t) => t + 1), []);
+  const { data, error, isLoading, mutate } = useSWR(
+    userId ? ['profile', userId] : null,
+    ([_, id]) => fetchProfile(id)
+  );
 
   const contextValue = useMemo(() => ({
-    loading, error, profileRow, basicRow, fswRow, crsRow, cvRow, totalPoints, refetch
-  }), [loading, error, profileRow, basicRow, fswRow, crsRow, cvRow, totalPoints, refetch]);
+    loading: isLoading,
+    error,
+    profileRow: data?.profileRow ?? null,
+    basicRow: data?.basicRow ?? null,
+    fswRow: data?.fswRow ?? null,
+    crsRow: data?.crsRow ?? null,
+    cvRow: data?.cvRow ?? null,
+    totalPoints: data?.totalPoints ?? 0,
+    refetch: mutate
+  }), [data, error, isLoading, mutate]);
 
   return (
     <ProfileContext.Provider value={contextValue}>

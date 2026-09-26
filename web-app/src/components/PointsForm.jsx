@@ -48,7 +48,7 @@ const SwitchRow = ({ id, name, label, checked, onChange }) => (
     </div>
 );
 
-const PointsForm = ({ formData, onChange }) => (
+const PointsForm = React.memo(({ formData, onChange }) => (
     <form id="points-form">
 
         {/* Personal Details */}
@@ -141,6 +141,6 @@ const PointsForm = ({ formData, onChange }) => (
         </div>
 
     </form>
-);
+));
 
 export default PointsForm;

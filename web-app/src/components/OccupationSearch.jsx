@@ -175,18 +175,6 @@ export default function OccupationSearch({
               <X size={18} />
             </button>
           </div>
-          
-          {onSave && (
-            <button 
-              className="btn-primary" 
-              onClick={onSave} 
-              disabled={saving}
-              style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', alignSelf: 'flex-start' }}
-            >
-              <Save size={18} />
-              {saving ? 'Saving...' : 'Save to Profile'}
-            </button>
-          )}
         </div>
       ) : (
         <div className="occupation-input-wrap">
