@@ -3,7 +3,7 @@ import PointsForm from '../components/PointsForm';
 import ScoreDisplay from '../components/ScoreDisplay';
 import { supabase } from '../lib/supabase';
 import { useProfile } from '../lib/ProfileContext';
-import { Calculator as CalculatorIcon, CheckCircle2 } from 'lucide-react';
+import { Calculator as CalculatorIcon } from 'lucide-react';
 import PageHeader from '../components/ui/PageHeader';
 import Toast from '../components/ui/Toast';
 import { SkeletonPage } from '../components/ui/Skeleton';
@@ -12,7 +12,6 @@ import {
   ENGLISH_BANDS,
   EDUCATION_BANDS,
   PARTNER_SKILLS_BANDS,
-  STATE_NOMINATION_POINTS,
   formFromProfileRow,
   pointsForBandId,
   totalPointsFromForm,
@@ -39,7 +38,6 @@ export default function Calculator({ session }) {
     ccl: false,
     regionalStudy: false,
     partnerSkillsBand: 'none',
-    stateNomination: true,
   });
 
   useEffect(() => {
@@ -107,17 +105,6 @@ export default function Calculator({ session }) {
 
       <div style={{ paddingBottom: '120px' }}>
         <ScoreDisplay targetScore={totalPoints} />
-
-        <div className="nomination-note">
-          <span className="nomination-note-icon">
-            <CheckCircle2 size={20} aria-hidden="true" />
-          </span>
-          <div className="nomination-note-body">
-            <h4>State Nomination (190)</h4>
-            <p>Automatically included in your total score</p>
-          </div>
-          <span className="nomination-note-points">+{STATE_NOMINATION_POINTS} Points</span>
-        </div>
 
         <div className="calculator-form">
           <PointsForm formData={formData} onChange={handleChange} />

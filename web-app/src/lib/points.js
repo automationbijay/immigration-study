@@ -163,7 +163,6 @@ export function formFromProfileRow(profileRow, basicRow) {
     ccl: Boolean(profileRow?.ccl),
     regionalStudy: Boolean(profileRow?.regionalStudy),
     partnerSkillsBand: bandIdForPoints(PARTNER_SKILLS_BANDS, profileRow?.partnerSkills),
-    stateNomination: true,
   };
 }
 
@@ -184,7 +183,6 @@ export function pointsBreakdown(form) {
     { label: 'Professional year', points: form.professionalYear ? 5 : 0 },
     { label: 'Community language (CCL)', points: form.ccl ? 5 : 0 },
     { label: 'Regional study', points: form.regionalStudy ? 5 : 0 },
-    { label: 'State nomination', points: form.stateNomination ? STATE_NOMINATION_POINTS : 0 },
   ];
 }
 
@@ -212,7 +210,7 @@ export function basePointsFromForm(form) {
   return points;
 }
 
-/** Total for the calculator's band-id form state, including its nomination toggle. */
+/** Total for the calculator's band-id form state. (Base points only) */
 export function totalPointsFromForm(form) {
-  return basePointsFromForm(form) + (form.stateNomination ? STATE_NOMINATION_POINTS : 0);
+  return basePointsFromForm(form);
 }
