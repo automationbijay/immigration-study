@@ -19,13 +19,13 @@ export default function AnzscoTool() {
     async function loadSaved() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
-      
+
       const { data } = await supabase
         .from('profile_job_classification')
         .select('anzsco_code, anzsco_title')
         .eq('user_id', user.id)
         .maybeSingle();
-        
+
       if (data) {
         setSelectedOccupation({
           occupation_code: data.anzsco_code,
@@ -50,7 +50,7 @@ export default function AnzscoTool() {
         id: user.id,
         experienceAnzsco: selectedOccupation.occupation_code
       });
-      
+
       // Also save to the new table
       await supabase.from('profile_job_classification').delete().eq('user_id', user.id);
       const { error: insertError } = await supabase.from('profile_job_classification').insert({
@@ -60,7 +60,7 @@ export default function AnzscoTool() {
       });
 
       if (paError || insertError) throw (insertError || paError);
-      
+
       setMessage('Occupation saved successfully!');
       refetch(); // This causes the ProfileContext to reload the profile data globally!
 
@@ -75,24 +75,27 @@ export default function AnzscoTool() {
 
   return (
     <>
-      <PageHeader 
+      <PageHeader
         title="ANZSCO occupation finder"
         description="Search Australian occupation titles and codes. Check the Home Affairs occupation list for your visa."
-        backTo="/discover" 
+        backTo="/discover"
       />
       <Toast message={message} />
-      {message === 'Occupation saved successfully!' && <PageLink to="/profile">View saved profile</PageLink>}
+      {message === 'Occupation saved successfully!' && (
+        <PageLink to="/profile" className="anz-saved-link">View saved profile →</PageLink>
+      )}
       <div className="section">
-        <OccupationSearch 
-          label="Find your Profession Classification" 
+        <OccupationSearch
+          label="Find your occupation classification"
           value={selectedOccupation}
           onChange={value => { setSelectedOccupation(value); setMessage(''); }}
           onHelpClick={() => setIsHelpOpen(true)}
         />
         {selectedOccupation && (
-          <ProfessionDetails 
-            anzscoCode={selectedOccupation.occupation_code} 
-            jobName={selectedOccupation.job_name} 
+          <ProfessionDetails
+            key={selectedOccupation.occupation_code}
+            anzscoCode={selectedOccupation.occupation_code}
+            jobName={selectedOccupation.job_name}
             onSave={handleSave}
             saving={saving}
           />

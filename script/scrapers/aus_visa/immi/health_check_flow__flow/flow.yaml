@@ -1,0 +1,14 @@
+summary: IMMI Health Check Flow
+description: Runs a lightweight test to verify the IMMI Skilled Occupation
+  scraper is working
+value:
+  modules:
+    - id: a
+      value:
+        type: script
+        path: f/aus_visa/immi/skill_occupation_scraper
+has_on_behalf_of: false
+schema:
+  $schema: https://json-schema.org/draft/2020-12/schema
+  type: object
+  properties: {}

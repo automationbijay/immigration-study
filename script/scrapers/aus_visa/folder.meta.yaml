@@ -1,0 +1,6 @@
+summary: immi
+display_name: aus_visa
+extra_perms:
+  u/puribijay: true
+owners:
+  - u/puribijay

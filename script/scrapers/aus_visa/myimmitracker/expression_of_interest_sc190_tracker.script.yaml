@@ -1,0 +1,15 @@
+summary: ''
+description: ''
+lock: '!inline
+  f/aus_visa/myimmitracker/expression_of_interest_sc190_tracker.script.lock'
+kind: script
+schema:
+  $schema: https://json-schema.org/draft/2020-12/schema
+  type: object
+  properties:
+    auth_state_json:
+      type: string
+      description: ''
+      default: null
+      originalType: string
+  required: []
