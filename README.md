@@ -65,12 +65,21 @@ npx supabase functions deploy     # deploy Edge Functions
 Edge Function secrets: `LLAMA_CLOUD_API_KEY`, `LLAMA_CLOUD_PROJECT_ID`,
 `N8N_SHARED_SECRET` (the name is historical; it signs `extract-cv` → `apply-cv-profile`).
 
-Recent migrations to apply:
+Recent migrations (all applied to the live project on 22 November 2026):
 
 | Migration | What it does |
 |---|---|
 | `20261122000000_sync_points_from_profile.sql` | Education, work experience and English tests now update the Australian points automatically. New users start unanswered instead of with 0s. Existing education and experience entries are backfilled. |
 | `20261122010000_create_feedback_submissions.sql` | Table for the "Report a mistake" / "Collaborate with us" forms. It's insert-only for visitors; you review submissions in the dashboard. |
+| `20261122020000_fix_clear_user_data.sql` | "Delete All My Data" also removes saved Canada estimates and the chosen occupation, and detaches the user's feedback. |
+
+> **Migration history caveat.** Most older migrations were applied by hand, so
+> the live `supabase_migrations.schema_migrations` table only records the
+> entries listed above plus `20260926115000` and `20260926150100`. **Do not run
+> `supabase db push --include-all`**: it would re-run every old migration,
+> including data moves and the universities seed. Apply a new migration with
+> `psql "$DATABASE_URL" -1 -v ON_ERROR_STOP=1 -f <file>` and then record it with
+> `supabase migration repair --db-url "$DATABASE_URL" --status applied <version>`.
 
 ### 3. Tests
 

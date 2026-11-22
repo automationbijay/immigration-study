@@ -75,7 +75,9 @@ Reference data, readable by everyone.
 ## 8. Account data deletion
 
 RPC **`clear_user_data()`** (called by the `delete-user-data` edge function)
-deletes the signed-in user's rows from every profile, points, test and CV table.
+deletes the signed-in user's rows from every profile, points (including saved
+Canada estimates), occupation, test and CV table, and detaches their feedback
+submissions. `npm run test:db` verifies that nothing is left behind.
 The edge function also removes their files from `cv-uploads`. The sign-in
 account itself remains until removed in Supabase Auth.
 

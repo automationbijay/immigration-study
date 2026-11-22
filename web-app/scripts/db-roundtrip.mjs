@@ -5,20 +5,24 @@
 // and finally clears the account's data with clear_user_data().
 //
 // Usage (from web-app/):  node scripts/db-roundtrip.mjs
-// Needs .env.local (VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY) and
-// .env.test.local (TEST_EMAIL, TEST_PASSWORD). NEVER point this at a real user:
+// Needs .env.local (VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY) and either
+// .env.test.local or environment variables (TEST_EMAIL, TEST_PASSWORD). NEVER point this at a real user:
 // it deletes all of the account's data at the end.
 import fs from 'node:fs';
 import { createClient } from '@supabase/supabase-js';
 
 const env = {};
-for (const file of ['.env.local', '.env.test.local']) {
+// TEST_EMAIL / TEST_PASSWORD may also come from the process environment.
+const files = ['.env.local', ...(process.env.TEST_EMAIL ? [] : ['.env.test.local'])];
+for (const file of files) {
   if (!fs.existsSync(file)) { console.error(`Missing ${file}`); process.exit(2); }
   for (const line of fs.readFileSync(file, 'utf8').split('\n')) {
     const m = line.match(/^\s*([A-Z0-9_]+)\s*=\s*(.*)\s*$/);
     if (m) env[m[1]] = m[2].replace(/^["']|["']$/g, '');
   }
 }
+
+for (const k of ['TEST_EMAIL', 'TEST_PASSWORD']) if (process.env[k]) env[k] = process.env[k];
 
 const supabase = createClient(env.VITE_SUPABASE_URL, env.VITE_SUPABASE_ANON_KEY, { auth: { persistSession: false } });
 const results = [];
@@ -104,7 +108,20 @@ try {
   check('run completed without errors', false, err.message);
 } finally {
   const { error } = await supabase.rpc('clear_user_data');
-  console.log(error ? `\nCleanup FAILED: ${error.message}` : '\nCleanup: test account data cleared.');
+  if (error) {
+    check('Delete All My Data runs', false, error.message);
+  } else {
+    // "Delete All My Data" must leave nothing behind in any per-user table.
+    const leftovers = [];
+    for (const [table, col] of [['profile_basic', 'id'], ['point_australia', 'id'], ['profile_family', 'profile_id'],
+      ['profile_education', 'user_id'], ['profile_experience', 'user_id'], ['profile_job_classification', 'user_id'],
+      ['point_fsw67', 'user_id'], ['points_canada_crs', 'user_id'], ['cv_metadata', 'user_id'],
+      ['test_ielts', 'user_id'], ['test_pte', 'user_id'], ['test_toefl', 'user_id'], ['test_cambridge', 'user_id'], ['test_oet', 'user_id']]) {
+      const { count } = await supabase.from(table).select('*', { count: 'exact', head: true }).eq(col, uid);
+      if (count) leftovers.push(`${table} (${count})`);
+    }
+    check('Delete All My Data removes every per-user row', leftovers.length === 0, `left: ${leftovers.join(', ')}`);
+  }
   await supabase.auth.signOut();
 }
 
