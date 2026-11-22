@@ -9,7 +9,8 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "test": "playwright test",
-    "test:db": "node scripts/db-roundtrip.mjs"
+    "test:db": "node scripts/db-roundtrip.mjs",
+    "test:cv": "node scripts/cv-pipeline-check.mjs"
   },
   "dependencies": {
     "@sentry/react": "^10.69.0",

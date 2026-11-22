@@ -47,6 +47,11 @@ supabase secrets set LLAMA_CLOUD_PROJECT_ID=<project id>
 supabase secrets set N8N_SHARED_SECRET=<random string>   # name is historical
 ```
 
+The functions reach the database with the project's **secret** API key, which
+Supabase injects as `SUPABASE_SECRET_KEYS` (JSON, `{"default": "sb_secret_…"}`).
+The legacy `SUPABASE_SERVICE_ROLE_KEY` is only a fallback while legacy keys are
+enabled. Check the whole pipeline live with `npm run test:cv` in `web-app/`.
+
 `N8N_SHARED_SECRET` authenticates `extract-cv` → `apply-cv-profile`
 (`X-Webhook-Secret` header). Without it `apply-cv-profile` refuses every
 request. It writes profile data, so it cannot be open to the internet.

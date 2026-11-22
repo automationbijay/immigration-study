@@ -29,7 +29,19 @@ import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
-const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+// Admin key: the new secret API key (injected as SUPABASE_SECRET_KEYS, JSON
+// {"default": "sb_secret_..."}), falling back to the legacy service_role JWT
+// only while legacy keys are still enabled on the project.
+function adminKey(): string {
+  try {
+    const keys = JSON.parse(Deno.env.get("SUPABASE_SECRET_KEYS") ?? "{}");
+    if (typeof keys.default === "string" && keys.default) return keys.default;
+  } catch {
+    // fall through to the legacy key
+  }
+  return Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+}
+const SUPABASE_SERVICE_ROLE_KEY = adminKey();
 const N8N_SHARED_SECRET = Deno.env.get("N8N_SHARED_SECRET");
 
 // profile_education.level uses the Profile form's vocabulary, so an imported

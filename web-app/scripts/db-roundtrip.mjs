@@ -5,7 +5,7 @@
 // and finally clears the account's data with clear_user_data().
 //
 // Usage (from web-app/):  node scripts/db-roundtrip.mjs
-// Needs .env.local (VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY) and either
+// Needs .env.local (VITE_SUPABASE_URL, VITE_SUPABASE_PUBLISHABLE_KEY) and either
 // .env.test.local or environment variables (TEST_EMAIL, TEST_PASSWORD). NEVER point this at a real user:
 // it deletes all of the account's data at the end.
 import fs from 'node:fs';
@@ -24,7 +24,7 @@ for (const file of files) {
 
 for (const k of ['TEST_EMAIL', 'TEST_PASSWORD']) if (process.env[k]) env[k] = process.env[k];
 
-const supabase = createClient(env.VITE_SUPABASE_URL, env.VITE_SUPABASE_ANON_KEY, { auth: { persistSession: false } });
+const supabase = createClient(env.VITE_SUPABASE_URL, env.VITE_SUPABASE_PUBLISHABLE_KEY || env.VITE_SUPABASE_ANON_KEY, { auth: { persistSession: false } });
 const results = [];
 const check = (name, ok, detail = '', needsMigration = false) => {
   results.push({ name, ok, needsMigration });

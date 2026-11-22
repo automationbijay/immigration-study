@@ -12,6 +12,7 @@ npm run build      # production build in dist/
 npm run lint       # oxlint
 npm test           # Playwright end-to-end tests (database calls are mocked)
 npm run test:db    # live database round-trip, see below
+npm run test:cv    # live CV pipeline check (upload → AI → profile → points)
 ```
 
 ## Environment (`.env.local`, git-ignored)
@@ -19,7 +20,7 @@ npm run test:db    # live database round-trip, see below
 | Variable | Required | Purpose |
 |---|---|---|
 | `VITE_SUPABASE_URL` | yes | Supabase project URL |
-| `VITE_SUPABASE_ANON_KEY` | yes | Supabase anon (public) key |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | yes | Supabase publishable key (`sb_publishable_…`). The legacy `VITE_SUPABASE_ANON_KEY` is still read as a fallback. |
 | `VITE_SENTRY_DSN` | no | Error monitoring |
 | `VITE_CONTACT_EMAIL` | no | Shown on the Contact page; the contact form works without it |
 
@@ -45,6 +46,7 @@ public/
   favicon.svg, favicon.ico, apple-touch-icon.png, pwa-192x192.png, pwa-512x512.png
 scripts/
   db-roundtrip.mjs        live save/read-back check against Supabase
+  cv-pipeline-check.mjs   live CV upload → extraction → profile → points check
 tests/e2e/                Playwright specs
 ```
 
@@ -54,7 +56,8 @@ tests/e2e/                Playwright specs
 profile section the way the app does, reads it back, checks the derived points,
 and then **deletes all of that account's data**. Never use a real account.
 
-Create `.env.test.local` (git-ignored):
+Both live scripts read `TEST_EMAIL` / `TEST_PASSWORD` from the environment, or
+from `.env.test.local` (git-ignored):
 
 ```ini
 TEST_EMAIL=throwaway@example.com

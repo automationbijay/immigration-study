@@ -50,7 +50,7 @@ Create `web-app/.env.local`:
 
 ```ini
 VITE_SUPABASE_URL=https://<project>.supabase.co
-VITE_SUPABASE_ANON_KEY=<anon key>
+VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...   # safe in the browser; RLS protects data
 VITE_SENTRY_DSN=<optional>
 VITE_CONTACT_EMAIL=<optional, shown on the Contact page>
 ```
@@ -69,6 +69,13 @@ supabase functions deploy <name> --project-ref mvycqvmojoqtfyvjsigv --use-api
 
 Edge Function secrets: `LLAMA_CLOUD_API_KEY`, `LLAMA_CLOUD_PROJECT_ID`,
 `N8N_SHARED_SECRET` (the name is historical; it signs `extract-cv` → `apply-cv-profile`).
+Supabase injects the project keys itself; the CV functions use the new secret
+key from `SUPABASE_SECRET_KEYS` (legacy `SUPABASE_SERVICE_ROLE_KEY` only as a fallback).
+
+**API keys.** The project uses the new key system: a **publishable** key
+(`sb_publishable_…`) in the browser and a **secret** key (`sb_secret_…`) only on
+servers and in local scripts (`SUPABASE_KEY` in the root `.env`). Never put the
+secret key in the web app or commit it.
 
 Recent migrations (all applied to the live project on 22 November 2026):
 
@@ -92,6 +99,7 @@ Recent migrations (all applied to the live project on 22 November 2026):
 cd web-app
 npm test             # Playwright e2e (database calls are mocked)
 npm run test:db      # live round-trip with a throwaway account (see web-app/README.md)
+npm run test:cv      # live CV upload → AI extraction → profile → points, then cleanup
 ```
 
 ### 4. Reviewing feedback
@@ -109,6 +117,8 @@ CLI token:
 
 ```ini
 DATABASE_URL="postgresql://postgres.[PROJECT-REF]:[YOUR-PASSWORD]@aws-0-ap-south-1.pooler.supabase.com:6543/postgres"
+SUPABASE_URL=https://<project>.supabase.co
+SUPABASE_KEY=sb_secret_...        # secret key, for scripts in /script only
 SUPABASE_ACCESS_TOKEN=sbp_...
 ```
 
