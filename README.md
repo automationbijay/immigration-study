@@ -75,7 +75,9 @@ key from `SUPABASE_SECRET_KEYS` (legacy `SUPABASE_SERVICE_ROLE_KEY` only as a fa
 **API keys.** The project uses the new key system: a **publishable** key
 (`sb_publishable_…`) in the browser and a **secret** key (`sb_secret_…`) only on
 servers and in local scripts (`SUPABASE_KEY` in the root `.env`). Never put the
-secret key in the web app or commit it.
+secret key in the web app or commit it. Legacy JWT keys (anon /
+service_role) were **disabled on 22 November 2026**, after a leak; re-enabling
+them is not needed for anything in this repo.
 
 Recent migrations (all applied to the live project on 22 November 2026):
 
