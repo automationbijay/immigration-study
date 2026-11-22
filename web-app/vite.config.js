@@ -14,13 +14,13 @@ export default defineConfig({
     }),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
+      includeAssets: ['favicon.svg', 'favicon.ico', 'apple-touch-icon.png'],
       manifest: {
-        name: 'Migration Assistant',
-        short_name: 'Migration',
-        description: 'Check your eligibility for Australian skilled migration.',
-        theme_color: '#FFFFFF',
-        background_color: '#FFFFFF',
+        name: 'Skilled Migration Assistant',
+        short_name: 'Skilled Migration',
+        description: 'Upload your CV and let AI estimate your skilled migration points for Australia and Canada.',
+        theme_color: '#142036',
+        background_color: '#f4ead8',
         display: 'standalone',
         icons: [
           {
@@ -37,7 +37,7 @@ export default defineConfig({
             src: 'pwa-512x512.png',
             sizes: '512x512',
             type: 'image/png',
-            purpose: 'any maskable'
+            purpose: 'maskable'
           }
         ]
       }

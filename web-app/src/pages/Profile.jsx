@@ -1,5 +1,6 @@
+import PageLink from '../components/ui/PageLink';
 import React, { useState, useEffect } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useProfile } from '../lib/ProfileContext';
 import { User, Globe, GraduationCap, Briefcase, CheckCircle2, ChevronRight, Users, LogOut, FileText, Upload, Download, Trash2 } from 'lucide-react';
@@ -7,7 +8,6 @@ import OccupationSearch from '../components/OccupationSearch';
 import UniversitySearch from '../components/UniversitySearch';
 import CvUploadModal from '../components/CvUploadModal';
 import Modal from '../components/ui/Modal';
-import Toast from '../components/ui/Toast';
 import { SkeletonPage } from '../components/ui/Skeleton';
 
 const SECTIONS = [
@@ -20,10 +20,11 @@ const SECTIONS = [
   { id: 'cv', label: 'My CV', icon: FileText },
 ];
 
-function SectionRow({ icon: Icon, label, onClick, isComplete, counts }) {
+function SectionRow({ icon: Icon, label, to, onClick, isComplete, counts }) {
+  const Row = to ? PageLink : 'button';
   const unanswered = counts ? counts.total - counts.answered : 0;
   return (
-    <button type="button" className="profile-section-row" onClick={onClick}>
+    <Row className="profile-section-row" {...(to ? { to } : { type: 'button', onClick })}>
       <Icon size={20} className="profile-section-icon" aria-hidden="true" />
       <span className="profile-section-label" style={{ flexGrow: 1, textAlign: 'left' }}>{label}</span>
       {isComplete ? (
@@ -31,8 +32,8 @@ function SectionRow({ icon: Icon, label, onClick, isComplete, counts }) {
           display: 'inline-flex',
           alignItems: 'center',
           gap: '4px',
-          background: '#dcfce7',
-          color: '#166534',
+          background: 'var(--color-success-bg)',
+          color: 'var(--color-success-fg)',
           padding: '2px 8px',
           borderRadius: '12px',
           fontSize: '12px',
@@ -46,8 +47,8 @@ function SectionRow({ icon: Icon, label, onClick, isComplete, counts }) {
           display: 'inline-flex',
           alignItems: 'center',
           gap: '4px',
-          background: '#f1f5f9',
-          color: '#475569',
+          background: 'var(--cream-2)',
+          color: 'var(--ochre-deep)',
           padding: '2px 8px',
           borderRadius: '12px',
           fontSize: '12px',
@@ -57,10 +58,18 @@ function SectionRow({ icon: Icon, label, onClick, isComplete, counts }) {
           Incomplete {counts && counts.total > 0 && `(${unanswered}/${counts.total})`}
         </span>
       )}
-      <ChevronRight size={20} className="profile-section-chevron" aria-hidden="true" />
-    </button>
+      {!to && <ChevronRight size={20} className="profile-section-chevron" aria-hidden="true" />}
+    </Row>
   );
 }
+
+const cvStatusText = {
+  pending: 'File received. Waiting for processing.',
+  processing: 'Reading your CV.',
+  extracted: 'Your details have been extracted. Profile update pending.',
+  applied: 'Import complete. Review education and work experience in your profile.',
+  failed: 'Import failed. Replace your CV or enter your details manually.',
+};
 
 function CvViewer({ cvPath, onMissing }) {
   const [cvSignedUrl, setCvSignedUrl] = useState(null);
@@ -134,27 +143,29 @@ function CvViewer({ cvPath, onMissing }) {
   );
 }
 
+// An unsaved row the user never typed into: nothing to save, nothing wrong.
+const isBlankRow = (row) => !row.id && Object.entries(row).every(([, v]) => v === '' || v == null);
+
+// Older CV imports stored lowercase levels; map them to the form's options.
+const LEVEL_ALIASES = {
+  none: 'High School', 'high school': 'High School', diploma: 'Diploma', diploma_or_trade: 'Diploma',
+  bachelor: 'Bachelor', masters: 'Masters', doctorate: 'Doctorate', unrecognized: 'Unrecognized',
+};
+const normalizeLevel = (level) => (level ? LEVEL_ALIASES[String(level).toLowerCase()] ?? level : level);
+
+const TEST_TABLES = {
+  IELTS: 'test_ielts',
+  PTE: 'test_pte',
+  TOEFL: 'test_toefl',
+  Cambridge: 'test_cambridge',
+  OET: 'test_oet',
+};
+
 export default function Profile({ session }) {
   const { profileRow, basicRow, loading: profileLoading, error: profileError, refetch } = useProfile();
   const [searchParams, setSearchParams] = useSearchParams();
-  const navigate = useNavigate();
   const [isCvModalOpen, setIsCvModalOpen] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [profile, setProfile] = useState({
-    spouseDetails: '',
-    childrenCount: 0,
-    overseasExp: 0,
-    ausExp: 0,
-    education: 0,
-    specialistEdu: false,
-    ausStudy: false,
-    professionalYear: false,
-    ccl: false,
-    regionalStudy: false,
-    partnerSkills: 0,
-    educationAnzsco: null,
-    experienceAnzsco: null,
-  });
   
   const [basicDetails, setBasicDetails] = useState({
     dob: '',
@@ -168,6 +179,7 @@ export default function Profile({ session }) {
 
   // Kept out of basicDetails so it is never upserted into profile_basic.
   const [cvPath, setCvPath] = useState(null);
+  const [cvStatus, setCvStatus] = useState(null);
 
   const [languageProficiency, setLanguageProficiency] = useState([]);
   const [educationHistory, setEducationHistory] = useState([]);
@@ -193,7 +205,6 @@ export default function Profile({ session }) {
     async function fetchStatuses() {
       const isBasic = Boolean(basicRow?.name && basicRow?.dob);
       const isProfession = Boolean(profileRow?.experienceAnzsco);
-      const isLanguage = profileRow?.english !== null && profileRow?.english !== undefined;
       
       const promises = [
         supabase.from('profile_education').select('*').eq('user_id', session.user.id).limit(1).maybeSingle(),
@@ -209,11 +220,12 @@ export default function Profile({ session }) {
       
       const [edu, exp, fam, cvRes, ielts, pte, toefl, cambridge, oet] = await Promise.all(promises);
       if (!active) return;
+      const langData = ielts.data || pte.data || toefl.data || cambridge.data || oet.data;
       
       setSectionStatuses({
         basic: isBasic,
         profession: isProfession,
-        language: isLanguage,
+        language: Boolean(langData),
         education: !!edu.data,
         experience: !!exp.data,
         family: !!fam.data,
@@ -247,7 +259,6 @@ export default function Profile({ session }) {
         counts.family.answered = ['relation', 'age', 'gender', 'highest_education', 'language_test_type', 'language_overall_score', 'citizenship_or_pr', 'current_country_of_residence'].filter(k => Boolean(fam.data[k])).length;
       }
 
-      const langData = ielts.data || pte.data || toefl.data || cambridge.data || oet.data;
       if (langData) {
         counts.language.answered = 1 + ['listening', 'reading', 'writing', 'speaking', 'overall', 'test_date'].filter(k => Boolean(langData[k])).length;
       }
@@ -278,10 +289,7 @@ export default function Profile({ session }) {
   };
 
   const toggleSection = (section) => {
-    if (section === 'profession') {
-      navigate('/tools/anzsco');
-      return;
-    }
+    setMessage('');
     setExpandedSection(prev => prev === section ? null : section);
   };
 
@@ -314,7 +322,6 @@ export default function Profile({ session }) {
   // countries fetch permanently unreachable once this ran (see loadSection).
   useEffect(() => {
     if (profileLoading) return;
-    if (profileRow) setProfile(prev => ({ ...prev, ...profileRow }));
     if (basicRow) {
       const { cv_url: _legacyCvUrl, ...rest } = basicRow;
       setBasicDetails(prev => ({ ...prev, ...rest }));
@@ -340,17 +347,18 @@ export default function Profile({ session }) {
         }
 
         if (section === 'cv') {
-          const { data, error } = await supabase.from('cv_metadata').select('file_url').eq('user_id', user.id).order('created_at', { ascending: false }).limit(1).maybeSingle();
+          const { data, error } = await supabase.from('cv_metadata').select('file_url, extraction_status').eq('user_id', user.id).order('created_at', { ascending: false }).limit(1).maybeSingle();
           if (error) throw error;
           if (!ignore) {
             setCvPath(data?.file_url ?? null);
+            setCvStatus(data?.extraction_status);
             setLoadedSections(prev => ({ ...prev, cv: true }));
           }
         } else if (section === 'education') {
           const { data, error } = await supabase.from('profile_education').select('*').eq('user_id', user.id).order('created_at', { ascending: true });
           if (error) throw error;
           if (!ignore) {
-            setEducationHistory(data && data.length > 0 ? data : [{ level: '', university_name: '', field_of_study: '', country: '', start_date: '', end_date: '' }]);
+            setEducationHistory(data && data.length > 0 ? data.map(ed => ({ ...ed, level: normalizeLevel(ed.level) })) : [{ level: '', university_name: '', field_of_study: '', country: '', start_date: '', end_date: '' }]);
             setLoadedSections(prev => ({ ...prev, education: true }));
           }
         } else if (section === 'family') {
@@ -393,7 +401,7 @@ export default function Profile({ session }) {
           if (!ignore) {
             if (combined.length > 0) {
               setLanguageProficiency(combined.map(test => ({
-                id: test.id, language_test: test.language_test,
+                id: test.id, language_test: test.language_test, saved_test: test.language_test,
                 test_score_listening: test.listening ?? '', test_score_reading: test.reading ?? '',
                 test_score_writing: test.writing ?? '', test_score_speaking: test.speaking ?? '',
                 test_score_overall: test.overall ?? '', score_published_date: test.test_date ?? ''
@@ -430,12 +438,13 @@ export default function Profile({ session }) {
     let succeeded = true;
 
     if (expandedSection === 'basic') {
-      const profileUpdates = { id: user.id, ...profile, updated_at: new Date() };
+      // Basic details live only in profile_basic. point_australia is owned by
+      // the calculator and the language-test triggers; re-upserting a cached
+      // copy of it here used to overwrite newer answers with stale ones.
       const basicUpdates = { id: user.id, ...basicDetails, dob: basicDetails.dob === '' ? null : basicDetails.dob, updated_at: new Date() };
-      const { error: profileSaveError } = await supabase.from('point_australia').upsert(profileUpdates);
       const { error: basicSaveError } = await supabase.from('profile_basic').upsert(basicUpdates);
 
-      succeeded = !profileSaveError && !basicSaveError;
+      succeeded = !basicSaveError;
       // Refresh the app-wide copy (ProfileContext) so Home's score and any
       // other consumer picks up the save without waiting on its own fetch.
       if (succeeded) refetch();
@@ -444,12 +453,7 @@ export default function Profile({ session }) {
       const newLanguageProficiency = [...languageProficiency];
       for (let i = 0; i < newLanguageProficiency.length; i++) {
         const lp = newLanguageProficiency[i];
-        let tableName = '';
-        if (lp.language_test === 'IELTS') tableName = 'test_ielts';
-        else if (lp.language_test === 'PTE') tableName = 'test_pte';
-        else if (lp.language_test === 'TOEFL') tableName = 'test_toefl';
-        else if (lp.language_test === 'Cambridge') tableName = 'test_cambridge';
-        else if (lp.language_test === 'OET') tableName = 'test_oet';
+        const tableName = TEST_TABLES[lp.language_test] || '';
         
         if (tableName) {
           const updateData = {
@@ -462,23 +466,32 @@ export default function Profile({ session }) {
             test_date: lp.score_published_date || null,
             updated_at: new Date(),
           };
-          if (lp.id) updateData.id = lp.id;
-          
+          // A saved test whose type was switched lives in the old table; move it.
+          if (lp.id && lp.saved_test && lp.saved_test !== lp.language_test) {
+            const { error: moveError } = await supabase.from(TEST_TABLES[lp.saved_test]).delete().eq('id', lp.id);
+            if (moveError) { languageError = moveError; continue; }
+          } else if (lp.id) {
+            updateData.id = lp.id;
+          }
+
           const { data, error } = await supabase.from(tableName).upsert(updateData).select();
           if (error) {
             languageError = error;
           } else if (data && data.length > 0) {
-            newLanguageProficiency[i] = { ...lp, id: data[0].id };
+            newLanguageProficiency[i] = { ...lp, id: data[0].id, saved_test: lp.language_test };
           }
         }
       }
       setLanguageProficiency(newLanguageProficiency);
       succeeded = !languageError;
+      // Saving a test recalculates point_australia.english in the database.
+      if (succeeded) refetch();
     } else if (expandedSection === 'education') {
       let educationError = null;
       const newEducationHistory = [...educationHistory];
       for (let i = 0; i < newEducationHistory.length; i++) {
         const ed = newEducationHistory[i];
+        if (isBlankRow(ed)) continue;
         const updateData = {
           user_id: user.id, level: ed.level || null, university_name: ed.university_name || null,
           university_id: ed.university_id || null, field_of_study: ed.field_of_study || null, country: ed.country || null,
@@ -491,11 +504,14 @@ export default function Profile({ session }) {
       }
       setEducationHistory(newEducationHistory);
       succeeded = !educationError;
+      // The database recalculates point_australia.education from these rows.
+      if (succeeded) refetch();
     } else if (expandedSection === 'family') {
       let familyError = null;
       const newFamilyMembers = [...familyMembers];
       for (let i = 0; i < newFamilyMembers.length; i++) {
         const fm = newFamilyMembers[i];
+        if (isBlankRow(fm)) continue;
         const updateData = {
           profile_id: user.id, relation: fm.relation || null, age: fm.age ? parseInt(fm.age) : null,
           highest_education: fm.highest_education || null, language_test_type: fm.language_test_type || null,
@@ -514,7 +530,11 @@ export default function Profile({ session }) {
       const newWorkExperience = [...workExperience];
       for (let i = 0; i < newWorkExperience.length; i++) {
         const we = newWorkExperience[i];
-        if (!we.company_name || !we.role || !we.country || !we.start_date) continue; // Skip incomplete
+        if (isBlankRow(we)) continue;
+        if (!we.company_name || !we.role || !we.country || !we.start_date) {
+          experienceError = true;
+          continue;
+        }
         const updateData = {
           user_id: user.id, company_name: we.company_name, role: we.role, country: we.country,
           start_date: we.start_date, end_date: we.end_date || null,
@@ -526,20 +546,12 @@ export default function Profile({ session }) {
       }
       setWorkExperience(newWorkExperience);
       succeeded = !experienceError;
+      // The database recalculates overseasExp / ausExp from these rows.
+      if (succeeded) refetch();
     }
 
-    setMessage(succeeded ? 'Profile saved successfully!' : 'Error updating profile!');
-    setSaving(false);
-    setTimeout(() => setMessage(''), 3000);
+    setMessage(succeeded ? 'Profile saved.' : 'Could not save every change. Review your entries and try again.');
     return succeeded;
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setProfile(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : (type === 'number' ? parseInt(value) || 0 : value)
-    }));
   };
 
   const handleBasicChange = (e) => {
@@ -548,6 +560,16 @@ export default function Profile({ session }) {
       ...prev,
       [name]: value
     }));
+  };
+
+  const deleteRow = async (table, id) => {
+    const { error } = await supabase.from(table).delete().eq('id', id);
+    if (error) {
+      console.error(`Failed to delete from ${table}:`, error);
+      setMessage('Could not remove that entry. Try again.');
+      return false;
+    }
+    return true;
   };
 
   const handleLanguageChange = (index, e) => {
@@ -577,16 +599,10 @@ export default function Profile({ session }) {
   const removeLanguageTest = async (index) => {
     const testToRemove = languageProficiency[index];
     if (testToRemove.id) {
-      let tableName = '';
-      if (testToRemove.language_test === 'IELTS') tableName = 'test_ielts';
-      else if (testToRemove.language_test === 'PTE') tableName = 'test_pte';
-      else if (testToRemove.language_test === 'TOEFL') tableName = 'test_toefl';
-      else if (testToRemove.language_test === 'Cambridge') tableName = 'test_cambridge';
-      else if (testToRemove.language_test === 'OET') tableName = 'test_oet';
+      const tableName = TEST_TABLES[testToRemove.saved_test || testToRemove.language_test] || '';
 
-      if (tableName) {
-        await supabase.from(tableName).delete().eq('id', testToRemove.id);
-      }
+      if (tableName && !(await deleteRow(tableName, testToRemove.id))) return;
+      refetch(); // english points are recalculated from the remaining tests
     }
     setLanguageProficiency(prev => prev.filter((_, i) => i !== index));
   };
@@ -613,7 +629,8 @@ export default function Profile({ session }) {
   const removeEducation = async (index) => {
     const edToRemove = educationHistory[index];
     if (edToRemove.id) {
-      await supabase.from('profile_education').delete().eq('id', edToRemove.id);
+      if (!(await deleteRow('profile_education', edToRemove.id))) return;
+      refetch();
     }
     setEducationHistory(prev => prev.filter((_, i) => i !== index));
   };
@@ -637,7 +654,7 @@ export default function Profile({ session }) {
   const removeFamilyMember = async (index) => {
     const fmToRemove = familyMembers[index];
     if (fmToRemove.id) {
-      await supabase.from('profile_family').delete().eq('id', fmToRemove.id);
+      if (!(await deleteRow('profile_family', fmToRemove.id))) return;
     }
     setFamilyMembers(prev => prev.filter((_, i) => i !== index));
   };
@@ -661,7 +678,8 @@ export default function Profile({ session }) {
   const removeExperience = async (index) => {
     const expToRemove = workExperience[index];
     if (expToRemove.id) {
-      await supabase.from('profile_experience').delete().eq('id', expToRemove.id);
+      if (!(await deleteRow('profile_experience', expToRemove.id))) return;
+      refetch();
     }
     setWorkExperience(prev => prev.filter((_, i) => i !== index));
   };
@@ -674,15 +692,19 @@ export default function Profile({ session }) {
     e.preventDefault();
     // Branch on the returned result: `message` still holds its pre-save value
     // at this point, so reading it here would always look like a success.
-    const succeeded = await updateProfile(e);
-    if (succeeded) {
-      closeModal();
+    setMessage('');
+    try {
+      if (await updateProfile(e)) closeModal();
+    } catch {
+      setMessage('Could not save. Your edits are here. Try again.');
+    } finally {
+      setSaving(false);
     }
   };
 
-  if (profileLoading && !profile.id) return <SkeletonPage lines={4} label="Loading your profile" />;
+  if (profileLoading && !profileRow && !basicRow) return <SkeletonPage lines={4} label="Loading your profile" />;
 
-  if (profileError && !profile.id) {
+  if (profileError && !profileRow && !basicRow) {
     return (
       <div className="profile-container">
         <div className="empty-state">
@@ -714,7 +736,7 @@ export default function Profile({ session }) {
 
   return (
     <div className="profile-container">
-      <Toast message={message} />
+      {!expandedSection && message && <p role="status" className="profile-save-status">{message}</p>}
 
       <div className="profile-identity">
         {avatarUrl && !avatarFailed ? (
@@ -743,7 +765,7 @@ export default function Profile({ session }) {
 
       <div className="profile-sections">
         {SECTIONS.map(({ id, label, icon }) => (
-          <SectionRow key={id} icon={icon} label={label} onClick={() => toggleSection(id)} isComplete={sectionStatuses[id]} counts={sectionCounts[id]} />
+          <SectionRow key={id} icon={icon} label={label} to={id === 'profession' ? '/tools/anzsco' : undefined} onClick={() => toggleSection(id)} isComplete={sectionStatuses[id]} counts={sectionCounts[id]} />
         ))}
       </div>
 
@@ -806,6 +828,10 @@ export default function Profile({ session }) {
                       </button>
                     </div>
 
+                    <p role="status">{cvStatusText[cvStatus] ?? 'CV file received.'}</p>
+                    {['pending', 'processing', 'extracted'].includes(cvStatus) && (
+                      <button type="button" className="link-button" onClick={() => setLoadedSections(prev => ({ ...prev, cv: false }))}>Refresh import status</button>
+                    )}
                     <CvViewer cvPath={cvPath} onMissing={() => setIsCvModalOpen(true)} />
                   </>
                 ) : (
@@ -1126,6 +1152,7 @@ export default function Profile({ session }) {
                 </>
               )}
 
+              {message && <p role="status">{message}</p>}
               <div className="modal-actions">
                 <button type="button" className="btn-secondary" onClick={closeModal}>Cancel</button>
                 <button type="submit" className="btn-primary" disabled={saving}>
@@ -1143,6 +1170,10 @@ export default function Profile({ session }) {
         onClose={() => setIsCvModalOpen(false)} 
         onUploadComplete={(path) => {
           setCvPath(path);
+          setCvStatus(null);
+          setExpandedSection('cv');
+          setLoadedSections(prev => ({ ...prev, cv: false }));
+          refetch();
         }} 
       />
     </div>

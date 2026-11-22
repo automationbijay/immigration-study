@@ -1,3 +1,4 @@
+import PageLink from '../components/ui/PageLink';
 import React, { useState } from 'react';
 import UniversitySearch from '../components/UniversitySearch';
 import { GraduationCap } from 'lucide-react';
@@ -8,9 +9,9 @@ export default function UniversityTool() {
 
   return (
     <>
-      <PageHeader 
-        title="University Finder" 
-        backTo="/discover" 
+      <PageHeader
+        title="University directory"
+        backTo="/discover"
       />
       <div className="section">
         <div className="panel" style={{ marginBottom: '2rem' }}>
@@ -21,15 +22,15 @@ export default function UniversityTool() {
             <h2 className="section-title" style={{ margin: 0 }}>Find Your University</h2>
           </div>
           <p className="text-muted" style={{ lineHeight: '1.6' }}>
-            Finding a recognized university can be important for assessing your eligibility for certain visas or claiming points (e.g., Australian Study Requirement or Specialist Educational Qualifications).
+            Search the Hipolabs university directory by institution name. For migration requirements, check your visa and the relevant assessing authority.
           </p>
           <p className="text-muted" style={{ lineHeight: '1.6', marginTop: '1rem' }}>
-            Use the search tool below to find your university in our database.
+            <PageLink href="https://immi.homeaffairs.gov.au/visas/working-in-australia/skills-assessment">Read the Home Affairs guidance on skills assessments</PageLink>.
           </p>
         </div>
 
-        <UniversitySearch 
-          label="Search for your University" 
+        <UniversitySearch
+          label="Search for your University"
           value={selectedUniversity}
           onChange={setSelectedUniversity}
         />

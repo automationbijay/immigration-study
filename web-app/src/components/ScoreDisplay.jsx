@@ -1,61 +1,48 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { ELIGIBILITY_THRESHOLD, isEligible } from '../lib/points';
-import FloatingScoreCard from './FloatingScoreCard';
+import { useEffect, useRef, useState } from 'react';
+import { metrics } from '@sentry/react';
+import PageLink from './ui/PageLink';
 
-const DURATION_MS = 500;
+export default function ScoreDisplay({ country, title, score, unit, rows, missing, started, prompt, threshold, guidance, source }) {
+  const complete = missing.length === 0;
+  const [breakdownOpen, setBreakdownOpen] = useState(false);
+  const counted = useRef({ started: false, reviewed: false });
 
-/**
- * The count-up is driven by requestAnimationFrame, so CSS cannot switch it
- * off — the preference has to be read here too.
- */
-function prefersReducedMotion() {
-  return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+  useEffect(() => {
+    if (!import.meta.env.PROD || !import.meta.env.VITE_SENTRY_DSN) return;
+    if (started && !counted.current.started) {
+      metrics.count('calculator.started', 1, { attributes: { country } });
+      counted.current.started = true;
+    }
+    if (complete && breakdownOpen && !counted.current.reviewed) {
+      metrics.count('calculator.reviewed', 1, { attributes: { country } });
+      counted.current.reviewed = true;
+    }
+  }, [country, started, complete, breakdownOpen]);
+
+  return (
+    <aside className="estimate-panel" id="estimate" tabIndex={-1} aria-label={title}>
+      <h2>{title}</h2>
+      <div role="status" className="estimate-status">
+        {started ? (
+          <>
+            <p className="estimate-number">{score} <span>{unit}</span></p>
+            <p>{complete
+              ? (score >= threshold ? `Meets the ${threshold}-point threshold.` : `${threshold - score} points below the threshold.`)
+              : `Partial estimate. Still to answer: ${missing.join(', ')}.`}</p>
+          </>
+        ) : <p>{prompt}</p>}
+      </div>
+      {started && (
+        <details className="estimate-breakdown" onToggle={event => setBreakdownOpen(event.currentTarget.open)}>
+          <summary>View breakdown</summary>
+          <dl>
+            {rows.map(({ label, points }) => (
+              <div key={label}><dt>{label}</dt><dd>{points ?? 'Unanswered'}</dd></div>
+            ))}
+          </dl>
+        </details>
+      )}
+      <PageLink href={source}>{guidance}</PageLink>
+    </aside>
+  );
 }
-
-const ScoreDisplay = ({ targetScore }) => {
-    const [displayScore, setDisplayScore] = useState(0);
-    // Holds the rendered value so the animation can read its own starting point
-    // without making `displayScore` a dependency (which would restart the
-    // tween on every frame).
-    const renderedRef = useRef(0);
-
-    useEffect(() => {
-        const from = renderedRef.current;
-        const delta = targetScore - from;
-        if (delta === 0) return;
-
-        if (prefersReducedMotion()) {
-            renderedRef.current = targetScore;
-            setDisplayScore(targetScore);
-            return;
-        }
-
-        let frame;
-        let startedAt;
-
-        const tick = (now) => {
-            if (startedAt === undefined) startedAt = now;
-            const progress = Math.min((now - startedAt) / DURATION_MS, 1);
-            const value = Math.round(from + delta * progress);
-            renderedRef.current = value;
-            setDisplayScore(value);
-            if (progress < 1) frame = requestAnimationFrame(tick);
-        };
-
-        frame = requestAnimationFrame(tick);
-        return () => cancelAnimationFrame(frame);
-    }, [targetScore]);
-
-    const eligible = isEligible(displayScore);
-
-    return (
-        <FloatingScoreCard
-            title="Estimated Total Points"
-            subtitle={eligible ? `Eligible (${ELIGIBILITY_THRESHOLD}+ Points)` : `Need ${ELIGIBILITY_THRESHOLD - displayScore} more pts`}
-            score={displayScore}
-            maxWidth="900px"
-        />
-    );
-};
-
-export default ScoreDisplay;

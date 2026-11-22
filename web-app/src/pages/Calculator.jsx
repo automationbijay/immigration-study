@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import PointsForm from '../components/PointsForm';
 import ScoreDisplay from '../components/ScoreDisplay';
 import { supabase } from '../lib/supabase';
 import { useProfile } from '../lib/ProfileContext';
 import { Calculator as CalculatorIcon } from 'lucide-react';
 import PageHeader from '../components/ui/PageHeader';
-import Toast from '../components/ui/Toast';
 import { SkeletonPage } from '../components/ui/Skeleton';
 import {
   AGE_BANDS,
@@ -13,50 +12,57 @@ import {
   EDUCATION_BANDS,
   PARTNER_SKILLS_BANDS,
   formFromProfileRow,
+  pointsBreakdown,
+  ELIGIBILITY_THRESHOLD,
   pointsForBandId,
   totalPointsFromForm,
 } from '../lib/points';
 
 export default function Calculator({ session }) {
-  const { profileRow, basicRow, loading: profileLoading, refetch } = useProfile();
-  
-  const [loading, setLoading] = useState(true);
+  const { profileRow, basicRow, loading, error, refetch } = useProfile();
+  if (loading) return <SkeletonPage lines={3} label="Loading the calculator" />;
+  if (error) return <button className="btn-secondary" onClick={() => refetch()}>Retry loading your profile</button>;
+  return <AustralianEstimate key={session?.user.id ?? 'guest'} session={session} profileRow={profileRow} basicRow={basicRow} refetch={refetch} />;
+}
+
+const coreFields = {
+  ageBand: 'Age',
+  englishBand: 'English',
+  overseasExpYears: 'Overseas employment',
+  ausExpYears: 'Australian employment',
+  educationBand: 'Education',
+  partnerSkillsBand: 'Partner skills',
+};
+
+function AustralianEstimate({ session, profileRow, basicRow, refetch }) {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
-
-  // Band ids for everything scored from a fixed table; raw years for the two
-  // experience fields, because that is the unit `point_australia` stores.
-  const [formData, setFormData] = useState({
-    ageBand: 'unset',
-    englishBand: 'competent',
-    overseasExpYears: 0,
-    ausExpYears: 0,
-    educationBand: 'none',
-    specialistEdu: false,
-    ausStudy: false,
-    professionalYear: false,
-    ccl: false,
-    regionalStudy: false,
-    partnerSkillsBand: 'none',
+  const [formData, setFormData] = useState(() => {
+    const form = formFromProfileRow(profileRow, basicRow);
+    if (profileRow?.english == null) form.englishBand = '';
+    if (profileRow?.overseasExp == null) form.overseasExpYears = null;
+    if (profileRow?.ausExp == null) form.ausExpYears = null;
+    if (profileRow?.education == null) form.educationBand = '';
+    if (profileRow?.partnerSkills == null) form.partnerSkillsBand = '';
+    return form;
   });
-
-  useEffect(() => {
-    if (!profileLoading) {
-      if (profileRow) {
-        setFormData(formFromProfileRow(profileRow, basicRow));
-      }
-      setLoading(false);
-    }
-  }, [profileLoading, profileRow, basicRow]);
-
+  const missing = Object.entries(coreFields)
+    .filter(([key]) => formData[key] == null || formData[key] === '' || formData[key] === 'unset')
+    .map(([, label]) => label);
+  const rows = pointsBreakdown(formData).map(row => {
+    const unknown = missing.includes(row.label) || (row.label === 'Work experience'
+      && formData.overseasExpYears == null && formData.ausExpYears == null);
+    return { ...row, points: unknown ? null : row.points };
+  });
   const totalPoints = totalPointsFromForm(formData);
 
   const handleChange = useCallback((name, value) => {
+    setMessage('');
     setFormData(prev => ({ ...prev, [name]: value }));
   }, []);
 
   const handleSave = async () => {
-    if (!session?.user?.id) return;
+    if (!session?.user?.id || missing.length) return;
     setSaving(true);
     setMessage('');
     try {
@@ -80,39 +86,36 @@ export default function Calculator({ session }) {
 
       if (error) throw error;
       setMessage('Profile updated successfully!');
-      setTimeout(() => setMessage(''), 3000);
+      refetch();
     } catch (error) {
       console.error('Error saving profile:', error);
-      setMessage('Failed to update profile.');
+      setMessage('Could not save. Your answers are here. Try again.');
     } finally {
       setSaving(false);
     }
   };
 
-  if (loading) return <SkeletonPage lines={3} label="Loading the calculator" />;
-
   return (
     <>
-      <Toast message={message} />
-
-      <PageHeader
-        title="Eligibility Calculator"
-        icon={CalculatorIcon}
-        backTo="/discover"
-        backLabel="Back to Discover"
-        description="This form is pre-populated with data from your profile. You can tweak the values here to see how it affects your total points."
-      />
-
-      <div style={{ paddingBottom: '120px' }}>
-        <ScoreDisplay targetScore={totalPoints} />
-
-        <div className="calculator-form">
+      <PageHeader title="Australian skilled migration points" icon={CalculatorIcon} backTo="/discover"
+        backLabel="Discover pathways" description="Estimate your base points before nomination or sponsorship." />
+      <div className="estimate-layout">
+        <ScoreDisplay country="Australia" title="Australian base points" score={totalPoints} unit="points" rows={rows} missing={missing}
+          started={missing.length < Object.keys(coreFields).length || totalPoints > 0}
+          prompt="Choose your age group to start." threshold={ELIGIBILITY_THRESHOLD}
+          guidance="Home Affairs points table" source="https://immi.homeaffairs.gov.au/visas/getting-a-visa/visa-listing/skilled-independent-189/points-table" />
+        <div className="estimate-fields">
           <PointsForm formData={formData} onChange={handleChange} />
+          {session && (
+            <div className="estimate-save">
+              <button onClick={handleSave} className="btn-primary" disabled={saving || missing.length > 0}>
+                {saving ? 'Saving…' : 'Save to profile'}
+              </button>
+              <p role="status">{message || (missing.length ? 'Answer the remaining questions to save.' : '')}</p>
+            </div>
+          )}
+          <a className="estimate-jump" href="#estimate">Review your estimate</a>
         </div>
-
-        <button onClick={handleSave} className="btn-primary" disabled={saving}>
-          {saving ? 'Saving...' : 'Save to Profile'}
-        </button>
       </div>
     </>
   );

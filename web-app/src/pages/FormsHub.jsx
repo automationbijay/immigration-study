@@ -1,19 +1,20 @@
 import React from 'react';
 import { FileText } from 'lucide-react';
 import { useProfile } from '../lib/ProfileContext';
+import { officialCrsCalculator } from '../lib/canadaLinks';
 import PageHeader from '../components/ui/PageHeader';
 import VisaFormCard from '../components/VisaFormCard';
 import { SkeletonPage } from '../components/ui/Skeleton';
 
-export default function FormsHub({ session }) {
-  const { totalPoints, fswRow, crsRow, loading } = useProfile();
+export default function FormsHub() {
+  const { totalPoints, fswRow, loading } = useProfile();
 
   return (
     <>
-      <PageHeader title="All Forms" icon={FileText} backTo="/discover" backLabel="Back to Discover" />
+      <PageHeader title="Calculators" icon={FileText} backTo="/discover" backLabel="Back to Discover" />
 
       {loading ? (
-        <SkeletonPage lines={1} label="Loading forms" />
+        <SkeletonPage lines={1} label="Loading calculators" />
       ) : (
         <div className="card-grid">
           <VisaFormCard 
@@ -28,7 +29,7 @@ export default function FormsHub({ session }) {
           
           <VisaFormCard 
             title="Canada FSW 67-Point Calculator"
-            description="Calculate your eligibility for the Canadian Federal Skilled Worker Program."
+            description="Estimate your score on the Federal Skilled Worker selection grid."
             score={fswRow?.total_points}
             to="/forms/canada-fsw"
             countryCode="ca"
@@ -38,9 +39,8 @@ export default function FormsHub({ session }) {
 
           <VisaFormCard 
             title="Canada CRS Tool"
-            description="Calculate your Express Entry Comprehensive Ranking System (CRS) score."
-            score={crsRow?.total_points}
-            to="/forms/canada-crs"
+            description="Check your Express Entry ranking score with the official IRCC calculator."
+            href={officialCrsCalculator}
             countryCode="ca"
             colorBg="var(--color-accent-subtle)"
             colorText="var(--color-accent)"

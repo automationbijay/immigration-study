@@ -1,59 +1,64 @@
-# CV pipeline — LlamaCloud + n8n
+# CV pipeline
 
-How an uploaded CV becomes profile data.
+How an uploaded CV becomes profile data and, from there, a points estimate.
+
+> The filename is historical. The pipeline no longer uses n8n: `extract-cv`
+> calls LlamaCloud's LlamaExtract directly and hands the result to
+> `apply-cv-profile`.
 
 ```
-web-app  ──upload──▶  upload-cv (edge fn)
-                          │  writes file to cv-uploads bucket
-                          │  inserts cv_metadata row
-                          ▼
-                     DB trigger  ──▶  parse-cv (edge fn)
-                                          │  LlamaCloud → markdown
-                                          │  saves parsed_data.markdown_full
-                                          │  status = processing
-                                          ▼
-                                     n8n webhook  (extraction)
-                                          │
-                                          ▼
-                                     apply-cv-profile (edge fn)
-                                          │  maps + fills empty fields only
-                                          ▼
-                                profile_basic · point_australia · test_*
+web-app (CvUploadModal)
+   │  supabase.functions.invoke('upload-cv')
+   ▼
+upload-cv (edge fn)
+   │  stores the PDF in the private cv-uploads bucket (replaces any older CV)
+   │  inserts a cv_metadata row
+   ▼
+DB triggers on cv_metadata (AFTER INSERT)
+   ├─▶ parse-cv   (edge fn) LlamaParse → markdown, kept for audit/re-runs
+   └─▶ extract-cv (edge fn) LlamaExtract → structured JSON (schema below)
+                     │  extraction_status: processing → extracted | failed
+                     ▼
+               apply-cv-profile (edge fn, X-Webhook-Secret)
+                     │  fills EMPTY fields only, never overwrites the user
+                     ├─▶ profile_basic       (name, email, phone, country, location, dob, marital status)
+                     ├─▶ profile_education   (only if the user has none yet)
+                     ├─▶ profile_experience  (only if the user has none yet and the CV gives
+                     │                        company, role, country and start date)
+                     └─▶ cv_llamaparsed      (full audit copy of every candidate value)
+                     │  extraction_status: applied
+                     ▼
+DB triggers (migration 20261122000000_sync_points_from_profile)
+   profile_education  → point_australia.education       (points)
+   profile_experience → point_australia."overseasExp"   (years in the last 10)
+                        point_australia."ausExp"
+   test_*             → point_australia.english         (points)
 ```
 
-## Secrets to set
+After the import the app asks only for what is still missing. The dashboard's
+"Continue your profile" prompt and checklist point the user to each gap
+(date of birth, occupation, English test, and so on).
+
+## Secrets
 
 ```bash
-supabase secrets set LLAMA_CLOUD_API_KEY=<rotate this — the old one leaked>
-supabase secrets set N8N_CV_WEBHOOK_URL=https://<your-n8n>/webhook/cv-parsed
-supabase secrets set N8N_SHARED_SECRET=<random string>
+supabase secrets set LLAMA_CLOUD_API_KEY=<key>
+supabase secrets set LLAMA_CLOUD_PROJECT_ID=<project id>
+supabase secrets set N8N_SHARED_SECRET=<random string>   # name is historical
 ```
 
-`N8N_SHARED_SECRET` authenticates both directions: parse-cv sends it to n8n as
-`X-Webhook-Secret`, and n8n must send the same header back to
-`apply-cv-profile`. Without it that endpoint refuses every request — it writes
-profile data, so it cannot be open to the internet.
+The functions reach the database with the project's **secret** API key, which
+Supabase injects as `SUPABASE_SECRET_KEYS` (JSON, `{"default": "sb_secret_…"}`).
+The legacy `SUPABASE_SERVICE_ROLE_KEY` is only a fallback while legacy keys are
+enabled. Check the whole pipeline live with `npm run test:cv` in `web-app/`.
 
-## 1. What n8n receives
+`N8N_SHARED_SECRET` authenticates `extract-cv` → `apply-cv-profile`
+(`X-Webhook-Secret` header). Without it `apply-cv-profile` refuses every
+request. It writes profile data, so it cannot be open to the internet.
 
-`POST` to `N8N_CV_WEBHOOK_URL`, header `X-Webhook-Secret`:
+## Extraction schema (`extract-cv` → `apply-cv-profile`)
 
-```json
-{
-  "cv_id": "uuid",
-  "user_id": "uuid",
-  "file_name": "resume.pdf",
-  "markdown": "# Jane Doe\n\n## Experience\n..."
-}
-```
-
-The markdown is LlamaCloud's parse of the document — layout and OCR resolved,
-but no fields extracted. Extraction is n8n's job.
-
-## 2. What n8n sends back
-
-`POST https://<project>.supabase.co/functions/v1/apply-cv-profile`, header
-`X-Webhook-Secret`:
+`POST /functions/v1/apply-cv-profile` with `X-Webhook-Secret`:
 
 ```json
 {
@@ -65,98 +70,70 @@ but no fields extracted. Extraction is n8n's job.
       "phone": "+61 400 000 000",
       "date_of_birth": "1994-03-12",
       "country_of_residence": "India",
-      "marital_status": "Single"
+      "marital_status": "Single",
+      "location": "Pune"
     },
-    "highest_qualification": {
+    "education": {
       "level": "bachelor",
       "field_of_study": "Computer Science",
       "institution": "…",
+      "university_name": "…",
       "country": "India",
-      "completed_year": 2016
+      "start_date": "2012-07-01",
+      "end_date": "2016-05-31"
     },
     "experience": {
-      "overseas_years": 6,
-      "australian_years": 0,
-      "most_recent_job_title": "Software Engineer"
+      "company_name": "Acme",
+      "role": "Software Engineer",
+      "country": "India",
+      "start_date": "2018-01-01",
+      "end_date": null
     },
-    "english_test": {
-      "test_type": "IELTS",
-      "listening": 8.5, "reading": 8.0, "writing": 7.0, "speaking": 7.5,
-      "overall": 7.5,
-      "test_date": "2025-11-02"
-    },
-    "australian_factors": {
-      "studied_in_australia": false,
-      "studied_in_regional_australia": false,
-      "completed_professional_year": false,
-      "completed_ccl": false
-    },
-    "occupation": {
-      "occupation_code": "261313",
-      "job_name": "Software Engineer",
-      "category": "ICT"
-    },
-    "assumptions": ["Derived 6 years from role date ranges; 2019 gap excluded"]
+    "assumptions": ["Start date month inferred from 'early 2018'"]
   }
 }
 ```
 
-Every field is optional — send `null` or omit anything the CV doesn't support.
+Every field is nullable. LlamaExtract is instructed to return `null` rather than
+guess. A wrong date of birth changes the points total, while a `null` only
+costs the user one question.
 
-### Enums
-
-| Field | Accepted values |
-|---|---|
-| `personal.marital_status` | `Single`, `Married`, `De Facto`, `Divorced`, `Widowed` |
-| `highest_qualification.level` | `none`, `diploma_or_trade`, `bachelor`, `masters`, `doctorate` |
-| `english_test.test_type` | `IELTS`, `PTE`, `TOEFL`, `Cambridge`, `OET` |
+| Field | Accepted values | Stored as |
+|---|---|---|
+| `personal.marital_status` | `Single`, `Married`, `De Facto`, `Divorced`, `Widowed` | same |
+| `education.level` | `none`, `diploma_or_trade`, `bachelor`, `masters`, `doctorate` | `High School`, `Diploma`, `Bachelor`, `Masters`, `Doctorate` (the Profile form's values) |
 
 Anything outside these is ignored rather than written.
 
-### Response
+Response:
 
 ```json
-{ "success": true, "filled": ["name", "dob", "overseasExp"], "skipped": ["email"] }
+{ "success": true, "filled": ["name", "education"], "skipped": ["email", "experience (incomplete in CV)"] }
 ```
 
-`skipped` lists fields the user had already filled in, which were left alone.
+`skipped` lists fields the user had already filled in, plus sections the CV
+couldn't complete.
 
-## Two rules the workflow must respect
+## Rules worth knowing
 
-**Send years, not points.** `experience.overseas_years` and
-`australian_years` are counts of years. The `overseasExp` / `ausExp` columns
-also store years, and the app scores them into points at read time. A workflow
-that writes points into those columns inflates every visa match — this was a
-real bug (a "5 years" entry became "10 years" after a points value was written
-back). Posting to `apply-cv-profile` avoids it entirely: the endpoint owns the
-conversion, so n8n never touches the columns directly.
-
-**Prefer omission over a guess.** A wrong date of birth or test score changes
-someone's points total and therefore which visas they're shown. `null` costs the
-user one form field; a wrong value costs them a wrong eligibility answer. Put
-anything inferred rather than read into `assumptions` so the UI can flag it.
-
-## Why n8n posts to an endpoint instead of writing tables directly
-
-n8n *can* write to Supabase directly, but then it also owns the education→points
-table, the English band thresholds, the years/points distinction, and the
-never-overwrite rule. Those are scoring rules that change with policy — keeping
-them in `apply-cv-profile` means one edit here rather than a node rebuild there,
-and the same safety applies no matter what calls it.
-
-## Behaviour worth knowing
-
-- **Fills empty fields only.** A CV is evidence, not authority — nothing the
-  user typed is overwritten. Everything extracted is stored in
-  `cv_metadata.extracted_profile` regardless, so a review screen can offer the
-  rest.
-- **Boolean flags only ever turn on**, never off. An absent mention of regional
-  study isn't proof it didn't happen.
-- **Test scores are inserted only when the user has no test of that type.**
-- **Failures are recoverable.** The markdown is saved before dispatch, so n8n
-  can be re-triggered against the stored text without re-parsing the PDF.
+- **Fills empty fields only.** A CV is evidence, not authority. Nothing the user
+  typed is overwritten. The raw extraction is kept in
+  `cv_metadata.extracted_profile` and `cv_llamaparsed` regardless.
+- **Points are derived in the database, not here.** `apply-cv-profile` writes
+  facts (levels, dates, countries); the triggers turn them into points and
+  years. A caller can never write points into a years column.
+- **Experience counts distinct days in the last 10 years**, split by whether the
+  job's country is Australia, so overlapping jobs are not double-counted.
+  Qualifications with a future end date score 0 until completed.
+- **The points test only counts work in the nominated occupation at 20+ hours
+  a week.** The app can't verify that, so imported years are an upper bound
+  the user should review.
 
 ## Retrying one CV
+
+Re-run extraction for a stored CV by invoking `extract-cv` with its
+`cv_metadata` record, or post a corrected payload straight to
+`apply-cv-profile`:
 
 ```bash
 curl -X POST "https://<project>.supabase.co/functions/v1/apply-cv-profile" \
@@ -164,7 +141,3 @@ curl -X POST "https://<project>.supabase.co/functions/v1/apply-cv-profile" \
   -H "Content-Type: application/json" \
   -d '{"cv_id":"<uuid>","profile":{...}}'
 ```
-
-To re-run extraction from stored text, read
-`cv_metadata.parsed_data.markdown_full` for that row and post it to the n8n
-webhook yourself.

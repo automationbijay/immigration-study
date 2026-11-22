@@ -1,49 +1,87 @@
 # Supabase Database Schema Overview
 
-This document outlines the updated organization of the Supabase database tables for the project. To improve maintainability, understandability, and querying, tables are grouped logically using specific prefixes.
+How the Supabase database is organised. Tables are grouped by prefix. Every
+per-user table has Row Level Security: a signed-in user can only read and write
+their own rows, and signed-out visitors see nothing.
 
-## 1. User Profiles & Information (`profile_` prefix)
+## 1. User profile (`profile_` prefix)
 
-These tables store all user-provided and calculated profile information related to a user's visa application.
+Facts the user enters on the Profile page or that the CV import fills in.
 
-- **`profile_basic`**: Stores the user's primary details (e.g., name, birth date, passport information, general location).
-- **`profile_education`**: Stores the user's educational history, degrees, and university information (formerly `education`).
-- **`profile_experience`**: Stores the user's employment and professional work history.
-- **`profile_family`**: Stores information about the user's partner, family members, or dependents which may be relevant to points calculation.
+- **`profile_basic`**: name, date of birth, email, phone, country, location, marital status (key: `id` = user id).
+- **`profile_education`**: qualifications (`level` uses the Profile form's values: `High School`, `Diploma`, `Bachelor`, `Masters`, `Doctorate`, `Unrecognized`).
+- **`profile_experience`**: jobs (`company_name`, `role`, `country`, `start_date` are required; `end_date` null means current).
+- **`profile_family`**: partner and family members (key column: `profile_id`).
+- **`profile_job_classification`**: the occupation chosen in the ANZSCO tool.
 
-## 2. ANZSCO Occupations (`anzsco_` prefix)
+## 2. Points and estimates (`point_` / `points_` prefix)
 
-These tables contain the reference data for the Australian and New Zealand Standard Classification of Occupations (ANZSCO).
+- **`point_australia`**: one row per user (`id` = user id). The Australian points-test inputs.
+  - `age`, `english`, `education`, `partnerSkills` are stored as **points**.
+  - `overseasExp` and `ausExp` are stored as **years**.
+  - `NULL` means "not answered yet". New users start with `NULL`s (migration `20261122000000`).
+  - `experienceAnzsco` / `educationAnzsco` hold the chosen occupation code.
+- **`point_fsw67`**: saved Canada Federal Skilled Worker estimate (`user_id`, per-factor points, `total_points`, `is_eligible`).
+- **`points_canada_crs`**: reserved for Canada CRS estimates.
 
-- **`anzsco`**: The primary reference table for occupation groups and detailed descriptions.
-- **`anzsco_titles`**: Contains alternative titles and specializations linked to specific ANZSCO codes.
-- **`anzsco_occupations`**: Detailed requirements, assessing authorities, and skill lists for specific skilled occupations (formerly `skilled_occupations`).
-- **`anzsco_mltssl`**: Medium and Long-term Strategic Skills List (MLTSSL) occupations.
-- **`anzsco_stsol`**: Short-term Skilled Occupation List (STSOL) occupations.
-- **`anzsco_rol`**: Regional Occupation List (ROL) occupations.
+### Derived values (database triggers)
 
-## 3. Language Proficiency Tests (`test_` prefix)
+`point_australia` is kept in step with the profile tables automatically. The
+calculator can also set these columns directly. Whichever edit is latest wins.
 
-These tables specifically handle the different structured language test results. By splitting them, we can enforce strict validation based on the exact scoring system of each provider.
+| Source table | Updates | Rule |
+|---|---|---|
+| `test_ielts`, `test_pte`, `test_toefl`, `test_cambridge`, `test_oet` | `english` | Best `pr_points` across all tests; `NULL` when none remain. Recalculated on insert, update **and delete**. |
+| `profile_education` | `education` | Highest completed qualification: Doctorate 20, Masters/Bachelor 15, Diploma 10, otherwise 0. In-progress (future end date) scores 0. `NULL` when no entries. |
+| `profile_experience` | `overseasExp`, `ausExp` | Distinct days worked in the last 10 years, split by Australia vs elsewhere, in whole years. `NULL` when no entries. |
 
-- **`test_ielts`**: International English Language Testing System scores.
-- **`test_toefl`**: Test of English as a Foreign Language scores.
-- **`test_pte`**: Pearson Test of English Academic scores.
-- **`test_cambridge`**: Cambridge English qualifications (CAE/CPE).
-- **`test_oet`**: Occupational English Test scores (for healthcare professionals).
+The helper functions (`recompute_*`) are `SECURITY DEFINER` and not callable by
+clients; only the triggers run them.
 
-## 4. Resume/CV Processing (`cv_` prefix)
+## 3. Language tests (`test_` prefix)
 
-These tables manage the file storage references, webhooks, and parsed extraction data from user-uploaded CVs.
+`test_ielts`, `test_toefl`, `test_pte`, `test_cambridge`, `test_oet`: one row per
+test sitting (`listening`, `reading`, `writing`, `speaking`, `overall`,
+`test_date`). A `BEFORE` trigger fills `classification` and `pr_points` from
+`aus_language_classification`.
 
-- **`cv_metadata`**: Information about the uploaded CV files (file paths, status, uploaded time) before and during processing.
-- **`cv_llamaparsed`**: The structured JSON data and extracted text generated by LlamaParse (or similar AI extraction) from the original CV document.
+## 4. CV processing (`cv_` prefix)
 
-## 5. Other Reference & Utility Tables
+- **`cv_metadata`**: uploaded file reference and `extraction_status` (`processing`, `extracted`, `applied`, `failed`).
+- **`cv_llamaparsed`**: audit copy of every value the extraction found.
 
-- **`universities`**: Reference dataset for fuzzy searching educational institutions.
-- **`countries`**: Standardized country list.
-- **`point_australia`**: System for point calculation logic/storage for Australian visas.
+See [cv-pipeline-n8n.md](cv-pipeline-n8n.md) for the full flow.
+
+## 5. Site feedback
+
+- **`feedback_submissions`**: "Report a mistake" and "Collaborate with us" form entries (`kind`, `category`, `name`, `email`, `organisation`, `page_url`, `message`, `status`).
+  - Anyone can **insert**; nobody can read, change or delete through the API. Review submissions in the Supabase dashboard (Table editor → `feedback_submissions`), and set `status` to `in_progress`, `resolved` or `spam`.
+  - Check constraints cap lengths, validate email, and require a name and email for collaboration requests.
+
+## 6. ANZSCO occupations (`anzsco_` prefix)
+
+Reference data, readable by everyone.
+
+- **`anzsco`**, **`anzsco_titles`**, **`anzsco_occupations`**: occupation groups, alternative titles, requirements.
+- **`anzsco_mltssl`**, **`anzsco_stsol`**, **`anzsco_rol`**, **`anzsco_csol`**: the skilled occupation lists.
+- RPC **`search_job_titles(search_term, match_threshold, match_count)`**: typo-tolerant occupation search.
+
+## 7. Other reference tables
+
+- **`universities`** with RPC **`search_universities(...)`**: fuzzy institution search.
+- **`countries`**: standard country list.
+- **`aus_language_classification`**: English test score thresholds.
+
+## 8. Account data deletion
+
+RPC **`clear_user_data()`** (called by the `delete-user-data` edge function)
+deletes the signed-in user's rows from every profile, points (including saved
+Canada estimates), occupation, test and CV table, and detaches their feedback
+submissions. `npm run test:db` verifies that nothing is left behind.
+The edge function also removes their files from `cv-uploads`. The sign-in
+account itself remains until removed in Supabase Auth.
 
 ---
-**Note:** Many legacy tables (such as `profiles`, `basic_details`, `language_proficiency`, `education`, and `skilled_occupations`) have been migrated or renamed into these prefixed structures to keep the database organized.
+**Note:** Legacy tables (`profiles`, `basic_details`, `language_proficiency`,
+`education`, `skilled_occupations`) were migrated or renamed into the prefixed
+structure above.

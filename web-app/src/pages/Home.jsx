@@ -1,7 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Link } from 'react-router-dom';
-import { Compass, Upload, ArrowRight } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { useMemo } from 'react';
+import PageLink from '../components/ui/PageLink';
 import { useProfile } from '../lib/ProfileContext';
 import { formFromProfileRow, basePointsFromForm } from '../lib/points';
 import {
@@ -19,7 +17,7 @@ import NearestPathway from '../components/home/NearestPathway';
 import ProfileChecklist from '../components/home/ProfileChecklist';
 
 export default function Home({ session }) {
-  const { profileRow, basicRow, fswRow, crsRow, cvRow, loading } = useProfile();
+  const { profileRow, basicRow, fswRow, cvRow, loading, error, refetch } = useProfile();
 
   const email = session?.user?.email || '';
   const fallbackName = email ? email.split('@')[0] : 'there';
@@ -27,7 +25,7 @@ export default function Home({ session }) {
     const form = formFromProfileRow(profileRow, basicRow);
     const ctx = buildContext(form, profileRow, basicRow);
     const gaps = profileGaps(form, ctx);
-    const eligible = eligiblePathways(form, ctx);
+    const eligible = eligiblePathways(form, ctx).filter(({ visa }) => visa.pointsTested);
     const nearest = eligible.length === 0 ? nearestPathway(form, ctx) : null;
 
     return {
@@ -40,7 +38,9 @@ export default function Home({ session }) {
     };
   }, [profileRow, basicRow]);
 
-  if (loading) return <SkeletonPage lines={3} label="Working out your pathways" />;
+  if (loading) return <SkeletonPage lines={3} label="Preparing your points estimates" />;
+
+  if (error) return <button className="btn-secondary" onClick={() => refetch()}>Retry loading your dashboard</button>;
 
   const name = basicRow?.name?.split(' ')[0] || fallbackName;
   const { basePoints, eligible, nearest, unlocks, gaps, percent } = insights;
@@ -49,49 +49,26 @@ export default function Home({ session }) {
   // missing facts outranks showing a gap the person may already have closed.
   const profileFirst = percent < 50;
 
-  const hasNotAddedCV = !cvRow?.file_url;
-  const needsUploadCvCta = hasNotAddedCV || percent < 50;
-
-  const checklistSection = percent < 100 && (
-    <section className="section">
-      <ProfileChecklist gaps={gaps} percent={percent} />
-    </section>
-  );
-
-  const uploadCvSection = needsUploadCvCta && (
-    <section className="section">
-      <div className="checklist-card" style={{ textAlign: 'center', padding: 'var(--spacing-xl) var(--spacing-lg)' }}>
-        <div style={{ marginBottom: 'var(--spacing-md)' }}>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--color-text)', marginBottom: 'var(--spacing-xs)' }}>
-            Complete your profile instantly
-          </h2>
-          <p style={{ color: 'var(--color-secondary)', fontSize: 'var(--text-sm)', lineHeight: 1.5 }}>
-            Upload your CV and we'll automatically fill in your experience, education, and skills.
-          </p>
-        </div>
-        <Link to="/profile?intent=upload_cv" className="btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
-          <Upload size={18} />
-          Upload CV
-        </Link>
-      </div>
-    </section>
-  );
+  const nextGap = gaps.find(gap => !gap.done);
 
   return (
-    <div className="home" style={{ maxWidth: '600px', margin: '0 auto', paddingBottom: 'var(--spacing-2xl)' }}>
-      <ScoreHero name={name} basePoints={basePoints} eligibleCount={eligible.length} fswRow={fswRow} crsRow={crsRow} />
-
-      {profileFirst ? (
-        <>
-          {uploadCvSection}
-          {checklistSection}
-        </>
-      ) : (
+    <div className="dashboard-page">
+      <h1>{name}’s dashboard</h1>
+      {nextGap && (
+        <section className="next-task">
+          <h2>Continue your profile</h2>
+          <PageLink to={nextGap.to} className="btn-primary">{nextGap.label}</PageLink>
+          {!cvRow && <PageLink to="/profile?intent=upload_cv">Import from CV</PageLink>}
+        </section>
+      )}
+      <ScoreHero basePoints={profileRow ? basePoints : null} fswRow={fswRow} />
+      {percent < 100 && <ProfileChecklist gaps={gaps} percent={percent} />}
+      {!profileFirst && (
         <>
           {eligible.length > 0 ? (
             <section className="section" style={{ marginBottom: 'var(--spacing-xl)' }}>
               <h2 className="section-title" style={{ fontSize: '1.5rem', marginBottom: 'var(--spacing-md)' }}>
-                Your Top Pathway
+                A pathway to explore
               </h2>
               <div className="pathway-list-stack">
                 <PathwayCard match={eligible[0]} />
@@ -100,41 +77,22 @@ export default function Home({ session }) {
           ) : nearest ? (
             <section className="section" style={{ marginBottom: 'var(--spacing-xl)' }}>
               <h2 className="section-title" style={{ fontSize: '1.5rem', marginBottom: 'var(--spacing-md)' }}>
-                Your Closest Pathway
+                Closest to the points threshold
               </h2>
               <NearestPathway match={nearest} unlocks={unlocks} />
             </section>
           ) : (
             <section className="section" style={{ marginBottom: 'var(--spacing-xl)' }}>
               <div className="roadmap-note" style={{ padding: 'var(--spacing-xl)', textAlign: 'center', background: 'var(--color-surface)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-border)' }}>
-                <h3 style={{ fontSize: '1.25rem', marginBottom: 'var(--spacing-sm)' }}>We are expanding</h3>
+                <h3 style={{ fontSize: '1.25rem', marginBottom: 'var(--spacing-sm)' }}>Review your skilled immigration options</h3>
                 <p style={{ color: 'var(--color-secondary)' }}>
-                  Right now we match against Australia's points-tested skilled visas. More pathways are on the way.
+                  Check your profile details and review the official requirements for the pathways you’re considering.
                 </p>
               </div>
             </section>
           )}
 
-          <section className="section" style={{ marginTop: 'var(--spacing-xl)', textAlign: 'center' }}>
-            <Link to="/discover" style={{ 
-              display: 'inline-flex', 
-              alignItems: 'center', 
-              gap: '12px', 
-              justifyContent: 'center', 
-              padding: '1.25rem', 
-              width: '100%',
-              background: 'linear-gradient(135deg, var(--color-foreground) 0%, var(--color-primary) 100%)',
-              color: 'white',
-              borderRadius: 'var(--radius-xl)',
-              fontWeight: 700,
-              fontSize: '1.1rem',
-              textDecoration: 'none',
-              boxShadow: '0 8px 20px rgba(30, 58, 138, 0.25)',
-              transition: 'transform 0.2s ease, box-shadow 0.2s ease'
-            }}>
-              Explore all pathways & opportunities <ArrowRight size={22} />
-            </Link>
-          </section>
+          <PageLink to="/discover">Explore points-tested pathways</PageLink>
         </>
       )}
     </div>

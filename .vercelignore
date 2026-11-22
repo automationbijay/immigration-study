@@ -1,0 +1,18 @@
+# Never upload local secrets or tooling to Vercel
+.env
+.env *
+.env.*
+*.env
+**/.env
+**/.env.*
+.git
+.vercel
+script/
+docs/
+supabase/
+**/node_modules
+web-app/dist
+web-app/test-results
+web-app/playwright-report
+*.md
+!web-app/README.md

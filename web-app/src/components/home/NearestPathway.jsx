@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import PageLink from '../ui/PageLink';
 import { ArrowUpRight, LockOpen, CheckCircle2 } from 'lucide-react';
 import { ELIGIBILITY_THRESHOLD } from '../../lib/points';
 
@@ -47,7 +47,7 @@ export default function NearestPathway({ match, unlocks }) {
       <div style={{ background: 'var(--color-background)', padding: 'var(--spacing-md)', borderRadius: 'var(--radius-lg)', marginBottom: 'var(--spacing-lg)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: 600 }}>
           <span style={{ color: 'var(--color-primary)' }}>{points} / {ELIGIBILITY_THRESHOLD} points</span>
-          <span style={{ color: 'var(--color-secondary)' }}>{gap} to go</span>
+          <span style={{ color: 'var(--color-secondary)' }}>{gap} points below the threshold</span>
         </div>
         <div style={{ height: '10px', background: 'var(--color-border)', borderRadius: 'var(--radius-full)', overflow: 'hidden' }}>
           <div style={{ height: '100%', width: `${progress}%`, background: 'var(--color-accent)', borderRadius: 'var(--radius-full)', transition: 'width 1s ease-out' }} />
@@ -57,7 +57,7 @@ export default function NearestPathway({ match, unlocks }) {
       {unlocks.length > 0 && (
         <div style={{ marginBottom: 'var(--spacing-xl)' }}>
           <h4 style={{ fontSize: '1rem', color: 'var(--color-primary)', marginBottom: 'var(--spacing-md)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <LockOpen size={18} color="var(--color-secondary)" /> Open it with any one of these
+            <LockOpen size={18} color="var(--color-secondary)" /> Ways you could earn more points
           </h4>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 'var(--spacing-sm)' }}>
             {unlocks.map((unlock) => (
@@ -93,10 +93,10 @@ export default function NearestPathway({ match, unlocks }) {
         </div>
       )}
 
-      <Link to="/australia-point-calculator" className="btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
+      <PageLink to="/australia-point-calculator" className="btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
         Try these in the calculator
         <ArrowUpRight size={18} aria-hidden="true" />
-      </Link>
+      </PageLink>
     </div>
   );
 }

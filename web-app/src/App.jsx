@@ -1,9 +1,12 @@
+import PageLink from './components/ui/PageLink';
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, NavLink, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { supabase } from './lib/supabase';
 import { ProfileProvider } from './lib/ProfileContext';
 import PageTransition from './components/ui/PageTransition';
+import SiteNav from './components/ui/SiteNav';
+import SiteFooter from './components/ui/SiteFooter';
 
 const NotFound = lazy(() => import('./pages/NotFound'));
 const Login = lazy(() => import('./pages/Login'));
@@ -20,6 +23,12 @@ const ToolsHub = lazy(() => import('./pages/ToolsHub'));
 const Landing = lazy(() => import('./pages/Landing'));
 const AnzscoTool = lazy(() => import('./pages/AnzscoTool'));
 const UniversityTool = lazy(() => import('./pages/UniversityTool'));
+const About = lazy(() => import('./pages/info/About'));
+const Faq = lazy(() => import('./pages/info/Faq'));
+const Contact = lazy(() => import('./pages/info/Contact'));
+const Privacy = lazy(() => import('./pages/info/Privacy'));
+const Terms = lazy(() => import('./pages/info/Terms'));
+const Disclaimer = lazy(() => import('./pages/info/Disclaimer'));
 import { User, Home as HomeIcon, Compass } from 'lucide-react';
 import { SkeletonPage } from './components/ui/Skeleton';
 import * as Sentry from '@sentry/react';
@@ -37,16 +46,41 @@ const NAV_ITEMS = [
  * being implied by colour alone.
  */
 function BottomNav() {
+  // The landing page has its own way in (the Dashboard button in SiteNav).
+  const { pathname } = useLocation();
+  if (pathname === '/') return null;
   return (
     <nav className="bottom-nav" aria-label="Primary">
       {NAV_ITEMS.map(({ to, label, icon: Icon }) => (
-        <NavLink key={to} to={to} className="nav-item">
+        <PageLink as={NavLink} key={to} to={to} className="nav-item">
           <Icon className="inline-icon" aria-hidden="true" />
           <span>{label}</span>
-        </NavLink>
+        </PageLink>
       ))}
     </nav>
   );
+}
+
+// Start each new page at the top, unless the link targets an in-page anchor.
+function ScrollToTop() {
+  const { pathname, hash } = useLocation();
+  useEffect(() => {
+    if (!hash) {
+      window.scrollTo(0, 0);
+      return;
+    }
+    // Pages load lazily, so the target may not exist yet: retry briefly.
+    let frame;
+    let tries = 0;
+    const seek = () => {
+      const target = document.getElementById(decodeURIComponent(hash.slice(1)));
+      if (target) target.scrollIntoView({ block: 'start' });
+      else if (tries++ < 60) frame = requestAnimationFrame(seek);
+    };
+    seek();
+    return () => cancelAnimationFrame(frame);
+  }, [pathname, hash]);
+  return null;
 }
 
 function AnimatedRoutes({ session }) {
@@ -68,6 +102,12 @@ function AnimatedRoutes({ session }) {
           <Route path="/tools/anzsco" element={<PageTransition><AnzscoTool /></PageTransition>} />
           <Route path="/tools/university" element={<PageTransition><UniversityTool /></PageTransition>} />
           <Route path="/home" element={session ? <PageTransition><Home session={session} /></PageTransition> : <Navigate to="/login" />} />
+          <Route path="/about" element={<PageTransition><About session={session} /></PageTransition>} />
+          <Route path="/faq" element={<PageTransition><Faq /></PageTransition>} />
+          <Route path="/contact" element={<PageTransition><Contact /></PageTransition>} />
+          <Route path="/privacy" element={<PageTransition><Privacy /></PageTransition>} />
+          <Route path="/terms" element={<PageTransition><Terms /></PageTransition>} />
+          <Route path="/disclaimer" element={<PageTransition><Disclaimer /></PageTransition>} />
           <Route path="/" element={<PageTransition><Landing session={session} /></PageTransition>} />
           <Route path="*" element={<PageTransition><NotFound session={session} /></PageTransition>} />
         </Routes>
@@ -96,7 +136,7 @@ function RouteErrorFallback() {
 function MainContent({ session }) {
   const location = useLocation();
   return (
-    <main className="main-content">
+    <main id="main-content" className="main-content" tabIndex={-1}>
       <Sentry.ErrorBoundary key={location.pathname} fallback={RouteErrorFallback}>
         <AnimatedRoutes session={session} />
       </Sentry.ErrorBoundary>
@@ -154,7 +194,7 @@ function App() {
   if (loading) {
     return (
       <div className="app-layout">
-        <main className="main-content">
+        <main id="main-content" className="main-content" tabIndex={-1}>
           <SkeletonPage lines={3} label="Loading" />
         </main>
       </div>
@@ -172,7 +212,7 @@ function App() {
           )}
           {deferredPrompt && !isOffline && (
             <div style={{ backgroundColor: 'var(--primary)', color: 'white', padding: '8px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '14px', zIndex: 100 }}>
-              <span>Install Migration Assistant for a better experience</span>
+              <span>Install Skilled Migration Assistant for a better experience</span>
               <button 
                 onClick={handleInstallApp}
                 style={{ backgroundColor: 'white', color: 'var(--primary)', border: 'none', padding: '4px 12px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
@@ -182,7 +222,11 @@ function App() {
             </div>
           )}
           
+          <a className="skip-link" href="#main-content">Skip to content</a>
+          <ScrollToTop />
+          <SiteNav session={session} />
           <MainContent session={session} />
+          <SiteFooter />
 
           {session && <BottomNav />}
         </div>

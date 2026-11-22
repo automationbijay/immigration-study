@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import PageLink from '../ui/PageLink';
 import { Check, Circle } from 'lucide-react';
 
 /**
@@ -29,7 +29,7 @@ export default function ProfileChecklist({ gaps, percent }) {
             {remaining.map((gap) => (
               <li key={gap.id}>
                 <Circle size={16} aria-hidden="true" />
-                <Link to={gap.to}>{gap.label}</Link>
+                <PageLink to={gap.to}>{gap.label}</PageLink>
               </li>
             ))}
           </ul>

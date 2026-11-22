@@ -42,6 +42,7 @@ export default function CvUploadModal({ isOpen, onClose, onUploadComplete }) {
 
     if (file.size > MAX_BYTES) {
       setMessage('Error: File size must not exceed 4MB.');
+      e.target.value = '';
       return;
     }
 
@@ -70,12 +71,9 @@ export default function CvUploadModal({ isOpen, onClose, onUploadComplete }) {
         return;
       }
 
-      setMessage('CV uploaded successfully!');
-      setTimeout(() => {
-        setMessage('');
-        if (onUploadComplete) onUploadComplete(data.path);
-        onClose();
-      }, 1500);
+      setMessage('');
+      onUploadComplete?.(data.path);
+      onClose();
     } catch (err) {
       console.error(err);
       setMessage(`Error uploading CV: ${err?.message ?? 'unexpected error'}`);
@@ -90,7 +88,7 @@ export default function CvUploadModal({ isOpen, onClose, onUploadComplete }) {
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Upload Your CV" size="sm">
       {message && (
-        <div className={message.includes('Error') ? 'error-message' : 'success-message'}>
+        <div role="status" className={message.includes('Error') ? 'error-message' : 'success-message'}>
           {message}
         </div>
       )}

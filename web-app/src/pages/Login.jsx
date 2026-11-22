@@ -1,6 +1,7 @@
+import PageLink from '../components/ui/PageLink';
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -50,7 +51,7 @@ export default function Login() {
   return (
     <div className="auth-container">
       <div className="auth-panel">
-        <h2>Migration Assistant</h2>
+        <h2>Skilled Migration Assistant</h2>
         <p className="text-muted">Sign in to your account</p>
         
         {error && <div className="error-message">{error}</div>}
@@ -105,7 +106,7 @@ export default function Login() {
         </form>
         
         <div className="text-center text-sm text-muted">
-          Don't have an account? <Link to={wantsCvUpload ? '/signup?intent=upload_cv' : '/signup'} className="auth-link">Create one</Link>
+          Don't have an account? <PageLink to={wantsCvUpload ? '/signup?intent=upload_cv' : '/signup'} className="auth-link">Create one</PageLink>
         </div>
       </div>
     </div>
