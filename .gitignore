@@ -12,3 +12,7 @@ archive/
 .env.*
 *.env
 !.env.example
+
+# Vercel CLI link
+.vercel
+.env*

@@ -13,8 +13,8 @@ const fetchProfile = async (userId) => {
     { data: crsData, error: crsError },
     { data: cvData, error: cvError },
   ] = await Promise.all([
-    supabase.from('point_australia').select('*').eq('id', userId).single(),
-    supabase.from('profile_basic').select('*').eq('id', userId).single(),
+    supabase.from('point_australia').select('*').eq('id', userId).maybeSingle(),
+    supabase.from('profile_basic').select('*').eq('id', userId).maybeSingle(),
     supabase.from('point_fsw67').select('*').eq('user_id', userId).maybeSingle(),
     supabase.from('points_canada_crs').select('*').eq('user_id', userId).maybeSingle(),
     supabase.from('cv_metadata').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(1).maybeSingle(),

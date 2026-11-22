@@ -93,6 +93,21 @@ Recent migrations (all applied to the live project on 22 November 2026):
 > `psql "$DATABASE_URL" -1 -v ON_ERROR_STOP=1 -f <file>` and then record it with
 > `supabase migration repair --db-url "$DATABASE_URL" --status applied <version>`.
 
+### Deploying the web app (Vercel)
+
+Pushing to `master` deploys production automatically. To deploy from a local
+checkout instead (project `immigration-study`, root directory `web-app`):
+
+```bash
+npx vercel link --project immigration-study   # once; creates .vercel/ (git-ignored)
+npx vercel deploy --prod
+```
+
+`.vercelignore` keeps `.env*`, `supabase/`, `script/` and `docs/` out of the
+upload. Build-time variables come from Vercel's environment settings:
+`VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_SENTRY_DSN`, and
+optionally `VITE_CONTACT_EMAIL`.
+
 ### 3. Tests
 
 ```bash

@@ -39,14 +39,16 @@ const uid = auth.user.id;
 console.log(`Signed in as test user ${uid.slice(0, 8)}…\n`);
 
 try {
-  // Start from a clean slate so earlier runs cannot mask a failure.
+  // Start from a clean slate so earlier runs cannot mask a failure. This is
+  // also the state a real user is in after "Delete All My Data": no rows.
   must(await supabase.rpc('clear_user_data'), 'clear_user_data (start)');
-  must(await supabase.from('point_australia').insert({ id: uid }), 'recreate point_australia');
-  must(await supabase.from('profile_basic').insert({ id: uid }), 'recreate profile_basic');
 
-  const fresh = await points();
-  check('new points row starts unanswered (english/education NULL)', fresh.english === null && fresh.education === null,
-    `english=${fresh.english}, education=${fresh.education}`, true);
+  // Points must still be saved when the user has no points row yet.
+  must(await supabase.from('test_pte').upsert({ user_id: uid, listening: 90, reading: 90, writing: 90, speaking: 90, overall: 90, updated_at: new Date() }), 'save PTE without points row');
+  const fromNothing = must(await supabase.from('point_australia').select('english, education').eq('id', uid).maybeSingle(), 'read points');
+  check('a test saved with no points row still updates English (20)', fromNothing?.english === 20 && fromNothing?.education === null,
+    JSON.stringify(fromNothing));
+  must(await supabase.from('test_pte').delete().eq('user_id', uid), 'remove PTE');
 
   // Profile > Basic details
   must(await supabase.from('profile_basic').upsert({ id: uid, name: 'Roundtrip Test', dob: '1994-03-14', country: 'India', location: 'Pune', marital_status: 'Single', phone_no: '000', email: env.TEST_EMAIL, updated_at: new Date() }), 'save basic');
