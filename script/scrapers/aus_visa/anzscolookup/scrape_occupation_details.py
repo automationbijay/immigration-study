@@ -14,7 +14,7 @@ async def process_url(context, occupation, semaphore):
         try:
             await page.goto(occupation["link"], timeout=60000)
             await page.wait_for_selector('h1', timeout=15000)
-            
+
             # Initialize all columns to empty strings
             occupation["Assessing Authority"] = ""
             for v in VISAS:
@@ -27,12 +27,12 @@ async def process_url(context, occupation, semaphore):
                 occupation[f"{state}_190"] = ""
                 occupation[f"{state}_491"] = ""
                 occupation[f"{state}_Streams"] = ""
-            
+
             # 1. Assessing Authority
             auth_locator = page.locator('p:has-text("Assessing authority:")')
             if await auth_locator.count() > 0:
                 occupation["Assessing Authority"] = (await auth_locator.first.inner_text()).replace("Assessing authority:", "").strip()
-                
+
             # 2. Quick Eligibility
             quick_section = page.locator('section').filter(has=page.locator('h2:has-text("Quick eligibility")'))
             if await quick_section.count() > 0:
@@ -103,12 +103,12 @@ async def process_url(context, occupation, semaphore):
                         val = ", ".join(lines[1:])
                         if key in LIST_COLS:
                             occupation[f"List_{key}"] = val
-            
+
         except Exception as e:
             print(f"Error scraping {occupation['link']}: {e}")
         finally:
             await page.close()
-            
+
         print(f"Scraped fully flat details for {occupation['code']} - {occupation['title']}")
 
 async def main():
@@ -124,14 +124,14 @@ async def main():
         browser = await p.chromium.launch(headless=True)
         context = await browser.new_context()
         semaphore = asyncio.Semaphore(3)
-        
+
         tasks = []
         for occ in occupations:
             tasks.append(process_url(context, occ, semaphore))
-            
+
         await asyncio.gather(*tasks)
         await browser.close()
-        
+
         # Build fieldnames
         fieldnames = ["title", "code", "industry", "link", "Assessing Authority"]
         for q in QUICK_COLS:
@@ -142,22 +142,22 @@ async def main():
             fieldnames.append(f"List_{l}")
         for state in STATES:
             fieldnames.extend([f"{state}_190", f"{state}_491", f"{state}_Streams"])
-            
+
         # Clean up occupations
         clean_occupations = []
         for occ in occupations:
             clean_occ = {k: occ.get(k, "") for k in fieldnames}
             clean_occupations.append(clean_occ)
-            
+
         with open("occupations_details_ultra_clean.csv", "w", newline="", encoding="utf-8") as f:
             writer = csv.DictWriter(f, fieldnames=fieldnames)
             writer.writeheader()
             for occ in clean_occupations:
                 writer.writerow(occ)
-                
+
         with open("occupations_details_ultra_clean.json", "w", encoding="utf-8") as f:
             json.dump(clean_occupations, f, indent=4)
-            
+
         print("Extraction complete. Saved to occupations_details_ultra_clean.csv")
 
 if __name__ == "__main__":

@@ -16,3 +16,8 @@ archive/
 # Vercel CLI link
 .vercel
 .env*
+
+# MyImmiTracker session credentials and local case exports
+auth_state.json
+myimmitracker_auth_state.json
+table_output.json

@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { Compass } from 'lucide-react';
 import PageLink from './PageLink';
 
@@ -11,12 +11,15 @@ const LINKS = [
 
 /**
  * Floating navy pill shown at the top of every page. On narrow screens only
- * the brand and the account button remain; signed-in users get the bottom
- * nav there instead.
+ * the brand and the account button remain. Signed-in users get the bottom nav
+ * on phones instead, so the top bar is hidden there wherever that nav shows
+ * (everywhere except the landing page, matching BottomNav in App.jsx).
  */
 export default function SiteNav({ session }) {
+  const { pathname } = useLocation();
+  const hasBottomNav = Boolean(session) && pathname !== '/';
   return (
-    <header className="site-nav-wrap">
+    <header className={`site-nav-wrap${hasBottomNav ? ' has-bottom-nav' : ''}`}>
       <nav className="site-nav" aria-label="Site">
         <PageLink to="/" className="site-brand">
           <span className="site-brand-mark"><Compass size={18} aria-hidden="true" /></span>

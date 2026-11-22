@@ -66,6 +66,11 @@ Reference data, readable by everyone.
 - **`anzsco_mltssl`**, **`anzsco_stsol`**, **`anzsco_rol`**, **`anzsco_csol`**: the skilled occupation lists.
 - RPC **`search_job_titles(search_term, match_threshold, match_count)`**: typo-tolerant occupation search.
 
+### SkillSelect invitation cutoffs
+
+- **`scr_skillselect_rounds_eoi`** stores invitation totals by round. **`scr_skillselect_invitation_pts`** stores the published occupation labels and points by round for subclass 189 and family-sponsored subclass 491.
+- **`skillselect_occupation_map`** stores a 2013 code and, where one code is supported, a 2022 comparison code for each normalized SkillSelect label. The cutoff and mapping tables use service-role access. [Mapping, backfill, and validation](australia/skillselect-anzsco-mapping.md)
+
 ## 7. Other reference tables
 
 - **`universities`** with RPC **`search_universities(...)`**: fuzzy institution search.

@@ -24,7 +24,7 @@ def extract_html_data(html_content: str) -> Dict[str, Any]:
         return {"text": "", "urls": []}
 
     soup = BeautifulSoup(html_content, "html.parser")
-    
+
     # Extract text and replace specific HTML entities correctly
     raw_text = soup.get_text(separator=" ", strip=True)
     text = clean_text(raw_text.replace("&#58;", ":"))
@@ -79,16 +79,16 @@ def main() -> List[Dict[str, Any]]:
 
     if not data:
         return []
-    
+
     # The API returns data wrapped in a "d" string/dict
     if "d" not in data:
         logging.warning("Unexpected JSON structure, no 'd' key found.")
         return []
-        
+
     d_obj = data["d"]
     if isinstance(d_obj, str):
         d_obj = json.loads(d_obj)
-        
+
     listings = d_obj.get("data", [])
     logging.info(f"Found {len(listings)} occupations. Cleaning and formatting data...")
 
@@ -102,7 +102,7 @@ def main() -> List[Dict[str, Any]]:
         try:
             # Extract and clean textual components
             occupation = clean_text(item.get("occupation", ""))
-            
+
             anzsco_data = extract_html_data(item.get("anzscocode", ""))
             visa_plain = clean_text(item.get("visas", ""))
             list_plain = clean_text(item.get("list", ""))
@@ -116,7 +116,7 @@ def main() -> List[Dict[str, Any]]:
             anzsco_text = anzsco_data["text"]
             code_match = re.search(r'\b\d{6}\b', anzsco_text)
             anzsco_code = code_match.group(0) if code_match else anzsco_text
-            
+
             # 3. Safer Regex Fallbacks/Logging
             if not code_match and anzsco_text:
                 logging.warning(f"Could not find 6-digit ANZSCO code in: '{anzsco_text}'. Using raw text.")
@@ -124,7 +124,7 @@ def main() -> List[Dict[str, Any]]:
             # Custom parsing for assessing authority short names and URLs
             raw_auth_html = item.get("assessauth", "")
             auth_soup = BeautifulSoup(raw_auth_html, "html.parser")
-            
+
             auth_names = []
             auth_urls = []
             for a in auth_soup.find_all("a"):
@@ -133,7 +133,7 @@ def main() -> List[Dict[str, Any]]:
                     auth_names.append(a.get_text(strip=True))
                 elif href and not href.startswith("javascript:"):
                     auth_urls.append(href.replace("&#58;", ":"))
-            
+
             # If javascript links found, use them. Otherwise fallback to raw cleaned text without URLs.
             if auth_names:
                 auth_text = " ".join(auth_names)
@@ -160,17 +160,17 @@ def main() -> List[Dict[str, Any]]:
                 "assessing_authority": auth_text,
                 "assessing_authority_url": auth_url,
                 "visa": visa_plain,
-                
+
                 # Boolean columns for the lists (merging RSMS ROL into list_rol)
                 "list_rol": "ROL" in list_values or "RSMS ROL" in list_values,
                 "list_stsol": "STSOL" in list_values,
                 "list_csol": "CSOL" in list_values,
                 "list_mltssl": "MLTSSL" in list_values,
-                
+
                 # Keep the raw data for jsonb storage but pruned of heavy HTML
                 "raw_data": trimmed_raw
             }
-            
+
             cleaned_listings.append(cleaned_item)
         except Exception as e:
             logging.error(f"Failed to parse item at index {index}. Error: {e}. Item: {item}")
