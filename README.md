@@ -57,9 +57,14 @@ VITE_CONTACT_EMAIL=<optional, shown on the Contact page>
 
 ### 2. Database and Edge Functions
 
+The Supabase CLI authenticates with `SUPABASE_ACCESS_TOKEN` (a personal
+access token) kept in the git-ignored root `.env`:
+
 ```bash
-npx supabase db push              # apply new migrations
-npx supabase functions deploy     # deploy Edge Functions
+export SUPABASE_ACCESS_TOKEN=$(grep -E '^SUPABASE_ACCESS_TOKEN=' .env | cut -d= -f2-)
+supabase functions deploy <name> --project-ref mvycqvmojoqtfyvjsigv --use-api
+# apply-cv-profile, extract-cv, parse-cv, upload-cv and calculate-english-points
+# run with verify_jwt = false (see supabase/config.toml); keep it that way.
 ```
 
 Edge Function secrets: `LLAMA_CLOUD_API_KEY`, `LLAMA_CLOUD_PROJECT_ID`,
@@ -99,10 +104,12 @@ through them.
 
 ### Environment
 
-Create a root `.env` with the database connection string:
+Create a root `.env` (git-ignored) with the database connection string and the
+CLI token:
 
 ```ini
 DATABASE_URL="postgresql://postgres.[PROJECT-REF]:[YOUR-PASSWORD]@aws-0-ap-south-1.pooler.supabase.com:6543/postgres"
+SUPABASE_ACCESS_TOKEN=sbp_...
 ```
 
 ### Scraping occupation lists
