@@ -58,7 +58,7 @@ function SectionRow({ icon: Icon, label, to, onClick, isComplete, counts }) {
           Incomplete {counts && counts.total > 0 && `(${unanswered}/${counts.total})`}
         </span>
       )}
-      {!to && <ChevronRight size={20} className="profile-section-chevron" aria-hidden="true" />}
+      <ChevronRight size={20} className="profile-section-chevron" aria-hidden="true" />
     </Row>
   );
 }

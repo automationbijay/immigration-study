@@ -108,7 +108,7 @@ function AnimatedRoutes({ session }) {
           <Route path="/privacy" element={<PageTransition><Privacy /></PageTransition>} />
           <Route path="/terms" element={<PageTransition><Terms /></PageTransition>} />
           <Route path="/disclaimer" element={<PageTransition><Disclaimer /></PageTransition>} />
-          <Route path="/" element={<PageTransition><Landing session={session} /></PageTransition>} />
+          <Route path="/" element={session ? <Navigate to="/home" replace /> : <PageTransition><Landing session={session} /></PageTransition>} />
           <Route path="*" element={<PageTransition><NotFound session={session} /></PageTransition>} />
         </Routes>
       </Suspense>
@@ -149,6 +149,14 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
   const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [installDismissed, setInstallDismissed] = useState(() => {
+    try { return sessionStorage.getItem('installBannerDismissed') === '1'; } catch { return false; }
+  });
+
+  const dismissInstallBanner = () => {
+    setInstallDismissed(true);
+    try { sessionStorage.setItem('installBannerDismissed', '1'); } catch { /* ignore */ }
+  };
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -210,15 +218,24 @@ function App() {
               You are currently offline. Some features may be unavailable.
             </div>
           )}
-          {deferredPrompt && !isOffline && (
-            <div style={{ backgroundColor: 'var(--primary)', color: 'white', padding: '8px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '14px', zIndex: 100 }}>
+          {deferredPrompt && !isOffline && !installDismissed && (
+            <div style={{ backgroundColor: 'var(--primary)', color: 'white', padding: '8px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', fontSize: '14px', zIndex: 100 }}>
               <span>Install Skilled Migration Assistant for a better experience</span>
-              <button 
-                onClick={handleInstallApp}
-                style={{ backgroundColor: 'white', color: 'var(--primary)', border: 'none', padding: '4px 12px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
-              >
-                Install
-              </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <button
+                  onClick={handleInstallApp}
+                  style={{ backgroundColor: 'white', color: 'var(--primary)', border: 'none', padding: '4px 12px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
+                >
+                  Install
+                </button>
+                <button
+                  onClick={dismissInstallBanner}
+                  aria-label="Dismiss install banner"
+                  style={{ background: 'transparent', color: 'white', border: 'none', cursor: 'pointer', fontSize: '20px', lineHeight: 1, padding: '4px 8px' }}
+                >
+                  ×
+                </button>
+              </div>
             </div>
           )}
           

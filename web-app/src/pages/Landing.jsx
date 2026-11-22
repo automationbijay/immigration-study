@@ -19,9 +19,31 @@ const tiles = [
   { eyebrow: 'Lookup', title: 'University directory', blurb: 'See how your qualification is likely to be recognised.', to: '/tools/university', tone: 'peach', icon: GraduationCap },
 ];
 
+function UnionJack({ id, w, h }) {
+  return (
+    <g>
+      <clipPath id={id}><rect width={w} height={h} /></clipPath>
+      <g clipPath={`url(#${id})`}>
+        <rect width={w} height={h} fill="#1c3f94" />
+        <path d={`M0 0L${w} ${h}M${w} 0L0 ${h}`} stroke="#fff" strokeWidth={h * 0.2} />
+        <path d={`M0 0L${w} ${h}M${w} 0L0 ${h}`} stroke="#c8102e" strokeWidth={h * 0.07} />
+        <path d={`M0 ${h / 2}H${w}M${w / 2} 0V${h}`} stroke="#fff" strokeWidth={h * 0.32} />
+        <path d={`M0 ${h / 2}H${w}M${w / 2} 0V${h}`} stroke="#c8102e" strokeWidth={h * 0.18} />
+      </g>
+    </g>
+  );
+}
+
+const FLAG_POLES = [
+  { x: 760, top: 96 },
+  { x: 870, top: 116 },
+  { x: 980, top: 96 },
+  { x: 1090, top: 116 },
+];
+
 function HorizonArt() {
   return (
-    <svg className="lp-horizon" viewBox="0 0 1200 260" preserveAspectRatio="xMidYMax slice" aria-hidden="true" focusable="false">
+    <svg className="lp-horizon" viewBox="0 0 1200 260" preserveAspectRatio="xMidYMax meet" aria-hidden="true" focusable="false">
       <defs>
         <radialGradient id="lp-glow" cx="50%" cy="70%" r="45%">
           <stop offset="0%" stopColor="#f3c58f" stopOpacity=".75" />
@@ -29,27 +51,109 @@ function HorizonArt() {
         </radialGradient>
       </defs>
       <rect x="250" y="0" width="700" height="260" fill="url(#lp-glow)" />
-      <circle cx="600" cy="168" r="62" fill="#e59a5c" />
-      {/* Flight path linking the two countries */}
-      <path d="M210 120 Q600 -20 990 110" fill="none" stroke="#142036" strokeWidth="2" strokeDasharray="2 9" strokeLinecap="round" opacity=".45" />
-      <path d="M982 100 l14 9 -16 4z" fill="#142036" opacity=".6" />
-      {/* Left: red-earth outback */}
-      <path d="M0 230 L0 196 Q60 186 120 192 L150 168 Q170 150 230 150 Q300 150 318 172 L340 194 Q420 200 520 214 L600 230Z" fill="#c4612b" />
-      <path d="M150 168 Q170 150 230 150 Q300 150 318 172 Z" fill="#a44a18" opacity=".45" />
-      <g fill="#56684a">
-        <circle cx="70" cy="184" r="12" /><rect x="68" y="184" width="4" height="16" />
-        <circle cx="420" cy="196" r="9" /><rect x="418" y="196" width="3" height="12" />
+      <circle cx="480" cy="190" r="62" fill="#e59a5c" />
+
+      {/* Left: a person with a backpack and suitcase, ready to migrate */}
+      <g>
+        <rect x="88" y="196" width="36" height="32" rx="4" fill="#c4612b" />
+        <rect x="98" y="188" width="16" height="9" rx="3" fill="none" stroke="#a44a18" strokeWidth="3" />
+        <rect x="88" y="206" width="36" height="3" fill="#a44a18" opacity=".6" />
+        <rect x="142" y="104" width="30" height="58" rx="10" fill="#a44a18" />
+        <rect x="156" y="112" width="40" height="64" rx="12" fill="#e59a5c" />
+        <path d="M164 174 h12 l-1 54 h-12z M180 174 h12 l3 54 h-12z" fill="#142036" />
+        <rect x="158" y="226" width="20" height="4" rx="2" fill="#142036" />
+        <rect x="182" y="226" width="22" height="4" rx="2" fill="#142036" />
+        <path d="M190 122 L226 104" stroke="#e59a5c" strokeWidth="11" strokeLinecap="round" />
+        <circle cx="229" cy="102" r="6" fill="#d9a077" />
+        <path d="M162 124 L152 160" stroke="#e59a5c" strokeWidth="11" strokeLinecap="round" />
+        <rect x="170" y="100" width="12" height="14" fill="#d9a077" />
+        <circle cx="178" cy="90" r="17" fill="#d9a077" />
+        <path d="M161 88 Q164 70 180 71 Q196 72 195 88 Q186 80 161 88Z" fill="#142036" />
       </g>
-      {/* Right: northern mountains and pines */}
-      <path d="M600 230 L720 210 L810 120 L860 168 L930 86 L1030 196 L1100 170 L1200 200 L1200 230Z" fill="#1c2c47" />
-      <path d="M930 86 L955 115 L940 112 L925 122 L912 108Z M810 120 L828 140 L812 138 L798 146 L796 136Z" fill="#f4ead8" />
-      <g fill="#56684a">
-        {[700, 735, 1060, 1095, 1140].map((x, i) => (
-          <path key={x} d={`M${x} ${222 - (i % 2) * 6} l14 0 -7 -${34 + (i % 2) * 8}z`} />
-        ))}
+
+      {/* Journey toward the destination countries */}
+      <path d="M250 96 Q480 -10 720 70" fill="none" stroke="#142036" strokeWidth="2" strokeDasharray="2 9" strokeLinecap="round" opacity=".45" />
+      <path d="M730 74 l-17 -5 3 15z" fill="#142036" opacity=".6" />
+
+      {/* Plane on the journey */}
+      <g transform="translate(482 38) rotate(-2)" stroke="#142036" strokeWidth="2" strokeLinejoin="round" fill="#f4ead8">
+        <polygon points="-26,-3 -36,-18 -27,-18 -12,-3" />
+        <polygon points="-6,3 -22,26 -10,26 16,3" />
+        <path d="M-34 0 Q-34 -8 -20 -8 L24 -8 Q40 -6 42 0 Q40 6 24 7 L-20 7 Q-34 7 -34 0Z" />
+        <g stroke="none" fill="#1c3f94">
+          <circle cx="-12" cy="-1" r="2.2" /><circle cx="-4" cy="-1" r="2.2" /><circle cx="4" cy="-1" r="2.2" /><circle cx="12" cy="-1" r="2.2" />
+          <path d="M24 -6 Q34 -5 38 -1 L24 -1Z" />
+        </g>
       </g>
-      <rect x="0" y="228" width="1200" height="32" fill="#142036" />
-      <rect x="0" y="234" width="1200" height="3" fill="#2a3d5e" />
+
+      {/* Jobs: briefcase */}
+      <g>
+        <path d="M303 200 v-7 a4 4 0 0 1 4 -4 h14 a4 4 0 0 1 4 4 v7" fill="none" stroke="#5a3515" strokeWidth="4" />
+        <rect x="288" y="199" width="52" height="29" rx="5" fill="#8a5a2b" />
+        <rect x="288" y="211" width="52" height="3" fill="#5a3515" opacity=".6" />
+        <rect x="310" y="208" width="8" height="9" rx="2" fill="#f3c58f" stroke="#5a3515" strokeWidth="1.5" />
+      </g>
+
+      {/* Money: banknote and coins */}
+      <g>
+        <g transform="rotate(-6 600 214)">
+          <rect x="574" y="200" width="56" height="28" rx="3" fill="#56684a" />
+          <rect x="579" y="205" width="46" height="18" rx="2" fill="none" stroke="#dfe8d2" strokeWidth="1.5" />
+          <circle cx="602" cy="214" r="7" fill="#dfe8d2" />
+          <text x="602" y="218.5" textAnchor="middle" fontSize="11" fontWeight="700" fill="#56684a" fontFamily="Georgia, serif">$</text>
+        </g>
+        <g fill="#e8b23c" stroke="#a87a1c" strokeWidth="1.5">
+          <ellipse cx="662" cy="224" rx="18" ry="5" /><rect x="644" y="214" width="36" height="10" stroke="none" />
+          <ellipse cx="662" cy="214" rx="18" ry="5" /><rect x="644" y="204" width="36" height="10" stroke="none" />
+          <ellipse cx="662" cy="204" rx="18" ry="5" />
+          <path d="M644 204 V224 M680 204 V224" fill="none" />
+        </g>
+        <circle cx="700" cy="216" r="11" fill="#e8b23c" stroke="#a87a1c" strokeWidth="1.5" />
+        <text x="700" y="220.5" textAnchor="middle" fontSize="12" fontWeight="700" fill="#a87a1c" fontFamily="Georgia, serif">$</text>
+      </g>
+
+      {/* Right: Australia, Canada, UK, Germany */}
+      {FLAG_POLES.map(({ x, top }) => (
+        <line key={x} x1={x} y1={top - 2} x2={x} y2="228" stroke="#142036" strokeWidth="3" strokeLinecap="round" />
+      ))}
+
+      {/* Australia */}
+      <g transform={`translate(${FLAG_POLES[0].x + 1.5} ${FLAG_POLES[0].top})`}>
+        <rect width="84" height="56" fill="#1c3f94" />
+        <UnionJack id="lp-flag-au" w={42} h={28} />
+        <g fill="#fff">
+          <circle cx="21" cy="44" r="4" />
+          <circle cx="62" cy="10" r="2.5" /><circle cx="70" cy="24" r="2.5" />
+          <circle cx="54" cy="26" r="2.5" /><circle cx="62" cy="44" r="2.5" /><circle cx="67" cy="35" r="1.6" />
+        </g>
+        <rect width="84" height="56" fill="none" stroke="#142036" strokeOpacity=".25" />
+      </g>
+
+      {/* Canada */}
+      <g transform={`translate(${FLAG_POLES[1].x + 1.5} ${FLAG_POLES[1].top})`}>
+        <rect width="84" height="56" fill="#fff" />
+        <rect width="21" height="56" fill="#d52b1e" />
+        <rect x="63" width="21" height="56" fill="#d52b1e" />
+        <polygon points="42,10 45,19 51,16 49,27 55,29 46,35 47,42 42,40 37,42 38,35 29,29 35,27 33,16 39,19" fill="#d52b1e" />
+        <rect width="84" height="56" fill="none" stroke="#142036" strokeOpacity=".25" />
+      </g>
+
+      {/* United Kingdom */}
+      <g transform={`translate(${FLAG_POLES[2].x + 1.5} ${FLAG_POLES[2].top})`}>
+        <UnionJack id="lp-flag-uk" w={84} h={56} />
+        <rect width="84" height="56" fill="none" stroke="#142036" strokeOpacity=".25" />
+      </g>
+
+      {/* Germany */}
+      <g transform={`translate(${FLAG_POLES[3].x + 1.5} ${FLAG_POLES[3].top})`}>
+        <rect width="84" height="19" fill="#111" />
+        <rect y="18.5" width="84" height="19" fill="#dd0000" />
+        <rect y="37" width="84" height="19" fill="#ffce00" />
+        <rect width="84" height="56" fill="none" stroke="#142036" strokeOpacity=".25" />
+      </g>
+
+      <rect x="-1200" y="228" width="3600" height="32" fill="#142036" />
+      <rect x="-1200" y="234" width="3600" height="3" fill="#2a3d5e" />
     </svg>
   );
 }
