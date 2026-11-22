@@ -317,14 +317,14 @@ export default function ProfessionDetails({ anzscoCode, jobName, onSave, saving 
                     </tr>
                   </thead>
                   <tbody>
-                    {withChanges(pointsHistory).toReversed().map((row, i) => (
+                    {pointsHistory.toReversed().map((row, i) => (
                       <tr key={row.date}>
                         <th scope="row">
                           {formatRoundLong(row.date)}
                           {i === 0 && <span className="anz-cutoff-latest-tag">Latest</span>}
                         </th>
-                        <td className="is-num"><CutoffCell value={row.sc189} change={row.sc189Change} kind="sc189" /></td>
-                        <td className="is-num"><CutoffCell value={row.sc491} change={row.sc491Change} kind="sc491" /></td>
+                        <td className="is-num"><CutoffCell value={row.sc189} kind="sc189" /></td>
+                        <td className="is-num"><CutoffCell value={row.sc491} kind="sc491" /></td>
                       </tr>
                     ))}
                   </tbody>
@@ -367,7 +367,7 @@ function CutoffStat({ label, rows, field, you }) {
         {latest && <span className="anz-fact-sub">{formatRoundLong(latest.date)}</span>}
         {gap != null && (
           <span className={`anz-you ${gap >= 0 ? 'is-met' : 'is-short'}`}>
-            You: {you} · {gap >= 0 ? (gap === 0 ? 'meets it' : `${gap} above`) : `${-gap} below`}
+            Your estimate: {you} · {gap === 0 ? 'matches cutoff' : gap > 0 ? `${gap} above` : `${-gap} below`}
           </span>
         )}
       </dd>
@@ -387,37 +387,7 @@ function chartDomain(rows, you) {
   return [Math.max(0, min), max];
 }
 
-// Adds the change from the previous round that had a score, per subclass.
-function withChanges(rows) {
-  const last = { sc189: null, sc491: null };
-  return rows.map(row => {
-    const out = { ...row };
-    for (const field of ['sc189', 'sc491']) {
-      const value = row[field];
-      out[`${field}Change`] = value != null && last[field] != null ? value - last[field] : null;
-      if (value != null) last[field] = value;
-    }
-    return out;
-  });
-}
-
-function CutoffCell({ value, change, kind }) {
-  if (value == null) return <span className="anz-cutoff-none" aria-label="No invitations">—</span>;
-  return (
-    <span className="anz-cutoff-cell">
-      <span className={`anz-cutoff-pill is-${kind}`}>{value}</span>
-      {change == null ? (
-        <span className="anz-cutoff-change" aria-hidden="true" />
-      ) : change === 0 ? (
-        <span className="anz-cutoff-change" aria-label="no change from previous round">=</span>
-      ) : (
-        <span
-          className={`anz-cutoff-change ${change > 0 ? 'is-up' : 'is-down'}`}
-          aria-label={`${change > 0 ? 'up' : 'down'} ${Math.abs(change)} from previous round`}
-        >
-          {change > 0 ? '▲' : '▼'} {Math.abs(change)}
-        </span>
-      )}
-    </span>
-  );
+function CutoffCell({ value, kind }) {
+  if (value == null) return <span className="anz-cutoff-none" aria-label="No published cutoff">—</span>;
+  return <span className={`anz-cutoff-pill is-${kind}`}>{value}</span>;
 }

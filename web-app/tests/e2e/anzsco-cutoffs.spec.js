@@ -24,7 +24,7 @@ test('SkillSelect history shows the latest scores and a keyboard-accessible tabl
   const latest = page.locator('.anz-cutoff-latest');
   await expect(latest.getByText('70', { exact: false })).toBeVisible();
   await expect(latest.getByText('80', { exact: false })).toBeVisible();
-  const summary = page.getByText('View cut-off points by round');
+  const summary = page.locator('summary').filter({ hasText: 'View cut-off points by round' });
   await summary.focus();
   await summary.press('Enter');
   const table = page.getByRole('table', { name: /by invitation round/ });

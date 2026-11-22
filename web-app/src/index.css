@@ -2669,6 +2669,7 @@ h1 em, h2 em, h3 em { font-style: italic; color: var(--ochre); }
 .site-nav-account:hover { background: var(--ochre-deep); }
 .site-nav :focus-visible { outline-color: var(--ochre-soft); }
 @media (max-width: 760px) {
+  .site-nav-wrap.has-bottom-nav { display: none; }
   .site-nav-links { display: none; }
   .site-nav { justify-content: space-between; }
   .site-brand { font-size: 1rem; }
@@ -3008,27 +3009,18 @@ html { scroll-padding-top: 5.5rem; }
   margin-left: .55rem; padding: .1rem .45rem; border-radius: var(--radius-full); background: var(--navy); color: var(--cream);
   font-family: var(--font-mono); font-size: .58rem; letter-spacing: .12em; text-transform: uppercase; vertical-align: .1em;
 }
-.anz-cutoff-cell { display: inline-flex; align-items: center; justify-content: flex-end; gap: .5rem; }
 .anz-cutoff-pill {
-  min-width: 2.75rem; padding: .2rem .6rem; border-radius: var(--radius-full); text-align: center;
+  display: inline-block; min-width: 2.75rem; padding: .2rem .6rem; border-radius: var(--radius-full); text-align: center;
   font-family: var(--font-display); font-size: 1.05rem; font-weight: 500; line-height: 1.3;
 }
 .anz-cutoff-pill.is-sc189 { background: var(--peach-soft); color: var(--ochre-deep); }
 .anz-cutoff-pill.is-sc491 { background: var(--sage-soft); color: var(--color-success-fg); }
-.anz-cutoff-change {
-  min-width: 2.5rem; font-family: var(--font-mono); font-size: .7rem; color: var(--color-secondary); text-align: left;
-}
-.anz-cutoff-change.is-up { color: var(--color-danger); }
-.anz-cutoff-change.is-down { color: var(--color-success-strong); }
 .anz-cutoff-none { color: #4e566680; }
 @media (max-width: 520px) {
   .anz-cutoff-table summary, .anz-cutoff-table thead th, .anz-cutoff-table tbody th, .anz-cutoff-table tbody td { padding-inline: .75rem; }
   .anz-cutoff-long { display: none; }
   .anz-cutoff-table tbody th { white-space: normal; font-size: .9rem; }
   .anz-cutoff-latest-tag { display: table; margin: .3rem 0 0; }
-  .anz-cutoff-cell { flex-direction: column; align-items: flex-end; gap: .15rem; }
-  .anz-cutoff-change { min-width: 0; text-align: right; }
-  .anz-cutoff-change:empty { display: none; }
 }
 .anz-empty { padding: 2rem 1rem; text-align: center; color: var(--color-secondary); font-size: .9rem; }
 .anz-saved-link { display: inline-block; margin: 0 0 1rem; color: var(--ochre-deep); font-weight: 600; }
