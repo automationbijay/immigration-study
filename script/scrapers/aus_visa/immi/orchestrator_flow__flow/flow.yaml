@@ -1,0 +1,30 @@
+summary: IMMI Orchestrator Flow
+description: Orchestrates the IMMI Skilled Occupation scraper and saves to Supabase
+value:
+  modules:
+    - id: a
+      value:
+        type: script
+        path: f/aus_visa/immi/skill_occupation_scraper
+    - id: b
+      value:
+        type: script
+        input_transforms:
+          db:
+            type: static
+            value: $res:u/puribijay/immigraion-abroad
+          scraped_data:
+            type: javascript
+            expr: results.a
+          table_name:
+            type: javascript
+            expr: '"scra_immi_skilled_occupation_list"'
+          truncate_first:
+            type: javascript
+            expr: 'true'
+        path: f/aus_visa/immi/save_to_supabase
+has_on_behalf_of: false
+schema:
+  $schema: https://json-schema.org/draft/2020-12/schema
+  type: object
+  properties: {}

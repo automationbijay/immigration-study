@@ -1,0 +1,9 @@
+summary: ''
+description: ''
+lock: '!inline f/aus_visa/anzscolookup/scrape_occupation_details.script.lock'
+kind: script
+schema:
+  $schema: https://json-schema.org/draft/2020-12/schema
+  type: object
+  properties: {}
+  required: []

@@ -81,10 +81,12 @@ export default function AnzscoTool() {
         backTo="/discover" 
       />
       <Toast message={message} />
-      {message === 'Occupation saved successfully!' && <PageLink to="/profile">View saved profile</PageLink>}
+      {message === 'Occupation saved successfully!' && (
+        <PageLink to="/profile" className="anz-saved-link">View saved profile →</PageLink>
+      )}
       <div className="section">
-        <OccupationSearch 
-          label="Find your Profession Classification" 
+        <OccupationSearch
+          label="Find your occupation classification"
           value={selectedOccupation}
           onChange={value => { setSelectedOccupation(value); setMessage(''); }}
           onHelpClick={() => setIsHelpOpen(true)}

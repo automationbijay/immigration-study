@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Briefcase, Building, Activity, CheckCircle, Save, Award, Map, Navigation, ShieldCheck } from 'lucide-react';
+import { Briefcase, Building, Activity, Save, Award, ShieldCheck } from 'lucide-react';
+import { Skeleton } from './ui/Skeleton';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 export default function ProfessionDetails({ anzscoCode, jobName, onSave, saving }) {
@@ -121,157 +122,134 @@ export default function ProfessionDetails({ anzscoCode, jobName, onSave, saving 
   }, [anzscoCode]);
 
   if (loading) {
-    return <div className="text-center py-8 text-gray-500">Loading profession details...</div>;
+    return (
+      <div className="anz-details" role="status" aria-busy="true">
+        <span className="visually-hidden">Loading profession details</span>
+        <Skeleton height="9rem" radius="var(--radius-xl)" />
+        <Skeleton height="10rem" radius="var(--radius-xl)" />
+        <Skeleton height="14rem" radius="var(--radius-xl)" />
+      </div>
+    );
   }
 
   return (
-    <div className="mt-8 space-y-6">
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden transition-all duration-300">
-        <div className="p-6 border-b border-gray-100 bg-gray-50/50">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 tracking-tight">{jobName}</h2>
-              <p className="text-gray-500 flex items-center mt-1 text-sm font-medium">
-                <Briefcase className="w-4 h-4 mr-2" /> ANZSCO Code: {anzscoCode}
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {lists.map(list => (
-                <span key={list} className="px-3 py-1 bg-blue-100 text-blue-800 font-semibold rounded-full text-xs tracking-wider">
-                  {list}
-                </span>
-              ))}
-              {lists.length === 0 && (
-                <span className="px-3 py-1 bg-gray-100 text-gray-500 font-semibold rounded-full text-xs">
-                  Not on any Skilled List
-                </span>
-              )}
-            </div>
+    <div className="anz-details">
+      {/* Header: occupation identity, list membership, and the save action. */}
+      <header className="anz-hero">
+        <div className="anz-hero-main">
+          <span className="anz-eyebrow">
+            <Briefcase size={14} aria-hidden="true" /> ANZSCO {anzscoCode}
+          </span>
+          <h2 className="anz-hero-title">{jobName}</h2>
+          <div className="anz-pills">
+            {lists.length > 0 ? lists.map(list => (
+              <span key={list} className="anz-pill">{list}</span>
+            )) : (
+              <span className="anz-pill anz-pill-muted">Not on any skilled list</span>
+            )}
           </div>
         </div>
-
-        <div className="p-6 flex flex-col gap-8">
-          {/* Visa Types - Full Width Row */}
-          <div>
-            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center mb-4">
-              <ShieldCheck className="w-4 h-4 mr-2 text-emerald-500" /> Supported Federal Visas
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-              {console.log('Rendering Visas:', visas)}
-              {visas && visas.length > 0 ? visas.map(visa => (
-                <div 
-                  key={visa.visa_subclass || Math.random()} 
-                  className="group relative flex flex-col justify-between bg-white border border-gray-200 hover:border-emerald-400 rounded-2xl p-5 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 overflow-hidden min-h-[160px]"
-                >
-                  {/* Decorative background accent */}
-                  <div className="absolute -right-8 -top-8 w-24 h-24 bg-gradient-to-br from-emerald-100 to-teal-50 rounded-full opacity-40 group-hover:scale-150 transition-transform duration-500"></div>
-                  
-                  <div className="relative z-10 flex justify-between items-start mb-5">
-                    <div className="bg-emerald-50 text-emerald-700 font-black text-2xl px-4 py-2 rounded-xl border border-emerald-200 shadow-sm">
-                      {visa.visa_subclass}
-                    </div>
-                    <span className={`text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full border ${visa.residency_type === 'Permanent' ? 'bg-indigo-50 border-indigo-200 text-indigo-700' : 'bg-amber-50 border-amber-200 text-amber-700'}`}>
-                      {visa.residency_type || 'Unknown'}
-                    </span>
-                  </div>
-                  
-                  <div className="relative z-10">
-                    <h4 className="font-semibold text-gray-900 leading-tight mb-2 text-lg">
-                      {visa.visa_name || `Subclass ${visa.visa_subclass}`}
-                    </h4>
-                    <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed">
-                      {visa.residency_description || 'Federal skilled migration visa.'}
-                    </p>
-                  </div>
-                </div>
-              )) : (
-                <div className="col-span-full h-32 bg-gray-50 border border-dashed border-gray-300 rounded-xl flex items-center justify-center text-gray-400 text-sm">
-                  No supported federal visas found for this occupation.
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Assessment Authority */}
-            <div>
-              <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center mb-4">
-                <Building className="w-4 h-4 mr-2 text-indigo-500" /> Skills Assessment
-              </h3>
-              <div className="bg-indigo-50/50 border border-indigo-100 rounded-xl p-5 shadow-sm">
-                <p className="text-sm text-indigo-900 flex justify-between items-center mb-3">
-                  <span className="font-medium text-indigo-700">Assessing Authority</span>
-                  <span className="font-bold text-right text-base">{assessingAuthority || 'Not Specified'}</span>
-                </p>
-                <div className="w-full h-px bg-indigo-100/80 my-3" />
-                <p className="text-sm text-indigo-900 flex justify-between items-center">
-                  <span className="font-medium text-indigo-700">Skill Level</span>
-                  <span className="font-bold text-base">{skillLevel || 'N/A'}</span>
-                </p>
-              </div>
-            </div>
-
-            {/* Historical Data */}
-            <div>
-              <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center mb-4">
-                <Activity className="w-4 h-4 mr-2 text-purple-500" /> Historical Cut-off Points (SC189)
-              </h3>
-              {pointsHistory.length > 0 ? (
-                <div className="h-64 w-full bg-white border border-gray-100 rounded-xl p-4 pt-6 shadow-sm">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={pointsHistory}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                      <XAxis 
-                        dataKey="date" 
-                        tick={{fontSize: 12, fill: '#888'}} 
-                        axisLine={{ stroke: '#e5e7eb' }}
-                        tickLine={false}
-                        dy={10}
-                      />
-                      <YAxis 
-                        domain={['dataMin - 5', 'dataMax + 5']} 
-                        tick={{fontSize: 12, fill: '#888'}} 
-                        axisLine={false} 
-                        tickLine={false}
-                        width={30}
-                      />
-                      <Tooltip 
-                        contentStyle={{borderRadius: '8px', border: '1px solid #e5e7eb', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)'}}
-                      />
-                      <Line 
-                        type="monotone" 
-                        dataKey="points" 
-                        stroke="#8b5cf6" 
-                        strokeWidth={3}
-                        dot={{ r: 4, fill: '#8b5cf6', strokeWidth: 2, stroke: '#fff' }}
-                        activeDot={{ r: 6, fill: '#8b5cf6', stroke: '#fff', strokeWidth: 2 }}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-              ) : (
-                <div className="h-64 w-full bg-gray-50 border border-dashed border-gray-300 rounded-xl flex items-center justify-center text-gray-400 text-sm">
-                  No historical invitation data available.
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Action Bar */}
         {onSave && (
-          <div className="p-4 bg-gray-50 border-t border-gray-100 flex justify-end">
-            <button 
-              className="btn-primary w-full md:w-auto flex justify-center items-center gap-2"
-              onClick={onSave} 
-              disabled={saving}
-            >
-              <Save size={18} />
-              {saving ? 'Saving...' : 'Save to Profile'}
-            </button>
+          <button
+            type="button"
+            className="btn-primary btn-compact anz-save"
+            onClick={onSave}
+            disabled={saving}
+          >
+            <Save size={18} aria-hidden="true" />
+            {saving ? 'Saving…' : 'Save to profile'}
+          </button>
+        )}
+      </header>
+
+      {/* Quick facts */}
+      <dl className="anz-facts">
+        <div className="anz-fact">
+          <dt><Building size={16} aria-hidden="true" /> Assessing authority</dt>
+          <dd>{assessingAuthority || 'Not specified'}</dd>
+        </div>
+        <div className="anz-fact">
+          <dt><Award size={16} aria-hidden="true" /> Skill level</dt>
+          <dd>{skillLevel || 'N/A'}</dd>
+        </div>
+        <div className="anz-fact">
+          <dt><ShieldCheck size={16} aria-hidden="true" /> Eligible visas</dt>
+          <dd>{visas.length}</dd>
+        </div>
+      </dl>
+
+      {/* Visas */}
+      <section className="anz-block">
+        <h3 className="section-title anz-block-title">Supported federal visas</h3>
+        {visas.length > 0 ? (
+          <div className="anz-visa-grid">
+            {visas.map(visa => (
+              <article key={visa.visa_subclass} className="anz-visa">
+                <div className="anz-visa-head">
+                  <span className="anz-visa-subclass">{visa.visa_subclass}</span>
+                  <span className={`anz-visa-type ${visa.residency_type === 'Permanent' ? 'is-permanent' : ''}`}>
+                    {visa.residency_type || 'Unknown'}
+                  </span>
+                </div>
+                <h4 className="anz-visa-name">{visa.visa_name || `Subclass ${visa.visa_subclass}`}</h4>
+                <p className="anz-visa-desc">
+                  {visa.residency_description || 'Federal skilled migration visa.'}
+                </p>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="empty-state anz-empty">
+            No supported federal visas found for this occupation.
           </div>
         )}
-      </div>
+      </section>
+
+      {/* History */}
+      <section className="anz-block">
+        <h3 className="section-title anz-block-title">
+          <Activity size={20} aria-hidden="true" /> Historical cut-off points
+          <span className="anz-block-tag">Subclass 189</span>
+        </h3>
+        {pointsHistory.length > 0 ? (
+          <div className="card anz-chart">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={pointsHistory} margin={{ top: 8, right: 12, bottom: 0, left: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#ddcdb0" />
+                <XAxis
+                  dataKey="date"
+                  tick={{ fontSize: 12, fill: '#4e5666' }}
+                  axisLine={{ stroke: '#ddcdb0' }}
+                  tickLine={false}
+                  dy={8}
+                />
+                <YAxis
+                  domain={['dataMin - 5', 'dataMax + 5']}
+                  tick={{ fontSize: 12, fill: '#4e5666' }}
+                  axisLine={false}
+                  tickLine={false}
+                  width={32}
+                />
+                <Tooltip
+                  contentStyle={{ borderRadius: 12, border: '1px solid #ddcdb0', background: '#fbf6ec', color: '#142036' }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="points"
+                  stroke="#c4612b"
+                  strokeWidth={3}
+                  dot={{ r: 4, fill: '#c4612b', strokeWidth: 2, stroke: '#fbf6ec' }}
+                  activeDot={{ r: 6, fill: '#9c4416', stroke: '#fbf6ec', strokeWidth: 2 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        ) : (
+          <div className="empty-state anz-empty">
+            No historical invitation data available yet.
+          </div>
+        )}
+      </section>
     </div>
   );
 }

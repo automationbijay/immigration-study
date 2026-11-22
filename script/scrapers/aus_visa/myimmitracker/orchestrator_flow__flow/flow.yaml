@@ -1,0 +1,345 @@
+summary: Orchestrator for MyImmiTracker scrapers
+description: Runs the selected MyImmiTracker scrapers in sequence using the
+  provided session cookies.
+value:
+  modules:
+    - id: run_expression_of_interest_sc189_tracker_step
+      value:
+        type: script
+        input_transforms:
+          auth_state_json:
+            type: javascript
+            expr: flow_input.auth_state_json
+        path: f/aus_visa/myimmitracker/expression_of_interest_sc189_tracker
+      skip_if:
+        expr: '!flow_input.run_expression_of_interest_sc189_tracker'
+    - id: upsert_expression_of_interest_sc189_tracker_step
+      value:
+        type: script
+        input_transforms:
+          db:
+            type: static
+            value: $res:u/puribijay/immigraion-abroad
+          scraped_data:
+            type: javascript
+            expr: results.run_expression_of_interest_sc189_tracker_step
+          table_name:
+            type: javascript
+            expr: '"scr_myimmitracker_expression_of_interest_sc189_tracker"'
+        path: f/aus_visa/myimmitracker/supabase_upsert
+      skip_if:
+        expr: '!flow_input.run_expression_of_interest_sc189_tracker'
+    - id: run_expression_of_interest_sc190_tracker_step
+      value:
+        type: script
+        input_transforms:
+          auth_state_json:
+            type: javascript
+            expr: flow_input.auth_state_json
+        path: f/aus_visa/myimmitracker/expression_of_interest_sc190_tracker
+      skip_if:
+        expr: '!flow_input.run_expression_of_interest_sc190_tracker'
+    - id: upsert_expression_of_interest_sc190_tracker_step
+      value:
+        type: script
+        input_transforms:
+          db:
+            type: static
+            value: $res:u/puribijay/immigraion-abroad
+          scraped_data:
+            type: javascript
+            expr: results.run_expression_of_interest_sc190_tracker_step
+          table_name:
+            type: javascript
+            expr: '"scr_myimmitracker_expression_of_interest_sc190_tracker"'
+        path: f/aus_visa/myimmitracker/supabase_upsert
+      skip_if:
+        expr: '!flow_input.run_expression_of_interest_sc190_tracker'
+    - id: run_consolidated_sc491_visa_tracker_step
+      value:
+        type: script
+        input_transforms:
+          auth_state_json:
+            type: javascript
+            expr: flow_input.auth_state_json
+        path: f/aus_visa/myimmitracker/consolidated_sc491_visa_tracker
+      skip_if:
+        expr: '!flow_input.run_consolidated_sc491_visa_tracker'
+    - id: upsert_consolidated_sc491_visa_tracker_step
+      value:
+        type: script
+        input_transforms:
+          db:
+            type: static
+            value: $res:u/puribijay/immigraion-abroad
+          scraped_data:
+            type: javascript
+            expr: results.run_consolidated_sc491_visa_tracker_step
+          table_name:
+            type: javascript
+            expr: '"scr_myimmitracker_consolidated_sc491_visa_tracker"'
+        path: f/aus_visa/myimmitracker/supabase_upsert
+      skip_if:
+        expr: '!flow_input.run_consolidated_sc491_visa_tracker'
+    - id: run_consolidated_visa_tracker_sc189_step
+      value:
+        type: script
+        input_transforms:
+          auth_state_json:
+            type: javascript
+            expr: flow_input.auth_state_json
+        path: f/aus_visa/myimmitracker/consolidated_visa_tracker_sc189
+      skip_if:
+        expr: '!flow_input.run_consolidated_visa_tracker_sc189'
+    - id: upsert_consolidated_visa_tracker_sc189_step
+      value:
+        type: script
+        input_transforms:
+          db:
+            type: static
+            value: $res:u/puribijay/immigraion-abroad
+          scraped_data:
+            type: javascript
+            expr: results.run_consolidated_visa_tracker_sc189_step
+          table_name:
+            type: javascript
+            expr: '"scr_myimmitracker_consolidated_visa_tracker_sc189"'
+        path: f/aus_visa/myimmitracker/supabase_upsert
+      skip_if:
+        expr: '!flow_input.run_consolidated_visa_tracker_sc189'
+    - id: run_consolidated_visa_tracker_sc190_step
+      value:
+        type: script
+        input_transforms:
+          auth_state_json:
+            type: javascript
+            expr: flow_input.auth_state_json
+        path: f/aus_visa/myimmitracker/consolidated_visa_tracker_sc190
+      skip_if:
+        expr: '!flow_input.run_consolidated_visa_tracker_sc190'
+    - id: upsert_consolidated_visa_tracker_sc190_step
+      value:
+        type: script
+        input_transforms:
+          db:
+            type: static
+            value: $res:u/puribijay/immigraion-abroad
+          scraped_data:
+            type: javascript
+            expr: results.run_consolidated_visa_tracker_sc190_step
+          table_name:
+            type: javascript
+            expr: '"scr_myimmitracker_consolidated_visa_tracker_sc190"'
+        path: f/aus_visa/myimmitracker/supabase_upsert
+      skip_if:
+        expr: '!flow_input.run_consolidated_visa_tracker_sc190'
+    - id: run_consolidated_visa_tracker_sc191_step
+      value:
+        type: script
+        input_transforms:
+          auth_state_json:
+            type: javascript
+            expr: flow_input.auth_state_json
+        path: f/aus_visa/myimmitracker/consolidated_visa_tracker_sc191
+      skip_if:
+        expr: '!flow_input.run_consolidated_visa_tracker_sc191'
+    - id: upsert_consolidated_visa_tracker_sc191_step
+      value:
+        type: script
+        input_transforms:
+          db:
+            type: static
+            value: $res:u/puribijay/immigraion-abroad
+          scraped_data:
+            type: javascript
+            expr: results.run_consolidated_visa_tracker_sc191_step
+          table_name:
+            type: javascript
+            expr: '"scr_myimmitracker_consolidated_visa_tracker_sc191"'
+        path: f/aus_visa/myimmitracker/supabase_upsert
+      skip_if:
+        expr: '!flow_input.run_consolidated_visa_tracker_sc191'
+    - id: run_citizenship_processing_tracker_step
+      value:
+        type: script
+        input_transforms:
+          auth_state_json:
+            type: javascript
+            expr: flow_input.auth_state_json
+        path: f/aus_visa/myimmitracker/citizenship_processing_tracker
+      skip_if:
+        expr: '!flow_input.run_citizenship_processing_tracker'
+    - id: upsert_citizenship_processing_tracker_step
+      value:
+        type: script
+        input_transforms:
+          db:
+            type: static
+            value: $res:u/puribijay/immigraion-abroad
+          scraped_data:
+            type: javascript
+            expr: results.run_citizenship_processing_tracker_step
+          table_name:
+            type: javascript
+            expr: '"scr_myimmitracker_citizenship_processing_tracker"'
+        path: f/aus_visa/myimmitracker/supabase_upsert
+      skip_if:
+        expr: '!flow_input.run_citizenship_processing_tracker'
+    - id: run_indian_applicants_sc189_visa_tracker_step
+      value:
+        type: script
+        input_transforms:
+          auth_state_json:
+            type: javascript
+            expr: flow_input.auth_state_json
+        path: f/aus_visa/myimmitracker/indian_applicants_sc189_visa_tracker
+      skip_if:
+        expr: '!flow_input.run_indian_applicants_sc189_visa_tracker'
+    - id: upsert_indian_applicants_sc189_visa_tracker_step
+      value:
+        type: script
+        input_transforms:
+          db:
+            type: static
+            value: $res:u/puribijay/immigraion-abroad
+          scraped_data:
+            type: javascript
+            expr: results.run_indian_applicants_sc189_visa_tracker_step
+          table_name:
+            type: javascript
+            expr: '"scr_myimmitracker_indian_applicants_sc189_visa_tracker"'
+        path: f/aus_visa/myimmitracker/supabase_upsert
+      skip_if:
+        expr: '!flow_input.run_indian_applicants_sc189_visa_tracker'
+    - id: run_indian_applicants_sc190_visa_tracker_step
+      value:
+        type: script
+        input_transforms:
+          auth_state_json:
+            type: javascript
+            expr: flow_input.auth_state_json
+        path: f/aus_visa/myimmitracker/indian_applicants_sc190_visa_tracker
+      skip_if:
+        expr: '!flow_input.run_indian_applicants_sc190_visa_tracker'
+    - id: upsert_indian_applicants_sc190_visa_tracker_step
+      value:
+        type: script
+        input_transforms:
+          db:
+            type: static
+            value: $res:u/puribijay/immigraion-abroad
+          scraped_data:
+            type: javascript
+            expr: results.run_indian_applicants_sc190_visa_tracker_step
+          table_name:
+            type: javascript
+            expr: '"scr_myimmitracker_indian_applicants_sc190_visa_tracker"'
+        path: f/aus_visa/myimmitracker/supabase_upsert
+      skip_if:
+        expr: '!flow_input.run_indian_applicants_sc190_visa_tracker'
+    - id: run_sc491_eoi_tracker_step
+      value:
+        type: script
+        input_transforms:
+          auth_state_json:
+            type: javascript
+            expr: flow_input.auth_state_json
+        path: f/aus_visa/myimmitracker/sc491_eoi_tracker
+      skip_if:
+        expr: '!flow_input.run_sc491_eoi_tracker'
+    - id: upsert_sc491_eoi_tracker_step
+      value:
+        type: script
+        input_transforms:
+          db:
+            type: static
+            value: $res:u/puribijay/immigraion-abroad
+          scraped_data:
+            type: javascript
+            expr: results.run_sc491_eoi_tracker_step
+          table_name:
+            type: javascript
+            expr: '"scr_myimmitracker_sc491_eoi_tracker"'
+        path: f/aus_visa/myimmitracker/supabase_upsert
+      skip_if:
+        expr: '!flow_input.run_sc491_eoi_tracker'
+    - id: run_skills_assessment_tracker_step
+      value:
+        type: script
+        input_transforms:
+          auth_state_json:
+            type: javascript
+            expr: flow_input.auth_state_json
+        path: f/aus_visa/myimmitracker/skills_assessment_tracker
+      skip_if:
+        expr: '!flow_input.run_skills_assessment_tracker'
+    - id: upsert_skills_assessment_tracker_step
+      value:
+        type: script
+        input_transforms:
+          db:
+            type: static
+            value: $res:u/puribijay/immigraion-abroad
+          scraped_data:
+            type: javascript
+            expr: results.run_skills_assessment_tracker_step
+          table_name:
+            type: javascript
+            expr: '"scr_myimmitracker_skills_assessment_tracker"'
+        path: f/aus_visa/myimmitracker/supabase_upsert
+      skip_if:
+        expr: '!flow_input.run_skills_assessment_tracker'
+has_on_behalf_of: false
+schema:
+  $schema: https://json-schema.org/draft/2020-12/schema
+  type: object
+  properties:
+    auth_state_json:
+      type: string
+      description: Paste the contents of myimmitracker_auth_state.json here to bypass login.
+    run_citizenship_processing_tracker:
+      type: boolean
+      description: Run the Citizenship Processing Tracker?
+      default: true
+    run_consolidated_sc491_visa_tracker:
+      type: boolean
+      description: Run the Consolidated Sc491 Visa Tracker?
+      default: true
+    run_consolidated_visa_tracker_sc189:
+      type: boolean
+      description: Run the Consolidated Visa Tracker Sc189?
+      default: true
+    run_consolidated_visa_tracker_sc190:
+      type: boolean
+      description: Run the Consolidated Visa Tracker Sc190?
+      default: true
+    run_consolidated_visa_tracker_sc191:
+      type: boolean
+      description: Run the Consolidated Visa Tracker Sc191?
+      default: true
+    run_expression_of_interest_sc189_tracker:
+      type: boolean
+      description: Run the Expression Of Interest Sc189 Tracker?
+      default: true
+    run_expression_of_interest_sc190_tracker:
+      type: boolean
+      description: Run the Expression Of Interest Sc190 Tracker?
+      default: true
+    run_indian_applicants_sc189_visa_tracker:
+      type: boolean
+      description: Run the Indian Applicants Sc189 Visa Tracker?
+      default: true
+    run_indian_applicants_sc190_visa_tracker:
+      type: boolean
+      description: Run the Indian Applicants Sc190 Visa Tracker?
+      default: true
+    run_sc491_eoi_tracker:
+      type: boolean
+      description: Run the Sc491 Eoi Tracker?
+      default: true
+    run_skills_assessment_tracker:
+      type: boolean
+      description: Run the Skills Assessment Tracker?
+      default: true
+  required:
+    - auth_state_json
