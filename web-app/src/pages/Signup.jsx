@@ -1,6 +1,7 @@
+import PageLink from '../components/ui/PageLink';
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 export default function Signup() {
   const [email, setEmail] = useState('');
@@ -115,7 +116,7 @@ export default function Signup() {
         </form>
         
         <div className="text-center text-sm text-muted">
-          Already have an account? <Link to={loginPath} className="auth-link">Log in</Link>
+          Already have an account? <PageLink to={loginPath} className="auth-link">Log in</PageLink>
         </div>
       </div>
     </div>

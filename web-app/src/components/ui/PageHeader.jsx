@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import PageLink from './PageLink';
 import { ArrowLeft } from 'lucide-react';
 
 /**
@@ -10,14 +10,14 @@ export default function PageHeader({ title, icon: Icon, description, backTo, bac
   return (
     <header className="page-header">
       {backTo && (
-        <Link to={backTo} className="page-header-back">
+        <PageLink to={backTo} className="page-header-back">
           <ArrowLeft size={20} aria-hidden="true" /> {backLabel}
-        </Link>
+        </PageLink>
       )}
-      <h2 className="page-header-title">
+      <h1 className="page-header-title">
         {Icon && <Icon size={24} aria-hidden="true" />}
         {title}
-      </h2>
+      </h1>
       {description && <p className="page-header-description">{description}</p>}
     </header>
   );

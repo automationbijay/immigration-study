@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "playwright test",
+    "test:db": "node scripts/db-roundtrip.mjs"
   },
   "dependencies": {
     "@sentry/react": "^10.69.0",

@@ -26,6 +26,7 @@ const BandSelect = ({ id, name, label, bands, value, onChange }) => (
     <div className="form-group">
         <label htmlFor={id}>{label}</label>
         <select id={id} value={value} onChange={(e) => onChange(name, e.target.value)}>
+            {!bands.some(band => band.placeholder) && <option value="" disabled>Select an answer</option>}
             {bands.map((band) => (
                 <option key={band.id} value={band.id}>{optionLabel(band)}</option>
             ))}
@@ -72,7 +73,7 @@ const PointsForm = React.memo(({ formData, onChange }) => (
             <BandSelect
                 id="overseas-exp" name="overseasExpYears" label="Overseas Employment"
                 bands={OVERSEAS_EXP_BANDS}
-                value={bandIdForYears(OVERSEAS_EXP_BANDS, formData.overseasExpYears)}
+                value={formData.overseasExpYears == null ? '' : bandIdForYears(OVERSEAS_EXP_BANDS, formData.overseasExpYears)}
                 onChange={(name, bandId) => onChange(name, yearsForBandId(OVERSEAS_EXP_BANDS, bandId))}
             />
 
@@ -80,9 +81,10 @@ const PointsForm = React.memo(({ formData, onChange }) => (
                 <label htmlFor="aus-exp">Australian Employment</label>
                 <select
                     id="aus-exp"
-                    value={bandIdForYears(AUS_EXP_BANDS, formData.ausExpYears)}
+                    value={formData.ausExpYears == null ? '' : bandIdForYears(AUS_EXP_BANDS, formData.ausExpYears)}
                     onChange={(e) => onChange('ausExpYears', yearsForBandId(AUS_EXP_BANDS, e.target.value))}
                 >
+                    <option value="" disabled>Select an answer</option>
                     {AUS_EXP_BANDS.map((band) => (
                         <option key={band.id} value={band.id}>{optionLabel(band)}</option>
                     ))}

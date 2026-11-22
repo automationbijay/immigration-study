@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import PageLink from './ui/PageLink';
 import Card from './ui/Card';
 import { Briefcase } from 'lucide-react';
 
@@ -23,7 +23,7 @@ export default function ToolCard({ title, description, icon: Icon = Briefcase, t
   }
 
   return (
-    <Card as={Link} to={to} interactive className="tool-card">
+    <Card as={PageLink} to={to} interactive className="tool-card">
       {body}
     </Card>
   );

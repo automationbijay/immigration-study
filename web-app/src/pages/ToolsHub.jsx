@@ -9,15 +9,15 @@ export default function ToolsHub() {
       <PageHeader title="All Tools" icon={Wrench} backTo="/discover" backLabel="Back to Discover" />
 
       <div className="card-grid">
-        <ToolCard 
-          title="Profession Classification" 
-          description="Search and find the correct ANZSCO code for your occupation to check your visa eligibility."
-          to="/tools/anzsco" 
+        <ToolCard
+          title="ANZSCO occupation finder"
+          description="Search ANZSCO job titles and codes, then review the relevant occupation lists."
+          to="/tools/anzsco"
         />
-        <ToolCard 
-          title="University Finder" 
-          description="Search and find recognized universities to check eligibility for visas or claiming points."
-          to="/tools/university" 
+        <ToolCard
+          title="University directory"
+          description="Look up an institution by name or country."
+          to="/tools/university"
         />
       </div>
     </>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import PageLink from '../components/ui/PageLink';
 import { Compass } from 'lucide-react';
 
 export default function NotFound({ session }) {
@@ -10,9 +10,9 @@ export default function NotFound({ session }) {
       <p className="text-muted">
         The page you were looking for doesn&apos;t exist or has moved.
       </p>
-      <Link to={session ? '/home' : '/'} className="btn-primary not-found-action">
+      <PageLink to={session ? '/home' : '/'} className="btn-primary not-found-action">
         {session ? 'Back to Home' : 'Back to Start'}
-      </Link>
+      </PageLink>
     </div>
   );
 }

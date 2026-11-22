@@ -2,7 +2,7 @@ import React from 'react';
 import { ChevronDown, Check } from 'lucide-react';
 
 /**
- * A pathway the person actually qualifies for. Expands to explain what the
+ * A points-tested pathway for the person to explore. Expands to explain what the
  * visa is and what happens next — <details> so it works without JS and stays
  * keyboard-operable.
  */
@@ -23,9 +23,9 @@ export default function PathwayCard({ match }) {
         <div className="pathway-card-footer">
           {visa.pointsTested ? (
             <span className="pathway-card-score">
-              <strong>{points}</strong> points with this pathway
+              <strong>{points}</strong> estimated points for this pathway
               {visa.nominationPoints > 0 && (
-                <span className="pathway-card-bonus">includes +{visa.nominationPoints} nomination</span>
+                <span className="pathway-card-bonus">includes +{visa.nominationPoints} if nominated or eligible for applicable sponsorship</span>
               )}
             </span>
           ) : (

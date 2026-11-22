@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import OccupationSearch from '../components/OccupationSearch';
 import ProfessionDetails from '../components/ProfessionDetails';
-import { Briefcase, CheckCircle2, Save } from 'lucide-react';
 import PageHeader from '../components/ui/PageHeader';
 import Modal from '../components/ui/Modal';
 import { supabase } from '../lib/supabase';
 import Toast from '../components/ui/Toast';
-import { useNavigate } from 'react-router-dom';
+import PageLink from '../components/ui/PageLink';
 import { useProfile } from '../lib/ProfileContext';
 
 export default function AnzscoTool() {
@@ -14,7 +13,6 @@ export default function AnzscoTool() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
   const [isHelpOpen, setIsHelpOpen] = useState(false);
-  const navigate = useNavigate();
   const { refetch } = useProfile();
 
   useEffect(() => {
@@ -65,10 +63,7 @@ export default function AnzscoTool() {
       
       setMessage('Occupation saved successfully!');
       refetch(); // This causes the ProfileContext to reload the profile data globally!
-      setTimeout(() => {
-        setMessage('');
-        navigate('/profile');
-      }, 1000);
+
     } catch (err) {
       console.error(err);
       setMessage(err.message || 'Error saving occupation');
@@ -81,15 +76,17 @@ export default function AnzscoTool() {
   return (
     <>
       <PageHeader 
-        title="Profession Classification" 
+        title="ANZSCO occupation finder"
+        description="Search Australian occupation titles and codes. Check the Home Affairs occupation list for your visa."
         backTo="/discover" 
       />
       <Toast message={message} />
+      {message === 'Occupation saved successfully!' && <PageLink to="/profile">View saved profile</PageLink>}
       <div className="section">
         <OccupationSearch 
           label="Find your Profession Classification" 
           value={selectedOccupation}
-          onChange={setSelectedOccupation}
+          onChange={value => { setSelectedOccupation(value); setMessage(''); }}
           onHelpClick={() => setIsHelpOpen(true)}
         />
         {selectedOccupation && (

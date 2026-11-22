@@ -66,27 +66,27 @@ export const VISAS = [
     nextSteps: [
       'Get a positive skills assessment from your occupation’s assessing authority',
       'Check which states currently nominate your occupation',
-      'Apply for state nomination, then submit your Expression of Interest',
+      'Submit an Expression of Interest in SkillSelect and follow the state or territory’s nomination process',
     ],
   },
   {
     id: '491',
     subclass: '491',
     name: 'Skilled Work Regional',
-    kind: 'Provisional, leads to PR',
+    kind: 'Provisional regional visa',
     pointsTested: true,
     nominationPoints: 15,
-    tagline: 'The widest-opening door: regional nomination adds 15 points, and leads to PR.',
+    tagline: 'State or territory nomination or eligible family sponsorship can add 15 points.',
     highlights: [
-      'Adds 15 points — the largest boost of any pathway',
+      'Nomination or eligible family sponsorship adds 15 points',
       'Live, work and study in designated regional Australia for 5 years',
-      'Leads to permanent residence via subclass 191 after 3 years',
+      'Subclass 191 may be an option after meeting its requirements',
       'Include your partner and dependent children',
     ],
     nextSteps: [
       'Get a positive skills assessment from your occupation’s assessing authority',
       'Identify regions nominating your occupation, or an eligible relative who can sponsor you',
-      'Apply for nomination, then submit your Expression of Interest',
+      'Submit an Expression of Interest and indicate your nomination or sponsorship route',
     ],
   },
   {
@@ -334,7 +334,7 @@ export function unlockOptions(form, gap, limit = 3) {
 export function profileGaps(form, ctx) {
   return [
     { id: 'dob', label: 'Add your date of birth', done: ctx.hasAge, to: '/profile?section=basic' },
-    { id: 'occupation', label: 'Select your occupation', done: ctx.hasOccupation, to: '/profile?section=experience' },
+    { id: 'occupation', label: 'Select your occupation', done: ctx.hasOccupation, to: '/tools/anzsco' },
     { id: 'english', label: 'Add your English test scores', done: form.englishBand !== 'competent', to: '/profile?section=language' },
     { id: 'education', label: 'Add your highest qualification', done: form.educationBand !== 'none', to: '/profile?section=education' },
     {

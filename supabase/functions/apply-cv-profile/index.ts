@@ -12,14 +12,15 @@
 //      columns silently inflates or deflates every visa match. This endpoint
 //      takes `overseas_years` / `australian_years` so the unit is unambiguous
 //      and the conversion lives in one place.
-//   2. Scoring rules. Education level and English band thresholds map to points
-//      by rules that change with policy. Keeping them here means one edit, not
-//      a rebuild in every caller.
+//   2. Scoring rules. Points are derived in the database (triggers on
+//      profile_education, profile_experience and test_*; see migration
+//      20261122000000_sync_points_from_profile), so callers only send facts.
 //   3. Safety. A CV is evidence, not authority. This only fills fields the user
 //      has left empty — it never overwrites something they typed, because doing
 //      so would change their points score without them noticing.
 //
-// Writes profile_basic / point_australia / education (empty-fields-only), plus
+// Writes profile_basic / profile_education / profile_experience (empty-fields-only;
+// database triggers derive point_australia from the latter two), plus
 // an unconditional cv_llamaparsed audit row recording every candidate value
 // this extraction found — including ones skipped above because the user
 // already had data there.
@@ -31,13 +32,15 @@ const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 const N8N_SHARED_SECRET = Deno.env.get("N8N_SHARED_SECRET");
 
-/** Highest completed qualification -> points on the Australian points test. */
-const EDUCATION_POINTS: Record<string, number> = {
-  none: 0,
-  diploma_or_trade: 10,
-  bachelor: 15,
-  masters: 15,
-  doctorate: 20,
+// profile_education.level uses the Profile form's vocabulary, so an imported
+// level shows up selected in the form instead of as a blank dropdown. The
+// database trigger turns these into point_australia.education.
+const PROFILE_EDUCATION_LEVEL: Record<string, string> = {
+  none: "High School",
+  diploma_or_trade: "Diploma",
+  bachelor: "Bachelor",
+  masters: "Masters",
+  doctorate: "Doctorate",
 };
 
 const TEST_TABLES: Record<string, string> = {
@@ -186,7 +189,7 @@ serve(async (req) => {
 
     if (!existingEducation || existingEducation.length === 0) {
       const eduCandidate: Record<string, unknown> = {};
-      if (q.level && q.level in EDUCATION_POINTS) eduCandidate.level = q.level;
+      if (q.level && q.level in PROFILE_EDUCATION_LEVEL) eduCandidate.level = PROFILE_EDUCATION_LEVEL[q.level];
       if (q.field_of_study) eduCandidate.field_of_study = q.field_of_study;
       if (q.institution) eduCandidate.institution = q.institution;
       if (q.country) eduCandidate.country = q.country;
@@ -223,7 +226,12 @@ serve(async (req) => {
       if (x.start_date) expCandidate.start_date = x.start_date;
       if (x.end_date) expCandidate.end_date = x.end_date;
 
-      if (Object.keys(expCandidate).length > 0) {
+      // company_name, role, country and start_date are NOT NULL. Inserting a
+      // partial row used to fail silently; leave it for the user to add instead.
+      const complete = ["company_name", "role", "country", "start_date"].every((k) => expCandidate[k]);
+      if (!complete) {
+        if (Object.keys(expCandidate).length > 0) skipped.push("experience (incomplete in CV)");
+      } else {
         const { error } = await supabase.from("profile_experience").insert({
           user_id: userId,
           created_at: new Date().toISOString(),
