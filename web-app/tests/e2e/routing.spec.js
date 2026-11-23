@@ -55,13 +55,10 @@ test('sign-in opens Home and the landing page remains available on mobile', asyn
 
   await page.getByRole('navigation', { name: 'Site', exact: true }).getByRole('link', { name: 'Skilled Migration Assistant' }).click();
   await expect(page).toHaveURL(/\/home$/);
-  await expect(page.getByRole('navigation', { name: 'Primary' })).toBeVisible();
-
-  const feedback = page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Feedback' });
-  await feedback.click();
-  await expect(page).toHaveURL(/\/contact$/);
-  await expect(page.getByRole('heading', { name: 'Feedback and collaboration' })).toBeVisible();
-  await expect(feedback).toHaveAttribute('aria-current', 'page');
+  const bottomNav = page.getByRole('navigation', { name: 'Primary' });
+  await expect(bottomNav).toBeVisible();
+  await expect(bottomNav.getByRole('link')).toHaveText(['Home', 'Discover', 'Profile']);
+  await expect(bottomNav.getByRole('link', { name: 'Home' })).toHaveAttribute('aria-current', 'page');
 });
 
 test('Discover connects countries, official visa information and lookups on mobile', async ({ page }) => {

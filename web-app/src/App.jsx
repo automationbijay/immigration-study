@@ -29,7 +29,7 @@ const Contact = lazy(() => import('./pages/info/Contact'));
 const Privacy = lazy(() => import('./pages/info/Privacy'));
 const Terms = lazy(() => import('./pages/info/Terms'));
 const Disclaimer = lazy(() => import('./pages/info/Disclaimer'));
-import { User, Home as HomeIcon, Compass, MessageSquare } from 'lucide-react';
+import { User, Home as HomeIcon, Compass } from 'lucide-react';
 import { SkeletonPage } from './components/ui/Skeleton';
 import * as Sentry from '@sentry/react';
 import './index.css';
@@ -38,7 +38,6 @@ const NAV_ITEMS = [
   { to: '/home', label: 'Home', icon: HomeIcon },
   { to: '/discover', label: 'Discover', icon: Compass },
   { to: '/profile', label: 'Profile', icon: User },
-  { to: '/contact', label: 'Feedback', icon: MessageSquare },
 ];
 
 /**
