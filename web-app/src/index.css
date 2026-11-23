@@ -2596,6 +2596,8 @@ input[type="text"].occupation-input:focus {
 .estimate-save p { margin-top: .5rem; }
 .dashboard-page { display: grid; gap: 1.5rem; }
 .dashboard-estimates h2 { margin-bottom: .8rem; }
+.estimate-country { display: flex; align-items: center; gap: .5rem; }
+.estimate-country img { flex: none; border-radius: 2px; }
 .next-task { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; padding: 1.25rem; background: var(--cream-2); border-radius: .85rem; }
 .next-task h2 { width: 100%; }
 .saved-estimate { margin-top: .6rem; }
@@ -2905,7 +2907,7 @@ input[type="checkbox"], input[type="radio"], input[type="range"] { accent-color:
 /* In-page links (#collaborate, #report-mistake, …) land below the sticky nav. */
 html { scroll-padding-top: 5.5rem; }
 
-/* ANZSCO occupation finder */
+/* Australia Occupation Explorer */
 .anz-details { display: flex; flex-direction: column; gap: 1.75rem; margin-top: 1.75rem; }
 .anz-hero {
   display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 1.25rem;

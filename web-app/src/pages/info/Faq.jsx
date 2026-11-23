@@ -23,8 +23,8 @@ const sections = [
   ['Your account and data', [
     ['How do I delete my data?', <>Open your Profile and choose <strong>Delete All My Data</strong>. This removes your profile, saved estimates and uploaded CV.</>],
     ['Can I replace my CV?', <>Yes. Uploading a new CV replaces the old file.</>],
-    ['I found a mistake. How do I tell you?', <>Use the <PageLink to="/#report-mistake">Report a mistake</PageLink> form on the homepage or the <PageLink to="/contact">contact page</PageLink>. You don&rsquo;t need an account, and an email address is optional.</>],
-    ['Can I work with you?', <>Yes. Migration agents, education providers, data partners and developers can all reach us through the <PageLink to="/#collaborate">Collaborate with us</PageLink> form.</>],
+    ['I found a mistake. How do I tell you?', <>Use the <PageLink to="/contact#report-mistake">Report a mistake</PageLink> form. You don&rsquo;t need an account, and an email address is optional.</>],
+    ['Can I work with you?', <>Yes. Migration agents, education providers, data partners and developers can all reach us through the <PageLink to="/contact#collaborate">Collaborate with us</PageLink> form.</>],
   ]],
 ];
 

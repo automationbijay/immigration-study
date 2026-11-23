@@ -20,6 +20,50 @@ test('landing offers both calculators on mobile and opens login in the same tab'
   await expect(login.locator('input[type="email"]')).toBeVisible();
 });
 
+test('sign-in opens Home and the landing page remains available on mobile', async ({ page, context }) => {
+  await context.route('**/src/lib/supabase.js*', async route => {
+    const response = await route.fetch();
+    await route.fulfill({ response, body: (await response.text()) + `
+      let currentSession = null;
+      let onAuthChange;
+      supabase.auth.getSession = async () => ({ data: { session: currentSession } });
+      supabase.auth.onAuthStateChange = (callback) => {
+        onAuthChange = callback;
+        return { data: { subscription: { unsubscribe() {} } } };
+      };
+      supabase.auth.signInWithPassword = async () => {
+        currentSession = { user: { id: '00000000-0000-4000-8000-000000000001' } };
+        onAuthChange('SIGNED_IN', currentSession);
+        return { error: null };
+      };
+    ` });
+  });
+  await context.route('**/rest/v1/**', route => route.fulfill({ json: [] }));
+
+  await page.setViewportSize({ width: 360, height: 800 });
+  await page.goto('/login');
+  await page.getByLabel('Email Address').fill('sample@example.invalid');
+  await page.getByLabel('Password').fill('example-password');
+  await page.getByRole('button', { name: 'Sign In', exact: true }).click();
+  await expect(page).toHaveURL(/\/home$/);
+
+  await page.getByRole('link', { name: 'Landing page', exact: true }).click();
+  await expect(page).toHaveURL(/\/landing$/);
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Upload your CV. Let AI do the paperwork.');
+  await expect(page.getByRole('navigation', { name: 'Primary' })).toHaveCount(0);
+  await expect(page.getByRole('link', { name: 'Upload your CV' }).first()).toHaveAttribute('href', '/profile?intent=upload_cv');
+
+  await page.getByRole('navigation', { name: 'Site', exact: true }).getByRole('link', { name: 'Skilled Migration Assistant' }).click();
+  await expect(page).toHaveURL(/\/home$/);
+  await expect(page.getByRole('navigation', { name: 'Primary' })).toBeVisible();
+
+  const feedback = page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Feedback' });
+  await feedback.click();
+  await expect(page).toHaveURL(/\/contact$/);
+  await expect(page.getByRole('heading', { name: 'Feedback and collaboration' })).toBeVisible();
+  await expect(feedback).toHaveAttribute('aria-current', 'page');
+});
+
 test('Discover connects countries, official visa information and lookups on mobile', async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 800 });
   await page.goto('/');

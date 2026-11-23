@@ -10,8 +10,8 @@ export default function ToolsHub() {
 
       <div className="card-grid">
         <ToolCard
-          title="ANZSCO occupation finder"
-          description="Search ANZSCO job titles and codes, then review the relevant occupation lists."
+          title="Australia Occupation Explorer"
+          description="Look up ANZSCO codes, assessing authorities, federal visas, and past invitation cutoffs."
           to="/tools/anzsco"
         />
         <ToolCard

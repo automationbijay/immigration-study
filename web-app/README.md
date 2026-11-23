@@ -31,12 +31,12 @@ src/
   App.jsx                 routes, SiteNav, SiteFooter, bottom nav (signed-in phones only)
   index.css               design tokens (cream/navy/ochre, Newsreader + Inter Tight) and components
   pages/
-    Landing.jsx (+ landing.css)   homepage: hero, how it works, tools, feedback/collaborate form
+    Landing.jsx (+ landing.css)   public landing page: hero, how it works and tools
     Home.jsx                      signed-in dashboard
     Profile.jsx                   profile sections (basic, language, education, experience, family, CV)
     Calculator.jsx, CanadaFSWCalculator.jsx, CanadaCRSCalculator.jsx
     Discover.jsx, VisasHub.jsx, FormsHub.jsx, ToolsHub.jsx, AnzscoTool.jsx, UniversityTool.jsx
-    info/                         About, FAQ, Contact, Privacy, Terms, Disclaimer
+    info/                         About, FAQ, Contact (feedback and collaboration), Privacy, Terms, Disclaimer
   components/
     FeedbackForm.jsx              "Report a mistake" / "Collaborate with us" (→ feedback_submissions)
     ui/SiteNav.jsx, ui/SiteFooter.jsx, ui/InfoPage.jsx, ui/PageLink.jsx, …

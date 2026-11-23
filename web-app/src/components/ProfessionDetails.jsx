@@ -299,9 +299,9 @@ export default function ProfessionDetails({ anzscoCode, jobName, onSave, saving 
                 </LineChart>
               </ResponsiveContainer>
             </div>
-            <details className="anz-cutoff-table">
+            <details className="anz-cutoff-table" open>
               <summary>
-                <span className="anz-cutoff-summary-label">View cut-off points by round</span>
+                <span className="anz-cutoff-summary-label">Cut-off points by round</span>
                 <span className="anz-cutoff-count">
                   {pointsHistory.length} {pointsHistory.length === 1 ? 'round' : 'rounds'}
                 </span>

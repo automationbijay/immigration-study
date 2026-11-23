@@ -4,8 +4,8 @@ import { SITE_NAME } from '../../lib/site';
 
 const COLUMNS = [
   ['Calculators', [['/australia-point-calculator', 'Australia points test'], ['/forms/canada-fsw', 'Canada FSW 67 points'], ['/forms/canada-crs', 'Canada CRS']]],
-  ['Explore', [['/discover', 'Compare pathways'], ['/visas', 'Australian visas'], ['/tools', 'Lookup tools']]],
-  ['Company', [['/about', 'About us'], ['/faq', 'FAQ'], ['/contact', 'Contact'], ['/#collaborate', 'Collaborate with us'], ['/#report-mistake', 'Report a mistake']]],
+  ['Explore', [['/landing', 'Landing page'], ['/discover', 'Compare pathways'], ['/visas', 'Australian visas'], ['/tools', 'Lookup tools']]],
+  ['Company', [['/about', 'About us'], ['/faq', 'FAQ'], ['/contact', 'Feedback'], ['/contact#collaborate', 'Collaborate with us'], ['/contact#report-mistake', 'Report a mistake']]],
   ['Legal', [['/privacy', 'Privacy policy'], ['/terms', 'Terms of use'], ['/disclaimer', 'Disclaimer']]],
 ];
 

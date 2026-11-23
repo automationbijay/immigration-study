@@ -1,14 +1,13 @@
 import PageLink from '../components/ui/PageLink';
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
   // Carried from Landing's "Upload CV" CTA; Profile opens the upload modal.
@@ -20,7 +19,7 @@ export default function Login() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: window.location.origin + (wantsCvUpload ? '/profile?intent=upload_cv' : '/profile')
+        redirectTo: window.location.origin + (wantsCvUpload ? '/profile?intent=upload_cv' : '/')
       }
     });
 
@@ -42,8 +41,6 @@ export default function Login() {
 
     if (error) {
       setError(error.message);
-    } else {
-      navigate(wantsCvUpload ? '/profile?intent=upload_cv' : '/profile');
     }
     setLoading(false);
   };

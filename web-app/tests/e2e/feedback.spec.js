@@ -10,13 +10,15 @@ async function mockFeedback(context, status = 201) {
   return bodies;
 }
 
-test('homepage "Collaborate with us" opens the form, validates and submits', async ({ page, context }) => {
+test('landing footer opens the collaboration form, which validates and submits', async ({ page, context }) => {
   const bodies = await mockFeedback(context);
-  await page.goto('/');
-  await page.getByRole('link', { name: 'Collaborate with us' }).first().click();
+  await page.goto('/landing');
+  await expect(page.locator('main').getByRole('tablist')).toHaveCount(0);
+  await page.getByRole('contentinfo').getByRole('link', { name: 'Collaborate with us' }).click();
+  await expect(page).toHaveURL(/\/contact#collaborate$/);
   await expect(page.getByRole('tab', { name: 'Collaborate with us' })).toHaveAttribute('aria-selected', 'true');
 
-  const form = page.locator('.lp-feedback form');
+  const form = page.getByRole('tabpanel');
   await form.getByRole('button', { name: 'Send message' }).click();
   await expect(form.getByText('Choose an option.')).toBeVisible();
   await expect(form.getByText('Tell us your name.')).toBeVisible();
@@ -40,17 +42,17 @@ test('a mistake report keeps the text when sending fails', async ({ page, contex
   const bodies = await mockFeedback(context, 500);
   await page.goto('/faq');
   await page.locator('.site-footer').getByRole('link', { name: 'Report a mistake' }).click();
-  await expect(page).toHaveURL(/\/#report-mistake$/);
+  await expect(page).toHaveURL(/\/contact#report-mistake$/);
   await expect(page.getByRole('tab', { name: 'Report a mistake' })).toHaveAttribute('aria-selected', 'true');
 
-  const form = page.locator('.lp-feedback form');
+  const form = page.getByRole('tabpanel');
   await form.getByLabel('What kind of mistake?').selectOption('Points calculation');
   await form.getByLabel('What’s wrong?').fill('Age 33 should be 25 points, not 30.');
   await form.getByRole('button', { name: 'Send report' }).click();
 
   await expect(form.getByRole('alert')).toContainText('couldn’t send');
   await expect(form.getByLabel('What’s wrong?')).toHaveValue('Age 33 should be 25 points, not 30.');
-  expect(bodies[0]).toMatchObject({ kind: 'mistake', email: null, page_url: '/' });
+  expect(bodies[0]).toMatchObject({ kind: 'mistake', email: null, page_url: '/contact' });
   await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(360);
 });
 
@@ -58,4 +60,10 @@ test('the contact page offers the same form', async ({ page }) => {
   await page.goto('/contact');
   await expect(page.getByRole('tab', { name: 'Collaborate with us' })).toHaveAttribute('aria-selected', 'true');
   await expect(page.getByRole('tab', { name: 'Report a mistake' })).toBeVisible();
+});
+
+test('old landing feedback links open the matching contact form', async ({ page }) => {
+  await page.goto('/landing#report-mistake');
+  await expect(page).toHaveURL(/\/contact#report-mistake$/);
+  await expect(page.getByRole('tab', { name: 'Report a mistake' })).toHaveAttribute('aria-selected', 'true');
 });
