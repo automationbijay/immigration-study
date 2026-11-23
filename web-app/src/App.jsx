@@ -106,7 +106,7 @@ function AnimatedRoutes({ session }) {
           <Route path="/forms/canada-fsw" element={<PageTransition><CanadaFSWCalculator session={session} /></PageTransition>} />
           <Route path="/forms/canada-crs" element={<PageTransition><CanadaCRSCalculator session={session} /></PageTransition>} />
           <Route path="/tools" element={<PageTransition><ToolsHub /></PageTransition>} />
-          <Route path="/tools/anzsco" element={<PageTransition><AnzscoTool /></PageTransition>} />
+          <Route path="/tools/anzsco" element={<PageTransition><AnzscoTool session={session} /></PageTransition>} />
           <Route path="/tools/university" element={<PageTransition><UniversityTool /></PageTransition>} />
           <Route path="/home" element={session ? <PageTransition><Home session={session} /></PageTransition> : <Navigate to="/login" />} />
           <Route path="/about" element={<PageTransition><About session={session} /></PageTransition>} />

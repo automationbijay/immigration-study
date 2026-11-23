@@ -1,10 +1,11 @@
 import PageLink from '../components/ui/PageLink';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import useSWR from 'swr';
 import { supabase } from '../lib/supabase';
 import { useProfile } from '../lib/ProfileContext';
+import { TEST_SCORE_FIELDS, TEST_TABLES, useProfileCompletion } from '../lib/profileCompletion';
 import { User, Globe, GraduationCap, Briefcase, CheckCircle2, ChevronRight, Users, LogOut, FileText, Upload, Download, Trash2 } from 'lucide-react';
-import OccupationSearch from '../components/OccupationSearch';
 import UniversitySearch from '../components/UniversitySearch';
 import CvUploadModal from '../components/CvUploadModal';
 import Modal from '../components/ui/Modal';
@@ -42,7 +43,7 @@ function SectionRow({ icon: Icon, label, to, onClick, isComplete, counts }) {
         }}>
           <CheckCircle2 size={14} /> Done
         </span>
-      ) : (
+      ) : isComplete === false && (
         <span style={{
           display: 'inline-flex',
           alignItems: 'center',
@@ -153,16 +154,18 @@ const LEVEL_ALIASES = {
 };
 const normalizeLevel = (level) => (level ? LEVEL_ALIASES[String(level).toLowerCase()] ?? level : level);
 
-const TEST_TABLES = {
-  IELTS: 'test_ielts',
-  PTE: 'test_pte',
-  TOEFL: 'test_toefl',
-  Cambridge: 'test_cambridge',
-  OET: 'test_oet',
-};
+async function fetchCountries() {
+  const { data, error } = await supabase.from('countries').select('name').order('name');
+  if (error) throw error;
+  return data.map(({ name }) => name);
+}
 
 export default function Profile({ session }) {
-  const { profileRow, basicRow, loading: profileLoading, error: profileError, refetch } = useProfile();
+  const { profileRow, basicRow, cvRow, loading: profileLoading, error: profileError, refetch } = useProfile();
+  const userId = session?.user?.id;
+  const completion = useProfileCompletion(userId, basicRow, profileRow);
+  const { refreshEntries } = completion;
+  const lastAppliedCv = useRef(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const [isCvModalOpen, setIsCvModalOpen] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -186,89 +189,53 @@ export default function Profile({ session }) {
   const [familyMembers, setFamilyMembers] = useState([]);
   const [workExperience, setWorkExperience] = useState([]);
 
-  const [countries, setCountries] = useState([]);
   const [message, setMessage] = useState('');
   const [expandedSection, setExpandedSection] = useState(null);
+  const needsCountries = ['basic', 'family', 'education', 'experience'].includes(expandedSection);
+  const { data: countries = [], isLoading: countriesLoading, error: countriesError, mutate: retryCountries } =
+    useSWR(needsCountries ? ['profile-countries', userId] : null, fetchCountries);
   const [avatarFailed, setAvatarFailed] = useState(false);
   const [isDeletingData, setIsDeletingData] = useState(false);
   const [loadedSections, setLoadedSections] = useState({});
   const [sectionLoading, setSectionLoading] = useState(false);
   const [sectionError, setSectionError] = useState(null);
   const [sectionRetryToken, setSectionRetryToken] = useState(0);
-  const [sectionStatuses, setSectionStatuses] = useState({});
-  const [sectionCounts, setSectionCounts] = useState({});
+  const [familySummary, setFamilySummary] = useState(null);
 
   useEffect(() => {
-    if (!session?.user?.id) return;
+    if (!userId) return;
     let active = true;
+    const fields = ['relation', 'age', 'gender', 'highest_education', 'language_test_type', 'language_overall_score', 'citizenship_or_pr', 'current_country_of_residence'];
 
-    async function fetchStatuses() {
-      const isBasic = Boolean(basicRow?.name && basicRow?.dob);
-      const isProfession = Boolean(profileRow?.experienceAnzsco);
-      
-      const promises = [
-        supabase.from('profile_education').select('*').eq('user_id', session.user.id).limit(1).maybeSingle(),
-        supabase.from('profile_experience').select('*').eq('user_id', session.user.id).limit(1).maybeSingle(),
-        supabase.from('profile_family').select('*').eq('profile_id', session.user.id).limit(1).maybeSingle(),
-        supabase.from('cv_metadata').select('id').eq('user_id', session.user.id).limit(1).maybeSingle(),
-        supabase.from('test_ielts').select('*').eq('user_id', session.user.id).limit(1).maybeSingle(),
-        supabase.from('test_pte').select('*').eq('user_id', session.user.id).limit(1).maybeSingle(),
-        supabase.from('test_toefl').select('*').eq('user_id', session.user.id).limit(1).maybeSingle(),
-        supabase.from('test_cambridge').select('*').eq('user_id', session.user.id).limit(1).maybeSingle(),
-        supabase.from('test_oet').select('*').eq('user_id', session.user.id).limit(1).maybeSingle(),
-      ];
-      
-      const [edu, exp, fam, cvRes, ielts, pte, toefl, cambridge, oet] = await Promise.all(promises);
-      if (!active) return;
-      const langData = ielts.data || pte.data || toefl.data || cambridge.data || oet.data;
-      
-      setSectionStatuses({
-        basic: isBasic,
-        profession: isProfession,
-        language: Boolean(langData),
-        education: !!edu.data,
-        experience: !!exp.data,
-        family: !!fam.data,
-        cv: !!cvRes.data,
-      });
-
-      const counts = {
-        basic: { total: 7, answered: 0 },
-        profession: { total: 1, answered: 0 },
-        language: { total: 7, answered: 0 },
-        education: { total: 6, answered: 0 },
-        experience: { total: 5, answered: 0 },
-        family: { total: 8, answered: 0 },
-        cv: { total: 1, answered: 0 }
-      };
-
-      if (basicRow) {
-        counts.basic.answered = ['name', 'dob', 'email', 'phone_no', 'country', 'location', 'marital_status'].filter(k => Boolean(basicRow[k])).length;
+    async function fetchFamilySummary() {
+      const { data, error } = await supabase.from('profile_family').select(fields.join(','))
+        .eq('profile_id', userId).limit(1).maybeSingle();
+      if (active && !error) {
+        setFamilySummary({ done: Boolean(data), total: fields.length, answered: fields.filter(field => data?.[field]).length });
       }
-      
-      if (profileRow?.experienceAnzsco) counts.profession.answered = 1;
-      if (cvRes.data) counts.cv.answered = 1;
-
-      if (edu.data) {
-        counts.education.answered = ['level', 'university_name', 'field_of_study', 'country', 'start_date', 'end_date'].filter(k => Boolean(edu.data[k])).length;
-      }
-      if (exp.data) {
-        counts.experience.answered = ['company_name', 'role', 'country', 'start_date', 'end_date'].filter(k => Boolean(exp.data[k])).length;
-      }
-      if (fam.data) {
-        counts.family.answered = ['relation', 'age', 'gender', 'highest_education', 'language_test_type', 'language_overall_score', 'citizenship_or_pr', 'current_country_of_residence'].filter(k => Boolean(fam.data[k])).length;
-      }
-
-      if (langData) {
-        counts.language.answered = 1 + ['listening', 'reading', 'writing', 'speaking', 'overall', 'test_date'].filter(k => Boolean(langData[k])).length;
-      }
-
-      setSectionCounts(counts);
     }
 
-    fetchStatuses();
+    fetchFamilySummary();
     return () => { active = false; };
-  }, [session, basicRow, profileRow, expandedSection]);
+  }, [userId, expandedSection]);
+
+  const basicFields = ['name', 'dob', 'email', 'phone_no', 'country', 'location', 'marital_status'];
+  const entries = completion.error ? null : completion.entries;
+  const sectionSummaries = {
+    language: { done: entries?.language, total: 7, answered: 0 },
+    education: { done: entries?.education, total: 6, answered: 0 },
+    experience: { done: entries?.experience, total: 5, answered: 0 },
+    basic: {
+      done: Boolean(basicRow?.name && completion.hasDob),
+      total: basicFields.length,
+      answered: basicFields.filter(field => basicRow?.[field]).length,
+    },
+    profession: completion.loading || completion.error ? null : {
+      done: completion.hasOccupation, total: 1, answered: Number(completion.hasOccupation),
+    },
+    family: familySummary,
+    cv: { done: Boolean(cvRow || cvPath), total: 1, answered: Number(Boolean(cvRow || cvPath)) },
+  };
 
   const handleDeleteData = async () => {
     if (!window.confirm("Are you sure you want to delete all your data? This action cannot be undone.")) return;
@@ -290,6 +257,7 @@ export default function Profile({ session }) {
 
   const toggleSection = (section) => {
     setMessage('');
+    if (section === 'cv') setLoadedSections(prev => ({ ...prev, cv: false }));
     setExpandedSection(prev => prev === section ? null : section);
   };
 
@@ -317,9 +285,6 @@ export default function Profile({ session }) {
   // point_australia + profile_basic are fetched once, app-wide, by
   // ProfileProvider; mirror them into local editable state whenever the
   // shared copy changes (initial load, or a refetch() after saving "basic").
-  // Deliberately does NOT touch loadedSections.basic - that flag belongs to
-  // the country-list fetch below, and conflating the two used to make the
-  // countries fetch permanently unreachable once this ran (see loadSection).
   useEffect(() => {
     if (profileLoading) return;
     if (basicRow) {
@@ -334,25 +299,29 @@ export default function Profile({ session }) {
     let ignore = false;
 
     async function loadSection(section) {
-      if (loadedSections[section]) return;
+      if (loadedSections[section]) {
+        setSectionLoading(false);
+        setSectionError(null);
+        return;
+      }
       setSectionLoading(true);
       setSectionError(null);
 
       try {
-        if (['basic', 'family', 'education', 'experience'].includes(section) && countries.length === 0) {
-          const { data, error } = await supabase.from('countries').select('name').order('name');
-          if (!error && !ignore && data) {
-            setCountries(data.map(c => c.name));
-          }
-        }
-
         if (section === 'cv') {
-          const { data, error } = await supabase.from('cv_metadata').select('file_url, extraction_status').eq('user_id', user.id).order('created_at', { ascending: false }).limit(1).maybeSingle();
+          const { data, error } = await supabase.from('cv_metadata').select('id, file_url, extraction_status').eq('user_id', user.id).order('created_at', { ascending: false }).limit(1).maybeSingle();
           if (error) throw error;
           if (!ignore) {
             setCvPath(data?.file_url ?? null);
             setCvStatus(data?.extraction_status);
-            setLoadedSections(prev => ({ ...prev, cv: true }));
+            const justApplied = data?.extraction_status === 'applied' && data.id !== lastAppliedCv.current;
+            if (justApplied) {
+              lastAppliedCv.current = data.id;
+              void Promise.all([refetch(), refreshEntries()]);
+            }
+            setLoadedSections(prev => justApplied
+              ? { ...prev, cv: true, education: false, experience: false, language: false }
+              : { ...prev, cv: true });
           }
         } else if (section === 'education') {
           const { data, error } = await supabase.from('profile_education').select('*').eq('user_id', user.id).order('created_at', { ascending: true });
@@ -429,13 +398,14 @@ export default function Profile({ session }) {
 
     loadSection(expandedSection);
     return () => { ignore = true; };
-  }, [expandedSection, session, loadedSections, countries.length, sectionRetryToken]);
+  }, [expandedSection, session, loadedSections, sectionRetryToken, refetch, refreshEntries]);
 
   const updateProfile = async (e) => {
     e.preventDefault();
     setSaving(true);
     const { user } = session;
     let succeeded = true;
+    let entriesChanged = false;
 
     if (expandedSection === 'basic') {
       // Basic details live only in profile_basic. point_australia is owned by
@@ -447,12 +417,15 @@ export default function Profile({ session }) {
       succeeded = !basicSaveError;
       // Refresh the app-wide copy (ProfileContext) so Home's score and any
       // other consumer picks up the save without waiting on its own fetch.
-      if (succeeded) refetch();
+      if (succeeded) await refetch();
     } else if (expandedSection === 'language') {
       let languageError = null;
       const newLanguageProficiency = [...languageProficiency];
       for (let i = 0; i < newLanguageProficiency.length; i++) {
         const lp = newLanguageProficiency[i];
+        const hasDetails = TEST_SCORE_FIELDS
+          .some(score => lp[`test_score_${score}`] !== '' && lp[`test_score_${score}`] != null);
+        if (!lp.id && !hasDetails && !lp.score_published_date) continue;
         const tableName = TEST_TABLES[lp.language_test] || '';
         
         if (tableName) {
@@ -466,26 +439,27 @@ export default function Profile({ session }) {
             test_date: lp.score_published_date || null,
             updated_at: new Date(),
           };
-          // A saved test whose type was switched lives in the old table; move it.
-          if (lp.id && lp.saved_test && lp.saved_test !== lp.language_test) {
-            const { error: moveError } = await supabase.from(TEST_TABLES[lp.saved_test]).delete().eq('id', lp.id);
-            if (moveError) { languageError = moveError; continue; }
-          } else if (lp.id) {
-            updateData.id = lp.id;
-          }
-
+          if (lp.id) updateData.id = lp.id;
           const { data, error } = await supabase.from(tableName).upsert(updateData).select();
           if (error) {
             languageError = error;
-          } else if (data && data.length > 0) {
-            newLanguageProficiency[i] = { ...lp, id: data[0].id, saved_test: lp.language_test };
+            continue;
           }
+          entriesChanged = true;
+          // Write the same ID to the new table first, so a failed save preserves
+          // the old test and a retry can finish the move without duplicating it.
+          if (lp.id && lp.saved_test && lp.saved_test !== lp.language_test) {
+            const { error: moveError } = await supabase.from(TEST_TABLES[lp.saved_test]).delete().eq('id', lp.id);
+            if (moveError) {
+              languageError = moveError;
+              continue;
+            }
+          }
+          if (data?.[0]) newLanguageProficiency[i] = { ...lp, id: data[0].id, saved_test: lp.language_test };
         }
       }
       setLanguageProficiency(newLanguageProficiency);
       succeeded = !languageError;
-      // Saving a test recalculates point_australia.english in the database.
-      if (succeeded) refetch();
     } else if (expandedSection === 'education') {
       let educationError = null;
       const newEducationHistory = [...educationHistory];
@@ -500,12 +474,13 @@ export default function Profile({ session }) {
         if (ed.id) updateData.id = ed.id;
         const { data, error } = await supabase.from('profile_education').upsert(updateData).select();
         if (error) educationError = error;
-        else if (data && data.length > 0) newEducationHistory[i] = { ...ed, id: data[0].id };
+        else {
+          entriesChanged = true;
+          if (data?.[0]) newEducationHistory[i] = { ...ed, id: data[0].id };
+        }
       }
       setEducationHistory(newEducationHistory);
       succeeded = !educationError;
-      // The database recalculates point_australia.education from these rows.
-      if (succeeded) refetch();
     } else if (expandedSection === 'family') {
       let familyError = null;
       const newFamilyMembers = [...familyMembers];
@@ -542,13 +517,16 @@ export default function Profile({ session }) {
         if (we.id) updateData.id = we.id;
         const { data, error } = await supabase.from('profile_experience').upsert(updateData).select();
         if (error) experienceError = error;
-        else if (data && data.length > 0) newWorkExperience[i] = { ...we, id: data[0].id };
+        else {
+          entriesChanged = true;
+          if (data?.[0]) newWorkExperience[i] = { ...we, id: data[0].id };
+        }
       }
       setWorkExperience(newWorkExperience);
       succeeded = !experienceError;
-      // The database recalculates overseasExp / ausExp from these rows.
-      if (succeeded) refetch();
     }
+
+    if (entriesChanged) await Promise.all([refetch(), refreshEntries()]);
 
     setMessage(succeeded ? 'Profile saved.' : 'Could not save every change. Review your entries and try again.');
     return succeeded;
@@ -602,9 +580,11 @@ export default function Profile({ session }) {
       const tableName = TEST_TABLES[testToRemove.saved_test || testToRemove.language_test] || '';
 
       if (tableName && !(await deleteRow(tableName, testToRemove.id))) return;
-      refetch(); // english points are recalculated from the remaining tests
+      await Promise.all([refetch(), refreshEntries()]);
     }
-    setLanguageProficiency(prev => prev.filter((_, i) => i !== index));
+    setLanguageProficiency(prev => prev.filter(test => testToRemove.id
+      ? test.id !== testToRemove.id || test.saved_test !== testToRemove.saved_test
+      : test !== testToRemove));
   };
 
   const handleEducationChange = (index, e) => {
@@ -630,9 +610,9 @@ export default function Profile({ session }) {
     const edToRemove = educationHistory[index];
     if (edToRemove.id) {
       if (!(await deleteRow('profile_education', edToRemove.id))) return;
-      refetch();
+      await Promise.all([refetch(), refreshEntries()]);
     }
-    setEducationHistory(prev => prev.filter((_, i) => i !== index));
+    setEducationHistory(prev => prev.filter(education => edToRemove.id ? education.id !== edToRemove.id : education !== edToRemove));
   };
 
   const handleFamilyChange = (index, e) => {
@@ -679,9 +659,9 @@ export default function Profile({ session }) {
     const expToRemove = workExperience[index];
     if (expToRemove.id) {
       if (!(await deleteRow('profile_experience', expToRemove.id))) return;
-      refetch();
+      await Promise.all([refetch(), refreshEntries()]);
     }
-    setWorkExperience(prev => prev.filter((_, i) => i !== index));
+    setWorkExperience(prev => prev.filter(job => expToRemove.id ? job.id !== expToRemove.id : job !== expToRemove));
   };
 
   const closeModal = () => {
@@ -763,9 +743,12 @@ export default function Profile({ session }) {
         </div>
       </div>
 
+      {completion.error && (
+        <button type="button" className="btn-secondary" onClick={completion.retry}>Retry loading your profile checklist</button>
+      )}
       <div className="profile-sections">
         {SECTIONS.map(({ id, label, icon }) => (
-          <SectionRow key={id} icon={icon} label={label} to={id === 'profession' ? '/tools/anzsco' : undefined} onClick={() => toggleSection(id)} isComplete={sectionStatuses[id]} counts={sectionCounts[id]} />
+          <SectionRow key={id} icon={icon} label={label} to={id === 'profession' ? '/tools/anzsco' : undefined} onClick={() => toggleSection(id)} isComplete={sectionSummaries[id]?.done} counts={sectionSummaries[id]} />
         ))}
       </div>
 
@@ -796,18 +779,21 @@ export default function Profile({ session }) {
         onClose={closeModal}
         title={SECTIONS.find((s) => s.id === expandedSection)?.label ?? ''}
       >
-        {sectionLoading ? (
+        {sectionLoading || countriesLoading ? (
           <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
             Loading {SECTIONS.find((s) => s.id === expandedSection)?.label}...
           </div>
-        ) : sectionError ? (
+        ) : sectionError || countriesError ? (
           <div className="empty-state">
             <h3>Couldn&apos;t load this section</h3>
-            <p className="text-muted">{sectionError}</p>
+            <p className="text-muted">{sectionError || countriesError?.message}</p>
             <button
               type="button"
               className="btn-primary"
-              onClick={() => setSectionRetryToken((t) => t + 1)}
+              onClick={() => {
+                if (countriesError) void retryCountries();
+                if (sectionError) setSectionRetryToken(t => t + 1);
+              }}
             >
               Retry
             </button>
@@ -896,7 +882,7 @@ export default function Profile({ session }) {
                     <div key={index} className="language-test-card">
                       <div className="language-test-head">
                         <h4>Test {index + 1}</h4>
-                        {languageProficiency.length > 1 && (
+                        {(test.id || languageProficiency.length > 1) && (
                           <button type="button" onClick={() => removeLanguageTest(index)} className="link-danger">Remove</button>
                         )}
                       </div>
@@ -912,24 +898,24 @@ export default function Profile({ session }) {
                       </div>
                       <div className="form-group">
                         <label htmlFor={`lang-${index}-overall`}>Overall Score</label>
-                        <input id={`lang-${index}-overall`} type="number" step="0.5" name="test_score_overall" value={test.test_score_overall || ''} onChange={(e) => handleLanguageChange(index, e)} />
+                        <input id={`lang-${index}-overall`} type="number" step="0.5" name="test_score_overall" value={test.test_score_overall ?? ''} onChange={(e) => handleLanguageChange(index, e)} />
                       </div>
                       <div className="form-grid-2">
                         <div className="form-group">
                           <label htmlFor={`lang-${index}-listening`}>Listening</label>
-                          <input id={`lang-${index}-listening`} type="number" step="0.5" name="test_score_listening" value={test.test_score_listening || ''} onChange={(e) => handleLanguageChange(index, e)} />
+                          <input id={`lang-${index}-listening`} type="number" step="0.5" name="test_score_listening" value={test.test_score_listening ?? ''} onChange={(e) => handleLanguageChange(index, e)} />
                         </div>
                         <div className="form-group">
                           <label htmlFor={`lang-${index}-reading`}>Reading</label>
-                          <input id={`lang-${index}-reading`} type="number" step="0.5" name="test_score_reading" value={test.test_score_reading || ''} onChange={(e) => handleLanguageChange(index, e)} />
+                          <input id={`lang-${index}-reading`} type="number" step="0.5" name="test_score_reading" value={test.test_score_reading ?? ''} onChange={(e) => handleLanguageChange(index, e)} />
                         </div>
                         <div className="form-group">
                           <label htmlFor={`lang-${index}-writing`}>Writing</label>
-                          <input id={`lang-${index}-writing`} type="number" step="0.5" name="test_score_writing" value={test.test_score_writing || ''} onChange={(e) => handleLanguageChange(index, e)} />
+                          <input id={`lang-${index}-writing`} type="number" step="0.5" name="test_score_writing" value={test.test_score_writing ?? ''} onChange={(e) => handleLanguageChange(index, e)} />
                         </div>
                         <div className="form-group">
                           <label htmlFor={`lang-${index}-speaking`}>Speaking</label>
-                          <input id={`lang-${index}-speaking`} type="number" step="0.5" name="test_score_speaking" value={test.test_score_speaking || ''} onChange={(e) => handleLanguageChange(index, e)} />
+                          <input id={`lang-${index}-speaking`} type="number" step="0.5" name="test_score_speaking" value={test.test_score_speaking ?? ''} onChange={(e) => handleLanguageChange(index, e)} />
                         </div>
                       </div>
                       <div className="form-group form-group-last">
@@ -1044,7 +1030,7 @@ export default function Profile({ session }) {
                       <div key={index} className="language-test-card" style={{ marginTop: '1rem' }}>
                         <div className="language-test-head">
                           <h4>Qualification {index + 1}</h4>
-                          {educationHistory.length > 1 && (
+                          {(ed.id || educationHistory.length > 1) && (
                             <button type="button" onClick={() => removeEducation(index)} className="link-danger">Remove</button>
                           )}
                         </div>
@@ -1113,7 +1099,7 @@ export default function Profile({ session }) {
                       <div key={index} className="language-test-card" style={{ marginTop: '1rem' }}>
                         <div className="language-test-head">
                           <h4>Experience {index + 1}</h4>
-                          {workExperience.length > 1 && (
+                          {(we.id || workExperience.length > 1) && (
                             <button type="button" onClick={() => removeExperience(index)} className="link-danger">Remove</button>
                           )}
                         </div>
