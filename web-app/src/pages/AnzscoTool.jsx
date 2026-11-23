@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import OccupationSearch from '../components/OccupationSearch';
 import ProfessionDetails from '../components/ProfessionDetails';
 import PageHeader from '../components/ui/PageHeader';
@@ -7,34 +7,16 @@ import { supabase } from '../lib/supabase';
 import Toast from '../components/ui/Toast';
 import PageLink from '../components/ui/PageLink';
 import { useProfile } from '../lib/ProfileContext';
+import { useSavedOccupation } from '../lib/profileCompletion';
 
-export default function AnzscoTool() {
-  const [selectedOccupation, setSelectedOccupation] = useState(null);
+export default function AnzscoTool({ session }) {
+  const [draftOccupation, setDraftOccupation] = useState();
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
   const [isHelpOpen, setIsHelpOpen] = useState(false);
-  const { refetch } = useProfile();
-
-  useEffect(() => {
-    async function loadSaved() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data } = await supabase
-        .from('profile_job_classification')
-        .select('anzsco_code, anzsco_title')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      if (data) {
-        setSelectedOccupation({
-          occupation_code: data.anzsco_code,
-          job_name: data.anzsco_title
-        });
-      }
-    }
-    loadSaved();
-  }, []);
+  const { profileRow, refetch } = useProfile();
+  const saved = useSavedOccupation(session?.user?.id, profileRow);
+  const selectedOccupation = draftOccupation === undefined ? saved.occupation : draftOccupation;
 
   const handleSave = async () => {
     if (!selectedOccupation) return;
@@ -43,26 +25,27 @@ export default function AnzscoTool() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not logged in');
 
-      // Update the unified point_australia table since experienceAnzsco lives there in this app
-      // profile_job_classification is available as an audit log or separate table if you prefer,
-      // but let's update point_australia to keep the profile context intact.
-      const { error: paError } = await supabase.from('point_australia').upsert({
+      const { error: pointsError } = await supabase.from('point_australia').upsert({
         id: user.id,
-        experienceAnzsco: selectedOccupation.occupation_code
+        experienceAnzsco: selectedOccupation.occupation_code,
       });
+      if (pointsError) throw pointsError;
 
-      // Also save to the new table
-      await supabase.from('profile_job_classification').delete().eq('user_id', user.id);
-      const { error: insertError } = await supabase.from('profile_job_classification').insert({
-        user_id: user.id,
-        anzsco_code: selectedOccupation.occupation_code,
-        anzsco_title: selectedOccupation.job_name
-      });
+      const { error: deleteError } = await supabase.from('profile_job_classification').delete().eq('user_id', user.id);
+      let classificationError = deleteError;
+      if (!classificationError) {
+        const { error } = await supabase.from('profile_job_classification').insert({
+          user_id: user.id,
+          anzsco_code: selectedOccupation.occupation_code,
+          anzsco_title: selectedOccupation.job_name,
+        });
+        classificationError = error;
+      }
 
-      if (paError || insertError) throw (insertError || paError);
-
-      setMessage('Occupation saved successfully!');
-      refetch(); // This causes the ProfileContext to reload the profile data globally!
+      await Promise.all([refetch(), saved.refetch()]);
+      setMessage(classificationError
+        ? 'Occupation code saved. The profile title could not be updated. Save again to retry.'
+        : 'Occupation saved successfully!');
 
     } catch (err) {
       console.error(err);
@@ -88,7 +71,7 @@ export default function AnzscoTool() {
         <OccupationSearch
           label="Find your occupation classification"
           value={selectedOccupation}
-          onChange={value => { setSelectedOccupation(value); setMessage(''); }}
+          onChange={value => { setDraftOccupation(value); setMessage(''); }}
           onHelpClick={() => setIsHelpOpen(true)}
         />
         {selectedOccupation && (

@@ -331,16 +331,16 @@ export function unlockOptions(form, gap, limit = 3) {
  * Which parts of the profile still need filling in. Drives the completeness
  * meter, and doubles as the empty state for brand-new accounts.
  */
-export function profileGaps(form, ctx) {
+export function profileGaps({ hasDob, hasOccupation, entries }) {
   return [
-    { id: 'dob', label: 'Add your date of birth', done: ctx.hasAge, to: '/profile?section=basic' },
-    { id: 'occupation', label: 'Select your occupation', done: ctx.hasOccupation, to: '/tools/anzsco' },
-    { id: 'english', label: 'Add your English test scores', done: form.englishBand !== 'competent', to: '/profile?section=language' },
-    { id: 'education', label: 'Add your highest qualification', done: form.educationBand !== 'none', to: '/profile?section=education' },
+    { id: 'dob', label: 'Add your date of birth', done: hasDob, to: '/profile?section=basic' },
+    { id: 'occupation', label: 'Select your occupation', done: hasOccupation, to: '/tools/anzsco' },
+    { id: 'english', label: 'Add your English test scores', done: entries.language, to: '/profile?section=language' },
+    { id: 'education', label: 'Add your highest qualification', done: entries.education, to: '/profile?section=education' },
     {
       id: 'experience',
       label: 'Add your work experience',
-      done: (Number(form.overseasExpYears) || 0) > 0 || (Number(form.ausExpYears) || 0) > 0,
+      done: entries.experience,
       to: '/profile?section=experience',
     },
   ];
