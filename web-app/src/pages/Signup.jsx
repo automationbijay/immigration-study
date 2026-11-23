@@ -23,7 +23,7 @@ export default function Signup() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: window.location.origin + (wantsCvUpload ? '/profile?intent=upload_cv' : '/profile')
+        redirectTo: window.location.origin + (wantsCvUpload ? '/profile?intent=upload_cv' : '/')
       }
     });
 

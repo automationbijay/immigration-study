@@ -1,6 +1,6 @@
 import PageLink from './components/ui/PageLink';
 import React, { useState, useEffect, Suspense, lazy } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, NavLink, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, NavLink, matchPath, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { supabase } from './lib/supabase';
 import { ProfileProvider } from './lib/ProfileContext';
@@ -29,7 +29,7 @@ const Contact = lazy(() => import('./pages/info/Contact'));
 const Privacy = lazy(() => import('./pages/info/Privacy'));
 const Terms = lazy(() => import('./pages/info/Terms'));
 const Disclaimer = lazy(() => import('./pages/info/Disclaimer'));
-import { User, Home as HomeIcon, Compass } from 'lucide-react';
+import { User, Home as HomeIcon, Compass, MessageSquare } from 'lucide-react';
 import { SkeletonPage } from './components/ui/Skeleton';
 import * as Sentry from '@sentry/react';
 import './index.css';
@@ -38,6 +38,7 @@ const NAV_ITEMS = [
   { to: '/home', label: 'Home', icon: HomeIcon },
   { to: '/discover', label: 'Discover', icon: Compass },
   { to: '/profile', label: 'Profile', icon: User },
+  { to: '/contact', label: 'Feedback', icon: MessageSquare },
 ];
 
 /**
@@ -46,9 +47,6 @@ const NAV_ITEMS = [
  * being implied by colour alone.
  */
 function BottomNav() {
-  // The landing page has its own way in (the Dashboard button in SiteNav).
-  const { pathname } = useLocation();
-  if (pathname === '/') return null;
   return (
     <nav className="bottom-nav" aria-label="Primary">
       {NAV_ITEMS.map(({ to, label, icon: Icon }) => (
@@ -85,12 +83,21 @@ function ScrollToTop() {
 
 function AnimatedRoutes({ session }) {
   const location = useLocation();
+  const wantsCvUpload = new URLSearchParams(location.search).get('intent') === 'upload_cv';
+  const signedInDestination = wantsCvUpload ? '/profile?intent=upload_cv' : '/home';
+  const legacyFeedbackLink = ['#collaborate', '#report-mistake'].includes(location.hash);
+  const feedbackDestination = { pathname: '/contact', search: location.search, hash: location.hash };
+  const landingDestination = location.hash === '#start'
+    ? { pathname: '/landing', search: location.search, hash: location.hash }
+    : '/home';
+  const landingPage = <PageTransition><Landing session={session} /></PageTransition>;
+  const landingRoute = legacyFeedbackLink ? <Navigate to={feedbackDestination} replace /> : landingPage;
   return (
     <AnimatePresence mode="wait">
       <Suspense key={location.pathname} fallback={<PageTransition><SkeletonPage lines={3} label="Loading page..." /></PageTransition>}>
         <Routes location={location}>
-          <Route path="/login" element={!session ? <PageTransition><Login /></PageTransition> : <Navigate to="/home" />} />
-          <Route path="/signup" element={!session ? <PageTransition><Signup /></PageTransition> : <Navigate to="/home" />} />
+          <Route path="/login" element={session ? <Navigate to={signedInDestination} replace /> : <PageTransition><Login /></PageTransition>} />
+          <Route path="/signup" element={session ? <Navigate to={signedInDestination} replace /> : <PageTransition><Signup /></PageTransition>} />
           <Route path="/profile" element={session ? <PageTransition><Profile session={session} /></PageTransition> : <Navigate to="/login" />} />
           <Route path="/discover" element={<PageTransition><Discover session={session} /></PageTransition>} />
           <Route path="/australia-point-calculator" element={<PageTransition><Calculator session={session} /></PageTransition>} />
@@ -108,7 +115,8 @@ function AnimatedRoutes({ session }) {
           <Route path="/privacy" element={<PageTransition><Privacy /></PageTransition>} />
           <Route path="/terms" element={<PageTransition><Terms /></PageTransition>} />
           <Route path="/disclaimer" element={<PageTransition><Disclaimer /></PageTransition>} />
-          <Route path="/" element={session ? <Navigate to="/home" replace /> : <PageTransition><Landing session={session} /></PageTransition>} />
+          <Route path="/landing" element={landingRoute} />
+          <Route path="/" element={session && !legacyFeedbackLink ? <Navigate to={landingDestination} replace /> : landingRoute} />
           <Route path="*" element={<PageTransition><NotFound session={session} /></PageTransition>} />
         </Routes>
       </Suspense>
@@ -145,7 +153,13 @@ function MainContent({ session }) {
 }
 
 function App() {
+  return <Router><AppContent /></Router>;
+}
+
+function AppContent() {
+  const { pathname } = useLocation();
   const [session, setSession] = useState(null);
+  const hasBottomNav = Boolean(session && !matchPath('/', pathname) && !matchPath('/landing', pathname));
   const [loading, setLoading] = useState(true);
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
   const [deferredPrompt, setDeferredPrompt] = useState(null);
@@ -210,45 +224,43 @@ function App() {
   }
 
   return (
-    <Router>
-      <ProfileProvider session={session}>
-        <div className={`app-layout ${session ? 'has-nav' : ''}`}>
-          {isOffline && (
-            <div style={{ backgroundColor: 'var(--danger)', color: 'white', padding: '8px', textAlign: 'center', fontSize: '14px', zIndex: 100 }}>
-              You are currently offline. Some features may be unavailable.
+    <ProfileProvider session={session}>
+      <div className={`app-layout${hasBottomNav ? ' has-nav' : ''}`}>
+        {isOffline && (
+          <div style={{ backgroundColor: 'var(--danger)', color: 'white', padding: '8px', textAlign: 'center', fontSize: '14px', zIndex: 100 }}>
+            You are currently offline. Some features may be unavailable.
+          </div>
+        )}
+        {deferredPrompt && !isOffline && !installDismissed && (
+          <div style={{ backgroundColor: 'var(--primary)', color: 'white', padding: '8px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', fontSize: '14px', zIndex: 100 }}>
+            <span>Install Skilled Migration Assistant for a better experience</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <button
+                onClick={handleInstallApp}
+                style={{ backgroundColor: 'white', color: 'var(--primary)', border: 'none', padding: '4px 12px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
+              >
+                Install
+              </button>
+              <button
+                onClick={dismissInstallBanner}
+                aria-label="Dismiss install banner"
+                style={{ background: 'transparent', color: 'white', border: 'none', cursor: 'pointer', fontSize: '20px', lineHeight: 1, padding: '4px 8px' }}
+              >
+                ×
+              </button>
             </div>
-          )}
-          {deferredPrompt && !isOffline && !installDismissed && (
-            <div style={{ backgroundColor: 'var(--primary)', color: 'white', padding: '8px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', fontSize: '14px', zIndex: 100 }}>
-              <span>Install Skilled Migration Assistant for a better experience</span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <button
-                  onClick={handleInstallApp}
-                  style={{ backgroundColor: 'white', color: 'var(--primary)', border: 'none', padding: '4px 12px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
-                >
-                  Install
-                </button>
-                <button
-                  onClick={dismissInstallBanner}
-                  aria-label="Dismiss install banner"
-                  style={{ background: 'transparent', color: 'white', border: 'none', cursor: 'pointer', fontSize: '20px', lineHeight: 1, padding: '4px 8px' }}
-                >
-                  ×
-                </button>
-              </div>
-            </div>
-          )}
-          
-          <a className="skip-link" href="#main-content">Skip to content</a>
-          <ScrollToTop />
-          <SiteNav session={session} />
-          <MainContent session={session} />
-          <SiteFooter />
+          </div>
+        )}
 
-          {session && <BottomNav />}
-        </div>
-      </ProfileProvider>
-    </Router>
+        <a className="skip-link" href="#main-content">Skip to content</a>
+        <ScrollToTop />
+        <SiteNav session={session} hasBottomNav={hasBottomNav} />
+        <MainContent session={session} />
+        <SiteFooter />
+
+        {hasBottomNav && <BottomNav />}
+      </div>
+    </ProfileProvider>
   );
 }
 

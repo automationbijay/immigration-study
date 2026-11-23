@@ -1,7 +1,5 @@
-import { useState } from 'react';
-import { Calculator, Leaf, Scale, Map, Briefcase, GraduationCap, ArrowRight, FileText, Sparkles, Check, AlertTriangle, Handshake } from 'lucide-react';
+import { Calculator, Leaf, Scale, Map, Briefcase, GraduationCap, ArrowRight, FileText, Sparkles, Check } from 'lucide-react';
 import PageLink from '../components/ui/PageLink';
-import FeedbackForm from '../components/FeedbackForm';
 import './landing.css';
 
 const steps = [
@@ -159,7 +157,6 @@ function HorizonArt() {
 }
 
 export default function Landing({ session }) {
-  const [feedbackKind, setFeedbackKind] = useState('mistake');
   const cvTo = session ? '/profile?intent=upload_cv' : '/signup?intent=upload_cv';
 
   return (
@@ -262,31 +259,6 @@ export default function Landing({ session }) {
               </li>
             ))}
           </ul>
-        </div>
-      </section>
-
-
-      <section className="lp-feedback" aria-labelledby="lp-feedback-title">
-        <span id="report-mistake" className="lp-anchor" />
-        <span id="collaborate" className="lp-anchor" />
-        <div className="lp-container lp-feedback-grid">
-          <div className="lp-feedback-copy">
-            <p className="lp-eyebrow">Help us get it right</p>
-            <h2 id="lp-feedback-title" className="lp-display lp-h2">Found a mistake? <em>Want to build this with us?</em></h2>
-            <p>
-              Migration rules change all the time, and a wrong number can cost someone a visa. If something looks off,
-              tell us. If you&rsquo;re an agent, educator, developer or just have ideas, we&rsquo;d love to collaborate.
-            </p>
-            <div className="lp-feedback-buttons">
-              <PageLink to="#report-mistake" className="lp-btn lp-btn-ghost" onClick={() => setFeedbackKind('mistake')}>
-                <AlertTriangle size={16} aria-hidden="true" /> Report a mistake
-              </PageLink>
-              <PageLink to="#collaborate" className="lp-btn lp-btn-dark" onClick={() => setFeedbackKind('collaborate')}>
-                <Handshake size={16} aria-hidden="true" /> Collaborate with us
-              </PageLink>
-            </div>
-          </div>
-          <FeedbackForm kind={feedbackKind} onKindChange={setFeedbackKind} />
         </div>
       </section>
     </div>

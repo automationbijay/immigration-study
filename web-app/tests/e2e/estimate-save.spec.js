@@ -32,6 +32,13 @@ test('FSW keeps a failed edit, confirms a retry and restores the saved estimate 
 
   await page.goto('/home');
   await expect(page.getByRole('heading', { name: 'Continue your profile' })).toBeVisible();
+  const estimates = page.getByRole('region', { name: 'Your estimates' });
+  for (const [country, code] of [['Australia', 'au'], ['Canada', 'ca']]) {
+    const flag = estimates.getByRole('link', { name: new RegExp(country) }).locator('img');
+    await expect(flag).toBeVisible();
+    await expect(flag).toHaveAttribute('src', '/images/flag-' + code + '.svg');
+    await expect.poll(() => flag.evaluate(img => img.complete && img.naturalWidth > 0)).toBe(true);
+  }
   await page.getByRole('link', { name: /Canada Federal Skilled Worker/ }).click();
   const estimate = page;
   for (const [label, value] of Object.entries({ Experience: '9', Age: '12', Education: '21', Reading: '6', Writing: '6', Listening: '6', Speaking: '6' })) {

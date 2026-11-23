@@ -5,11 +5,11 @@ import { CONTACT_EMAIL } from '../../lib/site';
 export default function Contact() {
   return (
     <InfoPage
-      eyebrow="Contact"
-      title="Say"
-      accent="g’day."
-      lede="Report a mistake, suggest an improvement or ask about working together. We read every message. We can’t give advice about your individual visa case, but we do want to hear when something is wrong or could be clearer."
+      title="Feedback and collaboration"
+      lede="Report a mistake, suggest an improvement or tell us how you’d like to work together."
     >
+      <span id="report-mistake" />
+      <span id="collaborate" />
       <FeedbackForm initialKind="collaborate" />
 
       {CONTACT_EMAIL && (
