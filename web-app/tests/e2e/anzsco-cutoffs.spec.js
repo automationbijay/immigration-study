@@ -6,11 +6,12 @@ async function selectOccupation(page) {
   }));
   await page.route(/\/rest\/v1\/anzsco_(?:mltssl|stsol|rol|csol)\?/, route => route.fulfill({ json: [] }));
   await page.goto('/tools/anzsco');
+  await expect(page.getByRole('heading', { level: 1, name: 'Australia Occupation Explorer' })).toBeVisible();
   await page.getByRole('combobox').fill('Physiotherapist');
   await page.getByRole('option', { name: /Physiotherapist/ }).click();
 }
 
-test('SkillSelect history shows the latest scores and a keyboard-accessible table on mobile', async ({ page }) => {
+test('SkillSelect history starts expanded and can be collapsed with the keyboard on mobile', async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 800 });
   await page.route('**/rest/v1/rpc/get_skillselect_cutoffs', async route => {
     expect(route.request().postDataJSON()).toEqual({ p_anzsco_code: 252511 });
@@ -24,13 +25,16 @@ test('SkillSelect history shows the latest scores and a keyboard-accessible tabl
   const latest = page.locator('.anz-cutoff-latest');
   await expect(latest.getByText('70', { exact: false })).toBeVisible();
   await expect(latest.getByText('80', { exact: false })).toBeVisible();
-  const summary = page.locator('summary').filter({ hasText: 'View cut-off points by round' });
-  await summary.focus();
-  await summary.press('Enter');
   const table = page.getByRole('table', { name: /by invitation round/ });
+  await expect(table).toBeVisible();
   await expect(table.getByRole('row', { name: /15 Oct 2026/ })).toContainText('70');
   await expect(table.getByRole('row', { name: /15 Oct 2026/ })).toContainText('—');
   await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(360);
+  const summary = page.locator('summary').filter({ hasText: 'Cut-off points by round' });
+  await summary.press('Enter');
+  await expect(table).toBeHidden();
+  await summary.press('Enter');
+  await expect(table).toBeVisible();
 });
 
 test('a failed SkillSelect request shows an error instead of empty history', async ({ page }) => {

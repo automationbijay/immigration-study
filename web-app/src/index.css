@@ -2905,7 +2905,7 @@ input[type="checkbox"], input[type="radio"], input[type="range"] { accent-color:
 /* In-page links (#collaborate, #report-mistake, …) land below the sticky nav. */
 html { scroll-padding-top: 5.5rem; }
 
-/* ANZSCO occupation finder */
+/* Australia Occupation Explorer */
 .anz-details { display: flex; flex-direction: column; gap: 1.75rem; margin-top: 1.75rem; }
 .anz-hero {
   display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 1.25rem;

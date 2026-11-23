@@ -71,9 +71,9 @@ After importing new cutoff rows, run `select public.backfill_skillselect_occupat
 
 Deployment validation confirmed 217 mapping rows, zero changes to the raw cutoff payload, and zero duplicate round/code pairs in either edition. All persisted codes matched the read-only audit, and a service-role backfill rerun inserted zero rows. The live recheck confirmed the migration is recorded, RLS is enabled, and the service role can read the mapping table. Direct reads by the anonymous and authenticated roles are denied.
 
-## Occupation finder history
+## Australia Occupation Explorer
 
-The occupation finder calls `get_skillselect_cutoffs(p_anzsco_code)` with the selected occupation's 2013 code. Anonymous and authenticated users can call this read-only RPC, which returns only the round date and the two published cutoffs. Direct reads from its source tables require the service role. The page offers a chart and a keyboard-accessible table, preserves missing scores, and displays a separate message when the request fails.
+The Australia Occupation Explorer calls `get_skillselect_cutoffs(p_anzsco_code)` with the selected occupation's 2013 code. Anonymous and authenticated users can call this read-only RPC, which returns only the round date and the two published cutoffs. Direct reads from its source tables require the service role. The page shows a chart and a keyboard-accessible table that starts expanded, preserves missing scores, and displays a separate message when the request fails.
 
 The collision-handling migration requires exactly one source row per round and code before publishing that round. A rollback test against Supabase retrieved 14 Physiotherapist rounds as an anonymous caller, confirmed direct table access was denied, and withheld the affected round after a duplicate source row was introduced within the test transaction. [Duplicate handling migration](../../supabase/migrations/20261122230001_withhold_conflicting_skillselect_cutoffs.sql)
 

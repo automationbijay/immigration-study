@@ -15,7 +15,7 @@ const tiles = [
   { eyebrow: 'Canada · Express Entry', title: 'Federal Skilled Worker', blurb: 'Check the 67-point pass mark before you build a profile.', to: '/forms/canada-fsw', tone: 'sage', icon: Leaf },
   { eyebrow: 'Canada · Official tool', title: 'CRS score', blurb: 'Where to find the ranking score that decides who gets invited.', to: '/forms/canada-crs', tone: 'sky', icon: Scale },
   { eyebrow: 'Both countries', title: 'Compare pathways', blurb: 'Points-tested visas side by side, with links to the official pages.', to: '/discover', tone: 'blush', icon: Map },
-  { eyebrow: 'Lookup', title: 'Occupation finder', blurb: 'Find your ANZSCO code and the body that assesses your skills.', to: '/tools/anzsco', tone: 'wheat', icon: Briefcase },
+  { eyebrow: 'Skilled migration', title: 'Australia Occupation Explorer', blurb: 'Find your ANZSCO code, assessing authority, and past invitation cutoffs.', to: '/tools/anzsco', tone: 'wheat', icon: Briefcase },
   { eyebrow: 'Lookup', title: 'University directory', blurb: 'See how your qualification is likely to be recognised.', to: '/tools/university', tone: 'peach', icon: GraduationCap },
 ];
 

@@ -76,8 +76,8 @@ export default function AnzscoTool() {
   return (
     <>
       <PageHeader
-        title="ANZSCO occupation finder"
-        description="Search Australian occupation titles and codes. Check the Home Affairs occupation list for your visa."
+        title="Australia Occupation Explorer"
+        description="Explore ANZSCO codes, assessing authorities, skilled visa pathways, and past SkillSelect invitation cutoffs."
         backTo="/discover"
       />
       <Toast message={message} />

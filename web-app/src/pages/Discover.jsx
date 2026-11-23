@@ -58,7 +58,7 @@ export default function Discover() {
           <PageLink to="/tools" className="link-button">All lookup tools</PageLink>
         </div>
         <div className="card-grid">
-          <ToolCard title="ANZSCO occupation finder" description="Search occupation titles and codes." to="/tools/anzsco" />
+          <ToolCard title="Australia Occupation Explorer" description="Explore ANZSCO codes, federal visas, and past invitation cutoffs." to="/tools/anzsco" />
           <ToolCard title="University directory" description="Look up an institution by name." to="/tools/university" />
         </div>
       </section>
