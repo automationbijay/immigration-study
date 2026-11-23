@@ -70,9 +70,9 @@
 
 /* Hero right side: illustrative points preview */
 .lp-hero-grid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 23rem); gap: clamp(2rem, 5vw, 4.5rem); align-items: center; }
-.lp-preview { position: relative; padding: 2.5rem 0 1rem 1.5rem; max-width: 26rem; justify-self: end; width: 100%; }
+.lp-preview { padding: 1rem 0; max-width: 26rem; justify-self: end; width: 100%; }
 .lp-preview-cv {
-  position: absolute; top: 0; left: 0; right: 3rem; padding: .85rem 1rem 1rem;
+  position: relative; margin-right: 2rem; padding: .85rem 1rem 1rem;
   background: #fffaf0; border: 1px solid #14203614; border-radius: 20px;
   box-shadow: var(--lp-shadow); transform: rotate(-4deg); color: var(--lp-navy);
 }
@@ -83,7 +83,7 @@
 .lp-preview-pills span { padding: .2rem .55rem; border-radius: 999px; background: var(--lp-cream-2); font-family: var(--lp-mono); font-size: .64rem; letter-spacing: .04em; color: var(--lp-navy); }
 
 .lp-preview-card {
-  position: relative; margin-top: 5.25rem; padding: 1.3rem 1.4rem 1rem; display: grid; gap: .9rem;
+  position: relative; margin-left: 1.5rem; padding: 1.3rem 1.4rem 1rem; display: grid; gap: .9rem;
   background: var(--lp-navy); color: var(--lp-cream); border-radius: 26px;
   box-shadow: 0 30px 60px -30px #142036b3; transform: rotate(1.5deg);
 }
@@ -110,49 +110,37 @@
 .lp-preview-pass { position: relative; height: 8px; border-radius: 999px; background: #f4ead81f; }
 .lp-preview-pass-fill { background: linear-gradient(90deg, #5fc9bd, #9fe0d6); animation-delay: .3s; }
 .lp-preview-pass-mark { position: absolute; top: -4px; bottom: -4px; width: 2px; background: var(--lp-cream); border-radius: 2px; }
-.lp-preview-note { justify-self: end; font-family: var(--lp-mono); font-size: .6rem; letter-spacing: .12em; text-transform: uppercase; color: #f4ead873; }
-.lp-preview-sticker {
-  position: absolute; right: -.75rem; top: 4.25rem; z-index: 1;
-  display: grid; place-items: center; width: 5.75rem; height: 5.75rem; padding: .5rem; border-radius: 50%;
-  background: var(--lp-ochre-btn); color: #fff; text-align: center;
-  font-family: var(--lp-display); font-style: italic; font-size: 1rem; line-height: 1.1;
-  box-shadow: 0 12px 24px -12px #9c4416; transform: rotate(10deg);
-  animation: lp-bob 4s ease-in-out infinite;
-}
+.lp-preview-note { font-family: var(--lp-mono); font-size: .75rem; letter-spacing: .12em; text-transform: uppercase; color: #f4ead8a6; }
 @keyframes lp-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 
 @media (max-width: 900px) {
   .lp-hero-grid { grid-template-columns: 1fr; }
   .lp-hero .lp-display { max-width: 16ch; }
   .lp-preview { justify-self: start; max-width: 24rem; padding: 0; }
-  .lp-preview-cv, .lp-preview-sticker { display: none; }
-  .lp-preview-card { margin-top: 0; transform: none; }
+  .lp-preview-cv { display: none; }
+  .lp-preview-card { margin-left: 0; transform: none; }
 }
 @media (max-width: 600px) {
   .lp-preview { display: none; }
 }
 
 /* Horizon art motion: gentle, decorative, off for reduced motion */
-.lp-horizon .lp-h-rays { transform-box: view-box; transform-origin: 480px 190px; animation: lp-spin 60s linear infinite; }
-.lp-horizon .lp-h-cloud { animation: lp-drift 18s ease-in-out infinite alternate; }
-.lp-horizon .lp-h-cloud-slow { animation-duration: 26s; animation-direction: alternate-reverse; }
-.lp-horizon .lp-h-bird { transform-box: fill-box; transform-origin: center; animation: lp-flap .9s ease-in-out infinite; }
-.lp-horizon .lp-h-arm { transform-box: view-box; transform-origin: 190px 122px; animation: lp-wave-arm 2.4s ease-in-out infinite; }
-.lp-horizon .lp-h-float { animation: lp-bob 4s ease-in-out infinite; }
-.lp-horizon .lp-h-plane { animation: lp-bob 3s ease-in-out infinite; }
-.lp-horizon .lp-h-trail { animation: lp-dash 1.6s linear infinite; }
-.lp-horizon .lp-h-road { animation: lp-road 3s linear infinite; }
-.lp-horizon .lp-h-flag { transform-box: fill-box; transform-origin: left center; animation: lp-flag 3.2s ease-in-out infinite; }
-.lp-horizon .lp-h-glint { transform-box: fill-box; transform-origin: center; animation: lp-glint 2.8s ease-in-out infinite; }
+.lp-horizon .lp-h-rays { transform-box: view-box; transform-origin: 480px 190px; animation: lp-spin 4.8s ease-in-out; }
+.lp-horizon .lp-h-cloud { animation: lp-drift 4.8s ease-in-out; }
+.lp-horizon .lp-h-cloud-slow { animation-direction: reverse; }
+.lp-horizon .lp-h-bird { transform-box: fill-box; transform-origin: center; animation: lp-flap .9s ease-in-out 4; }
+.lp-horizon .lp-h-arm { transform-box: view-box; transform-origin: 190px 122px; animation: lp-wave-arm 2.4s ease-in-out 2; }
+.lp-horizon .lp-h-float { animation: lp-bob 4s ease-in-out; }
+.lp-horizon .lp-h-plane { animation: lp-bob 3s ease-in-out; }
+.lp-horizon .lp-h-flag { transform-box: fill-box; transform-origin: left center; animation: lp-flag 3.2s ease-in-out; }
+.lp-horizon .lp-h-glint { transform-box: fill-box; transform-origin: center; animation: lp-glint 2.8s ease-in-out both; }
 .lp-horizon .lp-h-glint-late { animation-delay: 1.4s; }
 
-@keyframes lp-spin { to { transform: rotate(360deg); } }
-@keyframes lp-drift { from { transform: translateX(-14px); } to { transform: translateX(22px); } }
+@keyframes lp-spin { from { transform: rotate(-22.5deg); } to { transform: rotate(0); } }
+@keyframes lp-drift { 0%, 100% { transform: translateX(0); } 40% { transform: translateX(18px); } }
 @keyframes lp-flap { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(-.6); } }
 @keyframes lp-wave-arm { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-14deg); } }
 @keyframes lp-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
-@keyframes lp-dash { to { stroke-dashoffset: -22; } }
-@keyframes lp-road { to { stroke-dashoffset: -40; } }
 @keyframes lp-flag {
   0%, 100% { transform: skewY(0deg) scaleX(1); }
   50% { transform: skewY(-3.5deg) scaleX(.95); }
@@ -295,7 +283,7 @@
   .lp-tile-title { margin: .9rem 0 .75rem; font-size: 1.55rem; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .lp-horizon *, .lp-preview, .lp-preview * { animation: none !important; }
+  .lp-horizon *, .lp-preview * { animation: none !important; }
   .lp-tile, .lp-btn { transition: none; }
   .lp-tile:hover, .lp-btn:hover { transform: none; }
 }

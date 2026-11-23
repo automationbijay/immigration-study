@@ -1,5 +1,4 @@
 import { Calculator, Leaf, Scale, Map, Briefcase, GraduationCap, ArrowRight, FileText, Sparkles, Check } from 'lucide-react';
-import { useEffect, useState } from 'react';
 import PageLink from '../components/ui/PageLink';
 import './landing.css';
 
@@ -56,7 +55,9 @@ function Cloud({ x, y, s = 1, className }) {
 function Bird({ x, y, delay }) {
   return (
     <g transform={`translate(${x} ${y})`}>
-      <path className="lp-h-bird" style={{ animationDelay: delay }} d="M-8 0 Q-4 -5 0 0 Q4 -5 8 0" fill="none" stroke="#142036" strokeWidth="1.8" strokeLinecap="round" />
+      <g className="lp-h-bird" style={{ animationDelay: delay }}>
+        <path d="M-8 0 Q-4 -5 0 0 Q4 -5 8 0" fill="none" stroke="#142036" strokeWidth="1.8" strokeLinecap="round" />
+      </g>
     </g>
   );
 }
@@ -150,7 +151,7 @@ function HorizonArt() {
       </g>
 
       {/* Journey toward the destination countries */}
-      <path className="lp-h-trail" d="M290 88 Q480 -10 720 70" fill="none" stroke="#142036" strokeWidth="2" strokeDasharray="2 9" strokeLinecap="round" opacity=".45" />
+      <path d="M290 88 Q480 -10 720 70" fill="none" stroke="#142036" strokeWidth="2" strokeDasharray="2 9" strokeLinecap="round" opacity=".45" />
       <path d="M730 74 l-17 -5 3 15z" fill="#142036" opacity=".6" />
 
       {/* Plane on the journey, with a contrail */}
@@ -263,7 +264,7 @@ function HorizonArt() {
       </g>
       <rect x="-1200" y="228" width="3600" height="32" fill="#142036" />
       <rect x="-1200" y="234" width="3600" height="3" fill="#2a3d5e" />
-      <path className="lp-h-road" d="M-1200 247 H2400" stroke="#f3c58f" strokeOpacity=".5" strokeWidth="2.5" strokeDasharray="22 18" />
+      <path d="M-1200 247 H2400" stroke="#f3c58f" strokeOpacity=".5" strokeWidth="2.5" strokeDasharray="22 18" />
     </svg>
   );
 }
@@ -273,59 +274,40 @@ const AU_BREAKDOWN = [
   { label: 'English', pts: 20, max: 20 },
   { label: 'Work', pts: 15, max: 20 },
   { label: 'Education', pts: 15, max: 20 },
-  { label: 'Other', pts: 5, max: 10 },
 ];
 
-function useCountUp(target, duration = 1400) {
-  const [value, setValue] = useState(0);
-  useEffect(() => {
-    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
-      setValue(target);
-      return undefined;
-    }
-    let raf;
-    const start = performance.now();
-    const tick = (now) => {
-      const t = Math.min(1, (now - start) / duration);
-      setValue(Math.round(target * (1 - (1 - t) ** 3)));
-      if (t < 1) raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [target, duration]);
-  return value;
-}
+const AU_SCORE = AU_BREAKDOWN.reduce((total, { pts }) => total + pts, 0);
+// The same example earns 12 for age, 24 for English, 15 for work and 23 for education in Canada.
+const CA_SCORE = 74;
 
 function HeroPreview() {
-  const au = useCountUp(85);
-  const ca = useCountUp(72);
-
   return (
-    <div className="lp-preview" aria-hidden="true">
+    <div className="lp-preview">
       <div className="lp-preview-cv">
         <div className="lp-preview-cv-head">
-          <FileText size={18} />
-          <span><strong>priya-sharma-cv.pdf</strong>Read by AI</span>
-          <Check size={16} className="lp-chat-ok" />
+          <FileText size={18} aria-hidden="true" />
+          <span><strong>example-cv.pdf</strong>Sample profile</span>
+          <Check size={16} className="lp-chat-ok" aria-hidden="true" />
         </div>
         <div className="lp-preview-pills">
-          <span>Master&rsquo;s</span><span>6 yrs engineering</span><span>IELTS 8</span>
+          <span>Age 30</span><span>Master&rsquo;s</span><span>6 years of skilled work in Australia</span><span>IELTS General 8.5 in each skill</span>
         </div>
       </div>
 
       <div className="lp-preview-card">
+        <span className="lp-preview-note">Illustrative example</span>
         <div className="lp-preview-row">
           <div>
             <span className="lp-preview-label">Australia · 189</span>
-            <span className="lp-preview-score">{au}<small> pts</small></span>
+            <span className="lp-preview-score">{AU_SCORE}<small> pts</small></span>
           </div>
-          <span className="lp-preview-badge"><Check size={13} /> Eligible</span>
+          <span className="lp-preview-badge">65-point minimum</span>
         </div>
         <ul className="lp-preview-bars">
           {AU_BREAKDOWN.map(({ label, pts, max }) => (
             <li key={label}>
               <span>{label}</span>
-              <span className="lp-preview-track"><span style={{ '--w': `${(pts / max) * 100}%` }} /></span>
+              <span className="lp-preview-track" aria-hidden="true"><span style={{ '--w': `${(pts / max) * 100}%` }} /></span>
               <b>{pts}</b>
             </li>
           ))}
@@ -334,18 +316,15 @@ function HeroPreview() {
         <div className="lp-preview-row">
           <div>
             <span className="lp-preview-label">Canada · FSW</span>
-            <span className="lp-preview-score lp-preview-score-sm">{ca}<small> / 100</small></span>
+            <span className="lp-preview-score lp-preview-score-sm">{CA_SCORE}<small> / 100</small></span>
           </div>
-          <span className="lp-preview-badge"><Check size={13} /> Passes 67</span>
+          <span className="lp-preview-badge">67-point minimum</span>
         </div>
-        <div className="lp-preview-pass">
-          <span className="lp-preview-pass-fill" style={{ '--w': '72%' }} />
+        <div className="lp-preview-pass" aria-hidden="true">
+          <span className="lp-preview-pass-fill" style={{ '--w': `${CA_SCORE}%` }} />
           <span className="lp-preview-pass-mark" style={{ left: '67%' }} />
         </div>
-        <span className="lp-preview-note">Illustrative example</span>
       </div>
-
-      <span className="lp-preview-sticker">~20 min<br />of forms<br />saved</span>
     </div>
   );
 }
